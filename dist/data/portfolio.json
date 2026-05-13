@@ -1,0 +1,271 @@
+{
+  "defaultLanguage": "en",
+  "hero": {
+    "name": {
+      "en": "Weihang Zhang",
+      "zh": "张炜航"
+    },
+    "role": {
+      "en": "Data Science & Big Data Student",
+      "zh": "数据科学与大数据技术专业本科生"
+    },
+    "email": "Weihang.Zhang0414.Std@outlook.com",
+    "phone": "+86 15811287916",
+    "intro": {
+      "en": "Passionate about AI, Large Language Models, and Full-Stack Development. Experienced in building intelligent systems, data mining, and machine learning models.",
+      "zh": "对人工智能、大语言模型和全栈开发充满热情。在构建智能系统、数据挖掘和机器学习模型方面拥有丰富经验。"
+    }
+  },
+  "education": [
+    {
+      "id": "edu-1",
+      "institution": {
+        "en": "Northern China University of Technology & Brunel University London",
+        "zh": "北方工业大学 & 布鲁内尔大学 (中外合办)"
+      },
+      "degree": {
+        "en": "B.S. in Data Science and Big Data Technology",
+        "zh": "数据科学与大数据技术专业 本科在读"
+      },
+      "period": "2023.09 - 2027.06",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "GPA: 89.8/100 (3.83/4.00), Major Rank: 8/105 (Top 7%).",
+          "Core Courses: Advanced Math (97), Linear Algebra (95), Probability & Statistics (95), Database (95), Data Structures (92), Machine Learning (97).",
+          "Honors: US MCM H prize (2026); National Undergraduate Engineering Practice and Innovation Competition Special Prize (2024-2025)."
+        ],
+        "zh": [
+          "绩点：89.8/100 (3.83/4.00)，专业排名：8/105（前7%）。",
+          "相关课程：高等数学 (97)、线性代数 (95)、概率统计 (95)、数据库 (95)、数据结构 (92)、机器学习 (97)。",
+          "荣誉奖励：美国大学生数学建模竞赛 H 奖 (2026)；大学生工程实践与创新能力大赛特等奖 (2024-2025) 等。"
+        ]
+      }
+    }
+  ],
+  "internships": [
+    {
+      "id": "int-1",
+      "company": {
+        "en": "Beijing Ascend Artificial Intelligence Technology Co., Ltd.",
+        "zh": "北京昇腾人工智能科技有限公司"
+      },
+      "role": {
+        "en": "AI / Large Language Model Intern",
+        "zh": "AI/大语言模型实习生"
+      },
+      "period": "2025.09 - 2025.10",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "LLM Architecture: Studied Transformer and mechanisms, focusing on RAG flow, embeddings, and prompt engineering.",
+          "RAG System Design: Designed end-to-end RAG intelligent government service system, building knowledge base and retrieval pipeline.",
+          "Vector Retrieval: Built high-availability retrieval module using FAISS.",
+          "Model Integration: Used Spring Boot and FastAPI to integrate DeepSeek and Qwen-1.5B distilled models.",
+          "AI Full-Stack Dev: Collaborated on Java frontend and backend to deliver a deployable prototype system."
+        ],
+        "zh": [
+          "大模型基础学习：系统学习基于 Transformer 的大语言模型架构与工作机制，重点掌握 RAG 流程设计、嵌入模型选型等。",
+          "RAG 系统设计与实现：独立参与端到端 RAG 智能政务服务系统设计与落地，完成知识库构建、检索增强与答案生成链路编排。",
+          "检索链路搭建：基于向量数据库 FAISS 构建高可用检索模块。",
+          "模型集成与后端开发：使用 Spring Boot 与 FastAPI 集成蒸馏大语言模型 (DeepSeek, 蒸馏自 Qwen-1.5B)，完成统一 API 封装。",
+          "AI 全栈应用开发：参与前端 (Java) 与后端协同开发，完成可本地部署运行的原型系统。"
+        ]
+      }
+    },
+    {
+      "id": "int-2",
+      "company": {
+        "en": "Beijing TRS Information Technology Co., Ltd.",
+        "zh": "北京拓尔思信息技术股份有限公司"
+      },
+      "role": {
+        "en": "Python Data Mining Intern",
+        "zh": "Python 数据挖掘实习生"
+      },
+      "period": "2025.07 - 2025.08",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "Data Mining Pipeline: Practiced full pipeline including data collection, cleaning, feature engineering, and model training.",
+          "Machine Learning Modeling: Applied linear regression, decision tree, random forest, SVM, NN, XGBoost on real business data.",
+          "Data Analysis & Visualization: Completed exploratory analysis using Python (NumPy, Pandas, Matplotlib, Scikit-learn).",
+          "Project Practice: Completed housing price prediction and credit card fraud detection projects.",
+          "Business Reporting: Interpreted model results combined with business scenarios, outputting structured analysis reports."
+        ],
+        "zh": [
+          "数据挖掘流程实践：系统学习并实践数据采集、清洗预处理、特征构建、模型训练、效果评估与迭代优化等完整数据挖掘流程。",
+          "机器学习建模：在真实业务数据集上应用线性回归、决策树、随机森林、支持向量机、神经网络、XGBoost 等算法开展预测分析与模型对比。",
+          "数据分析与可视化：使用 Python 及相关工具 (NumPy、Pandas、Matplotlib、Scikit-learn、Jupyter Notebook) 完成探索性分析与结果可视化。",
+          "项目实战与评估：完成住宿价格预测、信用卡交易欺诈检测等项目。",
+          "业务理解与报告输出：结合业务场景解释模型结果，输出结构化分析报告与可视化结论。"
+        ]
+      }
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-1",
+      "name": {
+        "en": "SenviX: AI Edge-Cloud Synergetic Multi-Modal Smart Mobility System",
+        "zh": "基于 AI 边云协同与多模态感知的 “SenviX” 泛场景智能助行系统"
+      },
+      "role": {
+        "en": "Project Leader",
+        "zh": "项目组长"
+      },
+      "period": "2025.03 - 2026.03",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "Team Coordination: Established agile dev cycle, coordinated hardware chassis design and upper-level software algorithms.",
+          "Multi-Modal Integration: Based on ROS and SLAM tech, achieved indoor mapping and navigation. Deployed YOLO for object detection and Ollama local LLM for offline voice control.",
+          "Achievements: Won First Prize in 2025 'Challenge Cup' Beijing Extracurricular Academic Competition, evaluated as a Municipal Level Project."
+        ],
+        "zh": [
+          "团队统筹与敏捷管理：定期组织研发会议，建立敏捷开发周期与问题追踪机制；统筹协调底层硬件结构设计与上层软件算法接口对接。",
+          "多模态系统集成与算法落地：基于 ROS 系统与 SLAM 技术实现室内高精度环境建图与自主导航；部署 YOLO 目标检测模型，完成 Ollama 本地大语言模型部署，实现语音控制。",
+          "科研成果与荣誉认可：成功交付具备感知、决策、反馈闭环的产品原型，带队斩获 2025 年 “挑战杯” 首都大学生课外学术科技作品竞赛三等奖，并评定为北京市级大创项目。"
+        ]
+      }
+    },
+    {
+      "id": "proj-2",
+      "name": {
+        "en": "Multidimensional Psychological Abilities in New-Generation LLMs",
+        "zh": "新一代大模型多维心理学能力研究"
+      },
+      "role": {
+        "en": "First Author (Advised by Prof. Philipp Koehn & Prof. Bo Wang)",
+        "zh": "论文第一作者"
+      },
+      "period": "2025.07 - 2025.08",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "Experimental Design: Evaluated ChatGPT-5 and Gemini 2.5 on Theory of Mind (ToM) and cognitive biases based on the Kosinski task.",
+          "Quantitative Analysis: Used Python (Pandas, NumPy, SciPy) to parse massive JSON experimental data, introducing Pearson correlation and Bland-Altman statistics.",
+          "Achievements: English paper officially accepted by EIEPD 2026 (EI Compendex & Scopus indexed)."
+        ],
+        "zh": [
+          "实验设计：聚焦大模型与心理学交叉领域，基于经典心理学范式复现 Kosinski 错误信念任务框架，系统性评估 ChatGPT-5、Gemini 2.5 等新一代大模型在心理理论等多维度的类人认知表现。",
+          "量化分析：独立解析大规模 JSON 实验输出数据，利用 Python (Pandas、NumPy、SciPy) 进行核心数据处理与可视化绘制；引入 Pearson 相关系数、Bland-Altman 等严谨的统计学方法。",
+          "科研成果：以第一作者身份撰写并发表英文学术论文，该论文已被第五届电子信息工程与数据处理国际会议 (EIEPD 2026) 正式录用，支持 EI Compendex 与 Scopus 双检索。"
+        ]
+      }
+    },
+    {
+      "id": "proj-3",
+      "name": {
+        "en": "Smart Sorting Trash Can Based on YOLO",
+        "zh": "基于 YOLO 的智能分类垃圾桶"
+      },
+      "role": {
+        "en": "Project Leader",
+        "zh": "项目组长"
+      },
+      "period": "2024.11 - 2025.01",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "Program Dev: Led the programming of electromechanical control and auto-sorting based on YOLOv8 vision recognition.",
+          "Hardware Collaboration: Worked closely with mechanical team to ensure perfect combination of appearance and function.",
+          "Achievements: Won Special Prize in Beijing Undergraduate Engineering Practice and Innovation Competition, and National Second Prize."
+        ],
+        "zh": [
+          "程序开发：主导编写机械电控与分拣程序，实现舵机精准控制与垃圾桶自动分类，并完善满载检测功能与视觉识别系统，确保 YOLOv8 模型识别准确率和稳定性。",
+          "硬件协作：与机械团队密切合作，共同设计垃圾桶外观，确保外观与功能的完美结合，并建立独立分拣机构。",
+          "项目成果：项目荣获北京市大学生工程实践与创新能力大赛特等奖，并被推荐进入中国大学生工程实践与创新能力大赛并获得全国二等奖。"
+        ]
+      }
+    },
+    {
+      "id": "proj-4",
+      "name": {
+        "en": "Smart Eye-Controlled Wheelchair Based on Arduino",
+        "zh": "基于 Arduino 的智能眼控轮椅项目"
+      },
+      "role": {
+        "en": "Project Leader",
+        "zh": "项目组长"
+      },
+      "period": "2024.07 - 2024.08",
+      "location": {
+        "en": "London, UK",
+        "zh": "伦敦, 英国"
+      },
+      "details": {
+        "en": [
+          "Recognition Optimization: Used Matlab Viola-Jones algorithm for face and eye detection, applying Hough transform for pupil localization.",
+          "Signal Generation: Designed control system to convert eye movement positions to motion control commands transmitted via Bluetooth to Arduino.",
+          "Project Outcome: High evaluation and recommendation letter from the project supervisor."
+        ],
+        "zh": [
+          "识别优化：基于 Matlab 的 Viola-Jones 算法进行人脸及眼部检测，对图像进行裁剪与灰度化处理，提升帧率和实时性，并通过 Hough 变换进行圆形检测，准确识别瞳孔位置和方向。",
+          "信号生成：独立设计控制系统，在 Matlab 中实现依据眼球位置生成轮椅运动控制指令的功能，通过蓝牙通信将运动指令实时传送至 Arduino，实现姿态控制指令自定义化和动作标准化。",
+          "项目成果：设计并实现智能眼控轮椅，通过眼球运动来控制轮椅的行驶方向，系统响应灵敏、运行稳定；项目获得导师高度评价和推荐信。"
+        ]
+      }
+    }
+  ],
+  "skills": [
+    {
+      "category": {
+        "en": "Languages",
+        "zh": "语言技能"
+      },
+      "items": {
+        "en": ["Chinese (Native)", "English (Fluent, TOEFL iBT 5)"],
+        "zh": ["中文 (母语)", "英文 (流利, 托福 iBT 5)"]
+      }
+    },
+    {
+      "category": {
+        "en": "Office & Media",
+        "zh": "办公与媒体工具"
+      },
+      "items": {
+        "en": ["Word", "Excel", "PowerPoint", "Photoshop", "Premiere Pro", "After Effects", "Final Cut Pro"],
+        "zh": ["Word", "Excel", "PowerPoint", "Photoshop", "Premiere Pro", "After Effects", "Final Cut Pro"]
+      }
+    },
+    {
+      "category": {
+        "en": "Programming",
+        "zh": "编程语言"
+      },
+      "items": {
+        "en": ["Python", "SQL", "Java", "C", "C++", "ArkTS"],
+        "zh": ["Python", "SQL", "Java", "C", "C++", "ArkTS"]
+      }
+    },
+    {
+      "category": {
+        "en": "AI & Software Dev",
+        "zh": "人工智能与软件开发"
+      },
+      "items": {
+        "en": ["Deep Learning", "Computer Vision (YOLO)", "Transformer", "RAG", "Prompt Engineering", "API Integration", "Spring Boot", "FastAPI"],
+        "zh": ["深度学习", "计算机视觉 (YOLO)", "Transformer 架构", "检索增强生成 (RAG)", "提示词工程", "API 集成", "Spring Boot", "FastAPI"]
+      }
+    }
+  ]
+}
