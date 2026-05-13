@@ -46,6 +46,6 @@ const portfolioApiPlugin = () => {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/Resume/', // Set this to your repository name
+  base: './', // Use relative paths for better compatibility
   plugins: [react(), portfolioApiPlugin()],
 });

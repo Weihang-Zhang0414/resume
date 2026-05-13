@@ -7,7 +7,7 @@ import './i18n';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter basename={window.location.pathname.includes('/resume') ? '/resume' : '/'}>
       <App />
     </BrowserRouter>
   </React.StrictMode>,
