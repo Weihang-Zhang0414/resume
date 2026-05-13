@@ -154,7 +154,7 @@ const Home: React.FC = () => {
   if (currentItem?.type === 'skill') bgColors = ['bg-teal-400/30 dark:bg-teal-900/30', 'bg-emerald-400/30 dark:bg-emerald-900/30', 'bg-green-400/30 dark:bg-green-900/30'];
 
   return (
-    <div className="relative w-full h-full pt-20">
+    <div className={`relative w-full h-full ${isMobile ? '' : 'pt-20'}`}>
 
       {/* Dynamic Background - Simplified for mobile performance */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none transition-colors duration-700">
@@ -179,30 +179,36 @@ const Home: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Axis: Profile Photo (Left/Top) - 1/3 height on portrait */}
-      <div className={`absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[10%] lg:left-[15%] ${isPortrait ? 'top-0 h-[33vh] pt-12' : 'top-[12%] md:top-1/2 md:-translate-y-1/2'} z-40 flex flex-col items-center justify-center`}>
+      {/* Axis: Profile Photo (Top Header in Portrait) */}
+      <div 
+        className={`absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[10%] lg:left-[15%] z-40 flex flex-col items-center justify-center transition-all duration-500
+          ${isPortrait 
+            ? 'top-0 w-full h-[35vh] bg-white/20 dark:bg-black/20 backdrop-blur-md border-b border-white/10' 
+            : 'top-[12%] md:top-1/2 md:-translate-y-1/2'}`}
+      >
         <motion.div
-          className={`${isPortrait ? 'w-24 h-24' : 'w-24 h-24 sm:w-32 sm:h-32 md:w-64 md:h-64'} rounded-full overflow-hidden border-4 border-white/50 shadow-[0_0_40px_rgba(0,0,0,0.15)] dark:shadow-[0_0_40px_rgba(255,255,255,0.15)] cursor-pointer relative group`}
+          className={`${isPortrait ? 'w-24 h-24' : 'w-24 h-24 sm:w-32 sm:h-32 md:w-64 md:h-64'} rounded-full overflow-hidden border-4 border-white/50 shadow-xl cursor-pointer relative group`}
           onDoubleClick={handlePhotoDoubleClick}
           whileHover={{ scale: 1.05 }}
         >
           <img src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
         </motion.div>
-        <div className={`${isPortrait ? 'mt-2' : 'mt-2 md:mt-6'} text-center`}>
-          <h1 className={`${isPortrait ? 'text-lg' : 'text-lg sm:text-2xl md:text-3xl'} font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md`}>{data.hero.name[lang]}</h1>
-          <p className={`${isPortrait ? 'text-[10px]' : 'text-[10px] sm:text-sm'} text-slate-600 dark:text-slate-300 mt-0.5 md:mt-2 font-medium drop-shadow-md`}>{data.hero.role[lang]}</p>
+        <div className="mt-3 text-center px-4">
+          <h1 className={`${isPortrait ? 'text-xl' : 'text-lg sm:text-2xl md:text-3xl'} font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md`}>{data.hero.name[lang]}</h1>
+          <p className={`${isPortrait ? 'text-xs' : 'text-[10px] sm:text-sm'} text-slate-600 dark:text-slate-300 mt-1 font-medium drop-shadow-md`}>{data.hero.role[lang]}</p>
           {isPortrait && (
-            <div className="mt-1 flex flex-col gap-0 text-[10px] font-medium text-slate-500 dark:text-slate-400 opacity-80">
-              <span>{data.hero.email}</span>
-              <span>{data.hero.phone}</span>
+            <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+              <span className="flex items-center gap-1">📧 {data.hero.email}</span>
+              <span className="flex items-center gap-1">📞 {data.hero.phone}</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Roulette Wheel (Right side / Center on mobile) - 2/3 height on portrait */}
-      <div className={`absolute left-0 md:left-[40%] right-0 ${isPortrait ? 'top-[33vh] h-[67vh]' : 'top-[45%] md:top-0 h-full md:bottom-0'} overflow-visible pointer-events-none`}>
-        <div className={`relative w-full h-full flex items-center justify-center md:justify-start ${isPortrait ? 'pt-12' : ''}`}>
+      {/* Roulette Wheel - Bottom 2/3 on portrait */}
+      <div className={`absolute left-0 md:left-[40%] right-0 overflow-visible pointer-events-none transition-all duration-500
+        ${isPortrait ? 'bottom-0 h-[65vh]' : 'top-[45%] md:top-0 h-full md:bottom-0'}`}>
+        <div className="relative w-full h-full flex items-center justify-center md:justify-start">
           {items.map((item, index) => {
             const diff = index - activeIndex;
             
@@ -213,15 +219,15 @@ const Home: React.FC = () => {
             const isSameCategory = item.type === currentActiveItem.type;
 
             // Calculations for true circular layout
-            const R = isPortrait ? 250 : isMobile ? 300 : 600; // Even smaller radius on portrait
-            const thetaDeg = diff * (isPortrait ? 15 : isMobile ? 12 : 22); 
+            const R = isPortrait ? 220 : isMobile ? 300 : 600; // Tighter radius for portrait 2/3
+            const thetaDeg = diff * (isPortrait ? 18 : isMobile ? 12 : 22); 
             const thetaRad = thetaDeg * (Math.PI / 180);
 
             // At diff=0, cos(0)=1, xOffset=0. As diff increases, cos<1, xOffset becomes negative (curves left)
             const xOffset = isMobile ? 0 : R * Math.cos(thetaRad) - R;
             const yOffset = R * Math.sin(thetaRad);
 
-            const scale = Math.max(1 - Math.abs(diff) * (isMobile ? 0.2 : 0.15), 0.75); 
+            const scale = Math.max(1 - Math.abs(diff) * (isMobile ? 0.22 : 0.15), 0.75); 
             const rotateX = diff * -5;
             const rotateZ = isMobile ? 0 : diff * 5; 
 
@@ -229,7 +235,7 @@ const Home: React.FC = () => {
 
             let opacity = 0;
             if (isSameCategory) {
-              opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * (isMobile ? 0.5 : 0.4), 0);
+              opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * (isMobile ? 0.5 : 0.4), 0.2);
             }
 
             // Render all items for smooth opacity transitions! Pointer events disabled if hidden
