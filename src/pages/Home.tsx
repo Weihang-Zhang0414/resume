@@ -196,12 +196,19 @@ const Home: React.FC = () => {
         <div className="mt-3 text-center px-4">
           <h1 className={`${isPortrait ? 'text-xl' : 'text-lg sm:text-2xl md:text-3xl'} font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md`}>{data.hero.name[lang]}</h1>
           <p className={`${isPortrait ? 'text-xs' : 'text-[10px] sm:text-sm'} text-slate-600 dark:text-slate-300 mt-1 font-medium drop-shadow-md`}>{data.hero.role[lang]}</p>
-          {isPortrait && (
-            <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-              <span className="flex items-center gap-1">📧 {data.hero.email}</span>
-              <span className="flex items-center gap-1">📞 {data.hero.phone}</span>
-            </div>
-          )}
+          
+          <div className={`mt-2 flex ${isPortrait ? 'flex-wrap justify-center gap-x-4 gap-y-1' : 'flex-col gap-1'} text-[10px] sm:text-sm font-medium text-slate-500 dark:text-slate-400`}>
+            {data.hero.visibility?.email !== false && (
+              <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 transition-colors flex items-center justify-center gap-1">
+                {isPortrait && <span>📧</span>} {data.hero.email}
+              </a>
+            )}
+            {data.hero.visibility?.phone !== false && (
+              <span className="flex items-center justify-center gap-1">
+                {isPortrait && <span>📞</span>} {data.hero.phone}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
