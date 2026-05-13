@@ -27,14 +27,10 @@ const Home: React.FC = () => {
   const scrollAccumulator = useRef(0);
   const touchStart = useRef(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [isPortrait, setIsPortrait] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      const portrait = window.innerHeight > window.innerWidth;
-      setIsMobile(mobile);
-      setIsPortrait(mobile && portrait);
+      setIsMobile(window.innerWidth < 768);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -164,85 +160,77 @@ const Home: React.FC = () => {
       </div>
 
       {/* Category Title */}
-      <div className={`absolute ${isPortrait ? 'top-[33%] mt-4' : 'top-16 md:top-24'} left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-10 z-30 w-full md:w-auto px-6 md:px-0`}>
+      <div className="absolute top-24 right-6 md:right-10 z-30">
         <AnimatePresence mode="wait">
           <motion.h2
             key={currentCategory}
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.2 }}
-            className={`${isPortrait ? 'text-xl' : 'text-2xl sm:text-4xl md:text-5xl'} font-black text-slate-800 dark:text-slate-100 tracking-wider text-center md:text-right drop-shadow-lg`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider text-right drop-shadow-xl"
           >
             {currentCategory}
           </motion.h2>
         </AnimatePresence>
       </div>
 
-      {/* Axis: Profile Photo (Top Header in Portrait) */}
-      <div 
-        className={`absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[10%] lg:left-[15%] z-40 flex flex-col items-center justify-center transition-all duration-500
-          ${isPortrait 
-            ? 'top-0 w-full h-[35vh] bg-white/20 dark:bg-black/20 backdrop-blur-md border-b border-white/10' 
-            : 'top-[12%] md:top-1/2 md:-translate-y-1/2'}`}
-      >
+      {/* Axis: Profile Photo (Left side) */}
+      <div className="absolute left-[10%] lg:left-[15%] top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center">
         <motion.div
-          className={`${isPortrait ? 'w-24 h-24' : 'w-24 h-24 sm:w-32 sm:h-32 md:w-64 md:h-64'} rounded-full overflow-hidden border-4 border-white/50 shadow-xl cursor-pointer relative group`}
+          className="w-48 h-48 lg:w-64 lg:h-64 rounded-full overflow-hidden border-4 border-white/50 shadow-2xl cursor-pointer relative group"
           onDoubleClick={handlePhotoDoubleClick}
           whileHover={{ scale: 1.05 }}
         >
           <img src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
         </motion.div>
-        <div className="mt-3 text-center px-4">
-          <h1 className={`${isPortrait ? 'text-xl' : 'text-lg sm:text-2xl md:text-3xl'} font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md`}>{data.hero.name[lang]}</h1>
-          <p className={`${isPortrait ? 'text-xs' : 'text-[10px] sm:text-sm'} text-slate-600 dark:text-slate-300 mt-1 font-medium drop-shadow-md`}>{data.hero.role[lang]}</p>
+        <div className="mt-6 text-center">
+          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md">{data.hero.name[lang]}</h1>
+          <p className="text-sm lg:text-base text-slate-600 dark:text-slate-300 mt-2 font-medium drop-shadow-md">{data.hero.role[lang]}</p>
           
-          <div className={`mt-2 flex ${isPortrait ? 'flex-wrap justify-center gap-x-4 gap-y-1' : 'flex-col gap-1'} text-[10px] sm:text-sm font-medium text-slate-500 dark:text-slate-400`}>
+          <div className="mt-4 flex flex-col gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
             {data.hero.visibility?.email !== false && (
-              <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 transition-colors flex items-center justify-center gap-1">
-                {isPortrait && <span>📧</span>} {data.hero.email}
-              </a>
+              <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 transition-colors">{data.hero.email}</a>
             )}
             {data.hero.visibility?.phone !== false && (
-              <span className="flex items-center justify-center gap-1">
-                {isPortrait && <span>📞</span>} {data.hero.phone}
-              </span>
+              <span>{data.hero.phone}</span>
             )}
+            <div className="mt-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50 flex flex-col gap-1 text-xs opacity-70">
+              {data.hero.visibility?.wechat !== false && <span>WC: {data.hero.wechat}</span>}
+              {data.hero.visibility?.instagram !== false && <span>IG: {data.hero.instagram}</span>}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Roulette Wheel - Bottom 2/3 on portrait */}
-      <div className={`absolute left-0 md:left-[40%] right-0 overflow-visible pointer-events-none transition-all duration-500
-        ${isPortrait ? 'bottom-0 h-[65vh]' : 'top-[45%] md:top-0 h-full md:bottom-0'}`}>
+      {/* Roulette Wheel - Centered on mobile, Left-offset on desktop */}
+      <div className="absolute inset-0 md:left-[35%] overflow-visible pointer-events-none">
         <div className="relative w-full h-full flex items-center justify-center md:justify-start">
           {items.map((item, index) => {
             const diff = index - activeIndex;
             
-            // Optimization: Don't render items too far away to improve performance
-            if (Math.abs(diff) > 4) return null;
+            // Render window optimization (+/- 3 items for maximum mobile FPS)
+            if (Math.abs(diff) > 3) return null;
 
             const currentActiveItem = items[activeIndex];
             const isSameCategory = item.type === currentActiveItem.type;
 
-            // Calculations for true circular layout
-            const R = isPortrait ? 220 : isMobile ? 300 : 600; // Tighter radius for portrait 2/3
-            const thetaDeg = diff * (isPortrait ? 18 : isMobile ? 12 : 22); 
+            const R = isMobile ? 350 : 600;
+            const thetaDeg = diff * (isMobile ? 18 : 22); 
             const thetaRad = thetaDeg * (Math.PI / 180);
 
-            // At diff=0, cos(0)=1, xOffset=0. As diff increases, cos<1, xOffset becomes negative (curves left)
             const xOffset = isMobile ? 0 : R * Math.cos(thetaRad) - R;
             const yOffset = R * Math.sin(thetaRad);
 
-            const scale = Math.max(1 - Math.abs(diff) * (isMobile ? 0.22 : 0.15), 0.75); 
-            const rotateX = diff * -5;
+            const scale = Math.max(1 - Math.abs(diff) * (isMobile ? 0.18 : 0.15), 0.7); 
+            const rotateX = diff * -8;
             const rotateZ = isMobile ? 0 : diff * 5; 
 
             const isActive = diff === 0;
 
             let opacity = 0;
             if (isSameCategory) {
-              opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * (isMobile ? 0.5 : 0.4), 0.2);
+              opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * 0.45, 0.1);
             }
 
             // Render all items for smooth opacity transitions! Pointer events disabled if hidden
@@ -267,9 +255,10 @@ const Home: React.FC = () => {
                   scale,
                   opacity,
                   rotateX,
-                  rotateZ
+                  rotateZ,
+                  z: isActive ? 50 : 0
                 }}
-                transition={{ type: 'spring', stiffness: 250, damping: 30 }}
+                transition={{ type: 'spring', stiffness: 180, damping: 28 }}
                 onClick={() => {
                   if (opacity === 0) return;
                   if (!isActive) {
@@ -278,7 +267,12 @@ const Home: React.FC = () => {
                     setDetailItem(item);
                   }
                 }}
-                style={{ perspective: 1000 }}
+                style={{ 
+                  perspective: 1200,
+                  willChange: 'transform, opacity',
+                  backfaceVisibility: 'hidden',
+                  transformStyle: 'preserve-3d'
+                }}
               >
                 <div className={`relative overflow-hidden backdrop-blur-md p-4 sm:p-6 md:p-8 border transition-all duration-300 flex items-center gap-4 md:gap-6 ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'}`}>
                   {/* Left Side Number */}
