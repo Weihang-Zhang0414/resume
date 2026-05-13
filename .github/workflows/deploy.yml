@@ -1,27 +1,52 @@
 name: Deploy to GitHub Pages
 
 on:
+  # 当代码推送到 main 分支时触发
   push:
-    branches: [ main ]
+    branches: ['main']
 
+# 设置 GitHub Token 的权限，允许部署到 Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# 允许并发部署中的排队机制
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm install
-      - run: npm run build
-      - uses: actions/configure-pages@v4
-      - uses: actions/upload-pages-artifact@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
+          # 指向你打包后的目录
           path: './dist'
-      - uses: actions/deploy-pages@v4
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
