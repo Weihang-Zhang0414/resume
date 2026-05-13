@@ -14,6 +14,15 @@
     "intro": {
       "en": "Passionate about AI, Large Language Models, and Full-Stack Development. Experienced in building intelligent systems, data mining, and machine learning models.",
       "zh": "对人工智能、大语言模型和全栈开发充满热情。在构建智能系统、数据挖掘和机器学习模型方面拥有丰富经验。"
+    },
+    "avatarUrl": "/me.jpg",
+    "wechat": "YourWeChatID",
+    "instagram": "@YourInsta",
+    "visibility": {
+      "email": true,
+      "phone": true,
+      "wechat": true,
+      "instagram": true
     }
   },
   "education": [
@@ -32,16 +41,50 @@
         "en": "Beijing, China",
         "zh": "北京, 中国"
       },
-      "details": {
+      "gpa": {
+        "en": "GPA: 89.8/100 (3.83/4.00), Major Rank: 8/105 (Top 7%).",
+        "zh": "绩点：89.8/100 (3.83/4.00)，专业排名：8/105（前7%）。"
+      },
+      "courses": {
+        "en": "Advanced Math (97), Linear Algebra (95), Probability & Statistics (95), Database (95), Data Structures (92), Machine Learning (97).",
+        "zh": "高等数学 (97)、线性代数 (95)、概率统计 (95)、数据库 (95)、数据结构 (92)、机器学习 (97)。"
+      },
+      "scholarships": {
         "en": [
-          "GPA: 89.8/100 (3.83/4.00), Major Rank: 8/105 (Top 7%).",
-          "Core Courses: Advanced Math (97), Linear Algebra (95), Probability & Statistics (95), Database (95), Data Structures (92), Machine Learning (97).",
-          "Honors: US MCM H prize (2026); National Undergraduate Engineering Practice and Innovation Competition Special Prize (2024-2025)."
+          "2024-2025: Outstanding Student Scholarship, Innovation Scholarship, Academic Excellence Scholarship, Moral Character Scholarship, and Physical & Aesthetic Education Scholarship.",
+          "2023-2024: Academic Excellence Scholarship, Innovation Scholarship, and Moral Character Scholarship."
         ],
         "zh": [
-          "绩点：89.8/100 (3.83/4.00)，专业排名：8/105（前7%）。",
-          "相关课程：高等数学 (97)、线性代数 (95)、概率统计 (95)、数据库 (95)、数据结构 (92)、机器学习 (97)。",
-          "荣誉奖励：美国大学生数学建模竞赛 H 奖 (2026)；大学生工程实践与创新能力大赛特等奖 (2024-2025) 等。"
+          "荣获2024-2025学年：优秀学生奖学金，以及创新、学习奖学金、思想品德和体美奖学金。",
+          "荣获2023-2024学年：学习、创新、思想品德奖学金。"
+        ]
+      },
+      "awards": {
+        "en": [
+          "National Undergraduate Basic Engineering Training Comprehensive Ability Competition (School Level) — First Prize (2024/10)",
+          "China Undergraduate Engineering Practice and Innovation Competition, Beijing Division — First Prize (2025/03)",
+          "NCUT Engineering Drawing and 3D Modeling Competition — Third Prize, Individual (2024/10)",
+          "MathorCup Mathematical Application Challenge (North China Region) — Third Prize (2025/04)",
+          "US Mathematical Contest in Modeling (MCM/ICM) — S Prize (Honorable Mention) (2025/01)",
+          "National Undergraduate Market Research and Analysis Competition, Beijing Division — Third Prize (2025/04)",
+          "NCUT Market Research and Analysis Competition — Second Runner-up (2025/03)",
+          "Beijing Municipal Undergraduate Mathematics Competition — Third Prize, Individual (2024/11)",
+          "DatangCup National Undergraduate Mobile Communications Competition — Participation Award (2024/04)",
+          "Siemens Cup School Competition — Second Prize (2024/04)",
+          "NCUT London Brunel Institute Career Planning Competition — Third Prize (2023/12)"
+        ],
+        "zh": [
+          "大学生基础工程训练综合能力竞赛校内选拔赛 — 最高等级（团体）(2024/10)",
+          "中国大学生工程实践与创新能力大赛北京市选拔赛 — 最高等级（团体）(2025/03)",
+          "北方工业大学工程制图与三维建模大赛 — 第三等级（个人）(2024/10)",
+          "MathorCup数学应用挑战赛（华北赛区）— 第三等级（团体）(2025/04)",
+          "美国大学生数学建模竞赛（MCM/ICM）— S奖（团体）(2025/01)",
+          "全国大学生市场调查与分析大赛北京分赛区选拔赛 — 第三等级（团体）(2025/04)",
+          "北方工业大学市场调查与分析大赛 — 次高等级（团体）(2025/03)",
+          "北京市大学生数学竞赛 — 第三等级（个人）(2024/11)",
+          "大唐杯全国大学生移动通信大赛 — 参与奖（团体）(2024/04)",
+          "西门子杯校赛 — 二等奖（团体）(2024/04)",
+          "北方工业大学伦敦布鲁内尔学院职业规划大赛 — 三等奖（团体）(2023/12)"
         ]
       }
     }
@@ -224,6 +267,193 @@
           "项目成果：设计并实现智能眼控轮椅，通过眼球运动来控制轮椅的行驶方向，系统响应灵敏、运行稳定；项目获得导师高度评价和推荐信。"
         ]
       }
+    },
+    {
+      "name": {
+        "en": "Equatorial Mount Model Design",
+        "zh": "赤道仪"
+      },
+      "role": {
+        "en": "External Assistant",
+        "zh": "外援"
+      },
+      "period": "2024.05 - 2025.06",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "Drew part drawings and engineering drawings for the equatorial mount model."
+        ],
+        "zh": [
+          "绘制赤道仪模型的零件图，工程图"
+        ]
+      }
+    },
+    {
+      "name": {
+        "en": "Ski Industry Demographic Profile and Consumption Habits",
+        "zh": "滑雪产业人群画像及消费习惯"
+      },
+      "role": {
+        "en": "Team Member",
+        "zh": "组员"
+      },
+      "period": "2024.10 - 2025.06",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "Created questionnaires to survey peoples skiing habits and consumption trends.",
+          "Used web scraping technology to extract comments about skiing from mainstream social media and generated word clouds."
+        ],
+        "zh": [
+          "制作问卷调查人群滑雪的习惯和消费趋势",
+          "通过爬虫技术爬取主流社交媒体对于滑雪的评论，绘制词云"
+        ]
+      }
+    },
+    {
+      "name": {
+        "en": "Olympic Medal Prediction Model Construction",
+        "zh": "基于时间序列，线性回归和层次分析的奥运奖牌预测模型的构建"
+      },
+      "role": {
+        "en": "Team Member",
+        "zh": "组员"
+      },
+      "period": "2025.02 - 2025.02",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "US Mathematical Contest in Modeling (MCM/ICM) problem.",
+          "Data cleaning and classification.",
+          "Used Python programming to build an Olympic medal prediction model based on time series, linear regression, and analytic hierarchy process (AHP).",
+          "Plotted images and wrote the final research paper."
+        ],
+        "zh": [
+          "美国数学建模竞赛题目",
+          "数据清洗及分类",
+          "通过python编程构建基于时间序列，线性回归和层次分析的奥运奖牌预测模型",
+          "和图像的绘制，以及后期论文的撰写"
+        ]
+      }
+    },
+    {
+      "name": {
+        "en": "HarmonyOS-based Personal Blog Software",
+        "zh": "基于鸿蒙的个人博客软件开发"
+      },
+      "role": {
+        "en": "Team Leader",
+        "zh": "组长"
+      },
+      "period": "2024.08 - 2025.01",
+      "location": {
+        "en": "HarmonyOS Application Development Lab",
+        "zh": "鸿蒙应用软件开发实验室"
+      },
+      "details": {
+        "en": [
+          "Used DevEco Studio for HarmonyOS software programming.",
+          "Created front-end interfaces and functions based on Java.",
+          "Established a back-end database using SQLite.",
+          "Conducted software simulation using a local emulator."
+        ],
+        "zh": [
+          "使用DevEco studio进行鸿蒙软件的编程开发",
+          "基于Java语言创建前端界面和函数",
+          "使用sqlite数据库建立后端数据库",
+          "使用本地模拟器对软件进行模拟仿真"
+        ]
+      }
+    },
+    {
+      "name": {
+        "en": "HarmonyOS-based Food Delivery Software",
+        "zh": "基于鸿蒙的外卖软件开发"
+      },
+      "role": {
+        "en": "Team Leader",
+        "zh": "组长"
+      },
+      "period": "2024.01 - 2024.06",
+      "location": {
+        "en": "HarmonyOS Application Development Lab",
+        "zh": "鸿蒙应用软件开发实验室"
+      },
+      "details": {
+        "en": [
+          "Used DevEco Studio for HarmonyOS software programming.",
+          "Created front-end interfaces and functions based on Java.",
+          "Established a back-end database using MySQL.",
+          "Conducted software simulation using a local emulator."
+        ],
+        "zh": [
+          "使用DevEco studio进行鸿蒙软件的编程开发",
+          "基于Java语言创建前端界面和函数",
+          "使用Mysql数据库建立后端数据库",
+          "使用本地模拟器对软件进行模拟仿真"
+        ]
+      }
+    },
+    {
+      "name": {
+        "en": "Intelligent Badminton Robot",
+        "zh": "智能羽毛球机器人"
+      },
+      "role": {
+        "en": "Team Leader",
+        "zh": "组长"
+      },
+      "period": "2024.04 - 2024.04",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "Drew 3D models of the badminton robot, conceptualized the mechanisms of various parts, and outlined the selection of hardware and algorithms.",
+          "Participated independently during freshman year, but due to limited knowledge and the massive scope of the project, it remained at the software conceptualization stage without a physical output."
+        ],
+        "zh": [
+          "绘制羽毛球机器人的3D模型，构思羽毛球各部位机构，以及硬件的选择和算法的选择思路",
+          "大一下独立参赛，但由于知识量过少，以及项目体系过大难以实现",
+          "只停留在软件构思层面，没有实物产出"
+        ]
+      }
+    },
+    {
+      "name": {
+        "en": "Arduino-based Smart Car",
+        "zh": "基于Arduino的智能小车"
+      },
+      "role": {
+        "en": "Team Leader",
+        "zh": "组长"
+      },
+      "period": "2023.09 - 2023.12",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "Built a smart car based on Arduino.",
+          "Implemented line-tracking, obstacle avoidance, and remote control functions."
+        ],
+        "zh": [
+          "基于Arduino构建智能小车",
+          "实现循迹和避障功能",
+          "以及遥控功能"
+        ]
+      }
     }
   ],
   "skills": [
@@ -233,8 +463,14 @@
         "zh": "语言技能"
       },
       "items": {
-        "en": ["Chinese (Native)", "English (Fluent, TOEFL iBT 5)"],
-        "zh": ["中文 (母语)", "英文 (流利, 托福 iBT 5)"]
+        "en": [
+          "Chinese (Native)",
+          "English (Fluent, TOEFL iBT 5)"
+        ],
+        "zh": [
+          "中文 (母语)",
+          "英文 (流利, 托福 iBT 5)"
+        ]
       }
     },
     {
@@ -243,8 +479,24 @@
         "zh": "办公与媒体工具"
       },
       "items": {
-        "en": ["Word", "Excel", "PowerPoint", "Photoshop", "Premiere Pro", "After Effects", "Final Cut Pro"],
-        "zh": ["Word", "Excel", "PowerPoint", "Photoshop", "Premiere Pro", "After Effects", "Final Cut Pro"]
+        "en": [
+          "Word",
+          "Excel",
+          "PowerPoint",
+          "Photoshop",
+          "Premiere Pro",
+          "After Effects",
+          "Final Cut Pro"
+        ],
+        "zh": [
+          "Word",
+          "Excel",
+          "PowerPoint",
+          "Photoshop",
+          "Premiere Pro",
+          "After Effects",
+          "Final Cut Pro"
+        ]
       }
     },
     {
@@ -253,8 +505,22 @@
         "zh": "编程语言"
       },
       "items": {
-        "en": ["Python", "SQL", "Java", "C", "C++", "ArkTS"],
-        "zh": ["Python", "SQL", "Java", "C", "C++", "ArkTS"]
+        "en": [
+          "Python",
+          "SQL",
+          "Java",
+          "C",
+          "C++",
+          "ArkTS"
+        ],
+        "zh": [
+          "Python",
+          "SQL",
+          "Java",
+          "C",
+          "C++",
+          "ArkTS"
+        ]
       }
     },
     {
@@ -263,8 +529,97 @@
         "zh": "人工智能与软件开发"
       },
       "items": {
-        "en": ["Deep Learning", "Computer Vision (YOLO)", "Transformer", "RAG", "Prompt Engineering", "API Integration", "Spring Boot", "FastAPI"],
-        "zh": ["深度学习", "计算机视觉 (YOLO)", "Transformer 架构", "检索增强生成 (RAG)", "提示词工程", "API 集成", "Spring Boot", "FastAPI"]
+        "en": [
+          "Deep Learning",
+          "Computer Vision (YOLO)",
+          "Transformer",
+          "RAG",
+          "Prompt Engineering",
+          "API Integration",
+          "Spring Boot",
+          "FastAPI"
+        ],
+        "zh": [
+          "深度学习",
+          "计算机视觉 (YOLO)",
+          "Transformer 架构",
+          "检索增强生成 (RAG)",
+          "提示词工程",
+          "API 集成",
+          "Spring Boot",
+          "FastAPI"
+        ]
+      }
+    }
+  ],
+  "volunteers": [
+    {
+      "name": {
+        "en": "Community Garbage Classification Volunteer",
+        "zh": "社区垃圾分类志愿者"
+      },
+      "role": {
+        "en": "Member",
+        "zh": "成员"
+      },
+      "period": "2025.05 - 2025.05",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "Guarded garbage bins, promoted and guided garbage classification."
+        ],
+        "zh": [
+          "垃圾桶前站岗，垃圾分类宣传与引导"
+        ]
+      }
+    },
+    {
+      "name": {
+        "en": "Earth Day Volunteer Activity",
+        "zh": "世界地球日志愿活动"
+      },
+      "role": {
+        "en": "Member",
+        "zh": "成员"
+      },
+      "period": "2025.04 - 2025.04",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "Painted promotional canvas bags related to Earth Day."
+        ],
+        "zh": [
+          "绘制世界地球日相关的宣传帆布包"
+        ]
+      }
+    },
+    {
+      "name": {
+        "en": "Beijing Marathon Volunteer",
+        "zh": "北京马拉松志愿者"
+      },
+      "role": {
+        "en": "Volunteer",
+        "zh": "志愿者"
+      },
+      "period": "2024.11 - 2024.11",
+      "location": {
+        "en": "Tiananmen Square",
+        "zh": "天安门广场"
+      },
+      "details": {
+        "en": [
+          "Maintained on-site order and served participants."
+        ],
+        "zh": [
+          "维持现场秩序，服务参赛选手"
+        ]
       }
     }
   ]

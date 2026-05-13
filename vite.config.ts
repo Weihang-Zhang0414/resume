@@ -27,7 +27,6 @@ const portfolioApiPlugin = () => {
           req.on('end', () => {
             try {
               const dataPath = path.resolve('public/data/portfolio.json');
-              // Format JSON nicely with 2 spaces
               fs.writeFileSync(dataPath, JSON.stringify(JSON.parse(body), null, 2), 'utf-8');
               res.setHeader('Content-Type', 'application/json');
               res.end(JSON.stringify({ success: true }));
@@ -46,6 +45,6 @@ const portfolioApiPlugin = () => {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: './', // Use relative paths for better compatibility
+  base: '/resume/',
   plugins: [react(), portfolioApiPlugin()],
 });
