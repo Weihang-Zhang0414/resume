@@ -150,23 +150,23 @@ const Home: React.FC = () => {
   return (
     <div className="relative w-full h-full pt-20">
 
-      {/* Dynamic Background */}
+      {/* Dynamic Background - Simplified for mobile performance */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none transition-colors duration-700">
-        <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full ${bgColors[0]} blur-3xl mix-blend-multiply dark:mix-blend-screen animate-blob transition-colors duration-700`}></div>
-        <div className={`absolute top-[20%] right-[-10%] w-[50%] h-[50%] rounded-full ${bgColors[1]} blur-3xl mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000 transition-colors duration-700`}></div>
-        <div className={`absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] rounded-full ${bgColors[2]} blur-3xl mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000 transition-colors duration-700`}></div>
+        <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full ${bgColors[0]} ${isMobile ? 'blur-2xl opacity-50' : 'blur-3xl animate-blob'} mix-blend-multiply dark:mix-blend-screen transition-colors duration-700`}></div>
+        <div className={`absolute top-[20%] right-[-10%] w-[50%] h-[50%] rounded-full ${bgColors[1]} ${isMobile ? 'blur-2xl opacity-50' : 'blur-3xl animate-blob animation-delay-2000'} mix-blend-multiply dark:mix-blend-screen transition-colors duration-700`}></div>
+        <div className={`absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] rounded-full ${bgColors[2]} ${isMobile ? 'blur-2xl opacity-50' : 'blur-3xl animate-blob animation-delay-4000'} mix-blend-multiply dark:mix-blend-screen transition-colors duration-700`}></div>
       </div>
 
       {/* Category Title */}
-      <div className="absolute top-20 md:top-24 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-10 z-30 w-full md:w-auto px-6 md:px-0">
+      <div className="absolute top-16 md:top-24 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-10 z-30 w-full md:w-auto px-6 md:px-0">
         <AnimatePresence mode="wait">
           <motion.h2
             key={currentCategory}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider text-center md:text-right drop-shadow-lg"
+            transition={{ duration: 0.2 }}
+            className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider text-center md:text-right drop-shadow-lg"
           >
             {currentCategory}
           </motion.h2>
@@ -174,46 +174,42 @@ const Home: React.FC = () => {
       </div>
 
       {/* Axis: Profile Photo (Left/Top) */}
-      <div className="absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[10%] lg:left-[15%] top-[25%] md:top-1/2 md:-translate-y-1/2 z-40 flex flex-col items-center">
+      <div className="absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[10%] lg:left-[15%] top-[12%] md:top-1/2 md:-translate-y-1/2 z-40 flex flex-col items-center">
         <motion.div
-          className="w-32 h-32 sm:w-40 sm:h-40 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white/50 shadow-[0_0_40px_rgba(0,0,0,0.15)] dark:shadow-[0_0_40px_rgba(255,255,255,0.15)] cursor-pointer relative group"
+          className="w-24 h-24 sm:w-32 sm:h-32 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white/50 shadow-[0_0_40px_rgba(0,0,0,0.15)] dark:shadow-[0_0_40px_rgba(255,255,255,0.15)] cursor-pointer relative group"
           onDoubleClick={handlePhotoDoubleClick}
           whileHover={{ scale: 1.05 }}
         >
           <img src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
         </motion.div>
-        <div className="mt-4 md:mt-6 text-center">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md">{data.hero.name[lang]}</h1>
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 md:mt-2 font-medium drop-shadow-md">{data.hero.role[lang]}</p>
-          <div className="mt-2 md:mt-4 flex flex-col gap-0.5 md:gap-1 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
-            {data.hero.visibility?.email !== false && (
-              <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 transition-colors">{data.hero.email}</a>
-            )}
-            {data.hero.visibility?.phone !== false && (
-              <span>{data.hero.phone}</span>
-            )}
-          </div>
+        <div className="mt-2 md:mt-6 text-center">
+          <h1 className="text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md">{data.hero.name[lang]}</h1>
+          <p className="text-[10px] sm:text-sm text-slate-600 dark:text-slate-300 mt-0.5 md:mt-2 font-medium drop-shadow-md">{data.hero.role[lang]}</p>
         </div>
       </div>
 
       {/* Roulette Wheel (Right side / Center on mobile) */}
-      <div className="absolute left-0 md:left-[40%] right-0 top-1/2 md:top-0 bottom-0 overflow-visible pointer-events-none">
+      <div className="absolute left-0 md:left-[40%] right-0 top-[45%] md:top-0 bottom-0 overflow-visible pointer-events-none">
         <div className="relative w-full h-full flex items-center justify-center md:justify-start">
           {items.map((item, index) => {
             const diff = index - activeIndex;
+            
+            // Optimization: Don't render items too far away to improve performance
+            if (Math.abs(diff) > 4) return null;
+
             const currentActiveItem = items[activeIndex];
             const isSameCategory = item.type === currentActiveItem.type;
 
             // Calculations for true circular layout
-            const R = isMobile ? 400 : 600; // Smaller radius on mobile
-            const thetaDeg = diff * (isMobile ? 15 : 22); // Tighter degrees on mobile
+            const R = isMobile ? 300 : 600; // Smaller radius on mobile
+            const thetaDeg = diff * (isMobile ? 12 : 22); // Tighter degrees on mobile
             const thetaRad = thetaDeg * (Math.PI / 180);
 
             // At diff=0, cos(0)=1, xOffset=0. As diff increases, cos<1, xOffset becomes negative (curves left)
             const xOffset = isMobile ? 0 : R * Math.cos(thetaRad) - R;
             const yOffset = R * Math.sin(thetaRad);
 
-            const scale = Math.max(1 - Math.abs(diff) * (isMobile ? 0.2 : 0.15), 0.75); 
+            const scale = Math.max(1 - Math.abs(diff) * (isMobile ? 0.15 : 0.15), 0.75); 
             const rotateX = diff * -5;
             const rotateZ = isMobile ? 0 : diff * 5; 
 
@@ -221,7 +217,7 @@ const Home: React.FC = () => {
 
             let opacity = 0;
             if (isSameCategory) {
-              opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * (isMobile ? 0.5 : 0.4), 0);
+              opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * (isMobile ? 0.35 : 0.4), 0);
             }
 
             // Render all items for smooth opacity transitions! Pointer events disabled if hidden
@@ -248,7 +244,7 @@ const Home: React.FC = () => {
                   rotateX,
                   rotateZ
                 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+                transition={{ type: 'spring', stiffness: 250, damping: 30 }}
                 onClick={() => {
                   if (opacity === 0) return;
                   if (!isActive) {
