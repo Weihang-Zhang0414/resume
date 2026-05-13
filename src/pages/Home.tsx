@@ -25,6 +25,15 @@ const Home: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [items, setItems] = useState<CarouselItem[]>([]);
   const scrollAccumulator = useRef(0);
+  const touchStart = useRef(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Re-added state for detail modal
   const [detailItem, setDetailItem] = useState<CarouselItem | null>(null);
@@ -57,9 +66,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      // If modal is open, let user scroll inside it
       if (document.body.style.overflow === 'hidden') return;
-
       e.preventDefault();
       scrollAccumulator.current += e.deltaY;
       const threshold = 80;
@@ -74,8 +81,34 @@ const Home: React.FC = () => {
       }
     };
 
+    const handleTouchStart = (e: TouchEvent) => {
+      if (document.body.style.overflow === 'hidden') return;
+      touchStart.current = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (document.body.style.overflow === 'hidden') return;
+      const touchEnd = e.changedTouches[0].clientY;
+      const delta = touchStart.current - touchEnd;
+      const threshold = 50;
+
+      if (Math.abs(delta) > threshold) {
+        if (delta > 0) {
+          setActiveIndex(prev => Math.min(prev + 1, items.length - 1));
+        } else {
+          setActiveIndex(prev => Math.max(prev - 1, 0));
+        }
+      }
+    };
+
     window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchend', handleTouchEnd);
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
   }, [items.length]);
 
   // Lock body scroll when modal opens
@@ -124,8 +157,8 @@ const Home: React.FC = () => {
         <div className={`absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] rounded-full ${bgColors[2]} blur-3xl mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000 transition-colors duration-700`}></div>
       </div>
 
-      {/* Category Title (Top Right) */}
-      <div className="absolute top-24 right-10 z-30">
+      {/* Category Title */}
+      <div className="absolute top-20 md:top-24 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-10 z-30 w-full md:w-auto px-6 md:px-0">
         <AnimatePresence mode="wait">
           <motion.h2
             key={currentCategory}
@@ -133,73 +166,62 @@ const Home: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3 }}
-            className="text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider text-right drop-shadow-lg"
+            className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider text-center md:text-right drop-shadow-lg"
           >
             {currentCategory}
           </motion.h2>
         </AnimatePresence>
       </div>
 
-      {/* Axis: Profile Photo (Left) */}
-      <div className="absolute left-[15%] top-1/2 -translate-y-1/2 z-40 flex flex-col items-center">
+      {/* Axis: Profile Photo (Left/Top) */}
+      <div className="absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[10%] lg:left-[15%] top-[25%] md:top-1/2 md:-translate-y-1/2 z-40 flex flex-col items-center">
         <motion.div
-          className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white/50 shadow-[0_0_40px_rgba(0,0,0,0.15)] dark:shadow-[0_0_40px_rgba(255,255,255,0.15)] cursor-pointer relative group"
+          className="w-32 h-32 sm:w-40 sm:h-40 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white/50 shadow-[0_0_40px_rgba(0,0,0,0.15)] dark:shadow-[0_0_40px_rgba(255,255,255,0.15)] cursor-pointer relative group"
           onDoubleClick={handlePhotoDoubleClick}
           whileHover={{ scale: 1.05 }}
         >
-          <img src={data.hero.avatarUrl} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
+          <img src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
         </motion.div>
-        <div className="mt-6 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md">{data.hero.name[lang]}</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 font-medium drop-shadow-md">{data.hero.role[lang]}</p>
-          <div className="mt-4 flex flex-col gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+        <div className="mt-4 md:mt-6 text-center">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md">{data.hero.name[lang]}</h1>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 md:mt-2 font-medium drop-shadow-md">{data.hero.role[lang]}</p>
+          <div className="mt-2 md:mt-4 flex flex-col gap-0.5 md:gap-1 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
             {data.hero.visibility?.email !== false && (
               <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 transition-colors">{data.hero.email}</a>
             )}
             {data.hero.visibility?.phone !== false && (
               <span>{data.hero.phone}</span>
             )}
-            {(data.hero.visibility?.wechat !== false || data.hero.visibility?.instagram !== false) && (
-              <div className="flex flex-col gap-1 mt-1 pt-1 border-t border-slate-200/50 dark:border-slate-800/50">
-                {data.hero.visibility?.wechat !== false && (
-                  <span className="flex items-center justify-center gap-1.5"><span className="text-xs opacity-70">WeChat:</span> {data.hero.wechat}</span>
-                )}
-                {data.hero.visibility?.instagram !== false && (
-                  <span className="flex items-center justify-center gap-1.5"><span className="text-xs opacity-70">Instagram:</span> {data.hero.instagram}</span>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Roulette Wheel (Right side) */}
-      <div className="absolute left-[40%] right-0 top-0 bottom-0 overflow-visible pointer-events-none">
-        <div className="relative w-full h-full flex items-center">
+      {/* Roulette Wheel (Right side / Center on mobile) */}
+      <div className="absolute left-0 md:left-[40%] right-0 top-1/2 md:top-0 bottom-0 overflow-visible pointer-events-none">
+        <div className="relative w-full h-full flex items-center justify-center md:justify-start">
           {items.map((item, index) => {
             const diff = index - activeIndex;
             const currentActiveItem = items[activeIndex];
             const isSameCategory = item.type === currentActiveItem.type;
 
             // Calculations for true circular layout
-            const R = 600; // Radius of the circle
-            const thetaDeg = diff * 22; // Degrees per item
+            const R = isMobile ? 400 : 600; // Smaller radius on mobile
+            const thetaDeg = diff * (isMobile ? 15 : 22); // Tighter degrees on mobile
             const thetaRad = thetaDeg * (Math.PI / 180);
 
             // At diff=0, cos(0)=1, xOffset=0. As diff increases, cos<1, xOffset becomes negative (curves left)
-            const xOffset = R * Math.cos(thetaRad) - R;
+            const xOffset = isMobile ? 0 : R * Math.cos(thetaRad) - R;
             const yOffset = R * Math.sin(thetaRad);
 
-            const scale = Math.max(1 - Math.abs(diff) * 0.15, 0.75); // Scaled up cards!
-            const rotateX = diff * -5; // Slight 3D rotation
-            const rotateZ = diff * 5; // Rotate along the circle slightly
+            const scale = Math.max(1 - Math.abs(diff) * (isMobile ? 0.2 : 0.15), 0.75); 
+            const rotateX = diff * -5;
+            const rotateZ = isMobile ? 0 : diff * 5; 
 
             const isActive = diff === 0;
 
             let opacity = 0;
             if (isSameCategory) {
-              // Active item is fully opaque, others in the same category are semi-transparent
-              opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * 0.4, 0.3);
+              opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * (isMobile ? 0.5 : 0.4), 0);
             }
 
             // Render all items for smooth opacity transitions! Pointer events disabled if hidden
@@ -216,7 +238,7 @@ const Home: React.FC = () => {
             return (
               <motion.div
                 key={item.id}
-                className={`absolute w-full max-w-4xl px-6 origin-left ${isActive ? 'z-20 cursor-default pointer-events-auto' : `z-10 ${pointerEventsClass}`}`}
+                className={`absolute w-full max-w-sm md:max-w-4xl px-4 md:px-6 origin-center md:origin-left ${isActive ? 'z-20 cursor-default pointer-events-auto' : `z-10 ${pointerEventsClass}`}`}
                 initial={false}
                 animate={{
                   y: yOffset,
@@ -232,23 +254,22 @@ const Home: React.FC = () => {
                   if (!isActive) {
                     setActiveIndex(index);
                   } else if (item.type !== 'skill') {
-                    // If active, open detail modal (except for skills which don't have details)
                     setDetailItem(item);
                   }
                 }}
                 style={{ perspective: 1000 }}
               >
-                <div className={`relative overflow-hidden backdrop-blur-md p-8 border transition-all duration-300 flex items-center gap-6 ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'}`}>
+                <div className={`relative overflow-hidden backdrop-blur-md p-4 sm:p-6 md:p-8 border transition-all duration-300 flex items-center gap-4 md:gap-6 ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'}`}>
                   {/* Left Side Number */}
-                  <div className="text-6xl sm:text-7xl font-black text-slate-300/80 dark:text-slate-600/50 flex-shrink-0 w-20 sm:w-24 text-center select-none">
+                  <div className="text-4xl sm:text-6xl md:text-7xl font-black text-slate-300/80 dark:text-slate-600/50 flex-shrink-0 w-12 sm:w-20 md:w-24 text-center select-none">
                     {String(item.categoryIndex).padStart(2, '0')}
                   </div>
 
                   {/* Right Side Content */}
-                  <div className="flex-1 relative z-10 border-l-2 border-slate-200/50 dark:border-slate-700/50 pl-6">
+                  <div className="flex-1 relative z-10 border-l-2 border-slate-200/50 dark:border-slate-700/50 pl-4 md:pl-6">
                     {renderItemContent(item, lang)}
                     {isActive && item.type !== 'skill' && (
-                      <div className="mt-4 text-left text-sm font-medium text-blue-500/80 dark:text-blue-400/80 animate-pulse">
+                      <div className="mt-2 md:mt-4 text-left text-xs sm:text-sm font-medium text-blue-500/80 dark:text-blue-400/80 animate-pulse">
                         Click to read more &rarr;
                       </div>
                     )}
@@ -261,7 +282,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* Pagination Indicator (Far Right) */}
-      <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
+      <div className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1 md:gap-2">
         {items.map((item, index) => {
           const isNewSection = index > 0 && item.type !== items[index - 1].type;
           
@@ -477,12 +498,12 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
   if (item.type === 'education') {
     return (
       <div>
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col sm:flex-row justify-between items-start">
           <div>
-            <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{item.data.institution[lang]}</h4>
-            <p className="text-blue-600 dark:text-blue-400 font-medium text-lg mt-1">{item.data.degree[lang]}</p>
+            <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">{item.data.institution[lang]}</h4>
+            <p className="text-blue-600 dark:text-blue-400 font-medium text-base sm:text-lg mt-1">{item.data.degree[lang]}</p>
           </div>
-          <div className="text-right text-sm text-slate-500 font-medium whitespace-nowrap pl-4">
+          <div className="text-left sm:text-right text-xs sm:text-sm text-slate-500 font-medium whitespace-nowrap mt-2 sm:mt-0 sm:pl-4">
             <div>{item.data.period}</div>
             <div>{item.data.location[lang]}</div>
           </div>
@@ -499,12 +520,12 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
 
     return (
       <div>
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col sm:flex-row justify-between items-start">
           <div className="pr-4">
-            <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight">{title}</h4>
-            <p className={`${roleColor} font-medium text-lg mt-2`}>{item.data.role[lang]}</p>
+            <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight">{title}</h4>
+            <p className={`${roleColor} font-medium text-base sm:text-lg mt-1 md:mt-2`}>{item.data.role[lang]}</p>
           </div>
-          <div className="text-right text-sm text-slate-500 font-medium whitespace-nowrap pl-4">
+          <div className="text-left sm:text-right text-xs sm:text-sm text-slate-500 font-medium whitespace-nowrap mt-2 sm:mt-0 sm:pl-4">
             <div>{item.data.period}</div>
             <div>{item.data.location[lang]}</div>
           </div>
@@ -516,10 +537,10 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
   if (item.type === 'skill') {
     return (
       <div>
-        <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">{item.data.category[lang]}</h4>
-        <div className="flex flex-wrap gap-3">
+        <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 md:mb-6">{item.data.category[lang]}</h4>
+        <div className="flex flex-wrap gap-2 md:gap-3">
           {item.data.items[lang].map((skill: string, i: number) => (
-            <span key={i} className="px-4 py-2 bg-white/60 dark:bg-slate-800/60 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700 shadow-sm">
+            <span key={i} className="px-3 py-1.5 md:px-4 md:py-2 bg-white/60 dark:bg-slate-800/60 rounded-lg md:rounded-xl text-xs md:text-sm font-medium border border-slate-200 dark:border-slate-700 shadow-sm">
               {skill}
             </span>
           ))}
