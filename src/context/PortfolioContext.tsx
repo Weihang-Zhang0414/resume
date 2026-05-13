@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
