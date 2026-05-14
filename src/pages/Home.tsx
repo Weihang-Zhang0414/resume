@@ -3,6 +3,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTickSound, SoundType } from '../components/useTickSound';
 
 interface CarouselItem {
   id: string;
@@ -39,6 +40,25 @@ const Home: React.FC = () => {
 
   // Re-added state for detail modal
   const [detailItem, setDetailItem] = useState<CarouselItem | null>(null);
+
+  const playTickSound = useTickSound();
+  const prevIndex = useRef(activeIndex);
+
+  useEffect(() => {
+    if (prevIndex.current !== activeIndex && items.length > 0) {
+      const prevItem = items[prevIndex.current];
+      const currentItem = items[activeIndex];
+      
+      const isNewSection = prevItem && currentItem && prevItem.type !== currentItem.type;
+      
+      const soundType = isNewSection 
+        ? (data?.settings?.sectionSound || 'clock') 
+        : (data?.settings?.cardSound || 'wood');
+        
+      playTickSound(soundType as SoundType);
+      prevIndex.current = activeIndex;
+    }
+  }, [activeIndex, playTickSound, items, data?.settings]);
 
   useEffect(() => {
     if (data) {

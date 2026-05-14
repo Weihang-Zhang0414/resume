@@ -4,6 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 interface PortfolioData {
   defaultLanguage: string;
+  settings?: {
+    cardSound?: string;
+    sectionSound?: string;
+  };
   hero: any;
   education: any[];
   internships: any[];

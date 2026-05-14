@@ -113,6 +113,27 @@ const Admin: React.FC = () => {
     );
   };
 
+  const renderSelectField = (path: (string | number)[], label: string, options: {value: string, label: string}[]) => {
+    let value = formData;
+    for (const p of path) {
+      if (value === undefined) return null;
+      value = value[p];
+    }
+    
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1 text-slate-600 dark:text-slate-400">{label}</label>
+        <select 
+          className="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={value}
+          onChange={e => updateField(path, e.target.value)}
+        >
+          {options.map(opt => <option key={opt.value} value={opt.value} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">{opt.label}</option>)}
+        </select>
+      </div>
+    );
+  };
+
   const renderStringArrayField = (path: (string | number)[], label: string) => {
     let array = formData;
     for (const p of path) array = array[p];
@@ -276,6 +297,48 @@ const Admin: React.FC = () => {
       </div>
 
       <div className="space-y-6">
+        {/* Global Settings Section */}
+        <div className="glass-card rounded-2xl overflow-hidden mb-6">
+          <button 
+            className="w-full p-6 flex justify-between items-center bg-white/40 dark:bg-slate-800/40 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
+            onClick={() => setExpandedSection(expandedSection === 'settings' ? null : 'settings')}
+          >
+            <h2 className="text-xl font-bold">Global Settings (全局设置)</h2>
+            {expandedSection === 'settings' ? <ChevronUp /> : <ChevronDown />}
+          </button>
+          {expandedSection === 'settings' && (
+            <div className="p-6 grid md:grid-cols-2 gap-8 mt-4">
+              <div className="space-y-4">
+                <h3 className="font-bold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 pb-2">Sound Effects (音效)</h3>
+                {formData.settings && renderSelectField(['settings', 'cardSound'], 'Card Flip Sound (卡片翻页)', [
+                  { value: 'none', label: '🔇 Mute (静音)' },
+                  { value: 'wood', label: '🪵 Wood (木质)' },
+                  { value: 'clock', label: '⏱️ Clock / Mechanical (机械)' },
+                  { value: 'typewriter', label: '⌨️ Typewriter (打字机)' },
+                  { value: 'paper', label: '📄 Paper (纸张摩擦)' },
+                  { value: 'water', label: '💧 Water (水滴)' },
+                  { value: 'bubble', label: '🫧 Bubble (泡泡)' },
+                  { value: 'click', label: '🖱️ Light Click (轻巧按键)' },
+                  { value: 'scifi', label: '🛸 Sci-Fi (科幻)' },
+                  { value: 'chime', label: '🔔 Chime (轻灵风铃)' }
+                ])}
+                {formData.settings && renderSelectField(['settings', 'sectionSound'], 'Section Transition Sound (板块切换)', [
+                  { value: 'none', label: '🔇 Mute (静音)' },
+                  { value: 'wood', label: '🪵 Wood (木质)' },
+                  { value: 'clock', label: '⏱️ Clock / Mechanical (机械)' },
+                  { value: 'typewriter', label: '⌨️ Typewriter (打字机)' },
+                  { value: 'paper', label: '📄 Paper (纸张摩擦)' },
+                  { value: 'water', label: '💧 Water (水滴)' },
+                  { value: 'bubble', label: '🫧 Bubble (泡泡)' },
+                  { value: 'click', label: '🖱️ Light Click (轻巧按键)' },
+                  { value: 'scifi', label: '🛸 Sci-Fi (科幻)' },
+                  { value: 'chime', label: '🔔 Chime (轻灵风铃)' }
+                ])}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Hero Section */}
         <div className="glass-card rounded-2xl overflow-hidden mb-6">
           <button 

@@ -1,5 +1,9 @@
 {
   "defaultLanguage": "en",
+  "settings": {
+    "cardSound": "click",
+    "sectionSound": "clock"
+  },
   "hero": {
     "name": {
       "en": "Weihang Zhang",
