@@ -109,6 +109,26 @@
         "en": "Beijing, China",
         "zh": "北京, 中国"
       },
+      "keywords": {
+        "en": [
+          "LLM",
+          "RAG",
+          "Transformer",
+          "FAISS",
+          "Spring Boot",
+          "FastAPI",
+          "DeepSeek"
+        ],
+        "zh": [
+          "大语言模型",
+          "RAG",
+          "Transformer",
+          "FAISS",
+          "Spring Boot",
+          "FastAPI",
+          "DeepSeek"
+        ]
+      },
       "details": {
         "en": [
           "LLM Architecture: Studied Transformer and mechanisms, focusing on RAG flow, embeddings, and prompt engineering.",
@@ -140,6 +160,24 @@
       "location": {
         "en": "Beijing, China",
         "zh": "北京, 中国"
+      },
+      "keywords": {
+        "en": [
+          "Data Mining",
+          "Machine Learning",
+          "Python",
+          "Pandas",
+          "Scikit-learn",
+          "XGBoost"
+        ],
+        "zh": [
+          "数据挖掘",
+          "机器学习",
+          "Python",
+          "Pandas",
+          "Scikit-learn",
+          "XGBoost"
+        ]
       },
       "details": {
         "en": [
@@ -186,6 +224,24 @@
           "多模态系统集成与算法落地：基于 ROS 系统与 SLAM 技术实现室内高精度环境建图与自主导航；部署 YOLO 目标检测模型，完成 Ollama 本地大语言模型部署，实现语音控制。",
           "科研成果与荣誉认可：成功交付具备感知、决策、反馈闭环的产品原型，带队斩获 2025 年 “挑战杯” 首都大学生课外学术科技作品竞赛三等奖，并评定为北京市级大创项目。"
         ]
+      },
+      "keywords": {
+        "en": [
+          "ROS",
+          "SLAM",
+          "YOLO",
+          "Ollama",
+          "Edge-Cloud",
+          "Agile"
+        ],
+        "zh": [
+          "ROS",
+          "SLAM",
+          "YOLO",
+          "Ollama",
+          "边云协同",
+          "敏捷开发"
+        ]
       }
     },
     {
@@ -213,6 +269,24 @@
           "实验设计：聚焦大模型与心理学交叉领域，基于经典心理学范式复现 Kosinski 错误信念任务框架，系统性评估 ChatGPT-5、Gemini 2.5 等新一代大模型在心理理论等多维度的类人认知表现。",
           "量化分析：独立解析大规模 JSON 实验输出数据，利用 Python (Pandas、NumPy、SciPy) 进行核心数据处理与可视化绘制；引入 Pearson 相关系数、Bland-Altman 等严谨的统计学方法。",
           "科研成果：以第一作者身份撰写并发表英文学术论文，该论文已被第五届电子信息工程与数据处理国际会议 (EIEPD 2026) 正式录用，支持 EI Compendex 与 Scopus 双检索。"
+        ]
+      },
+      "keywords": {
+        "en": [
+          "ChatGPT-5",
+          "Gemini 2.5",
+          "Theory of Mind",
+          "Python",
+          "Pearson",
+          "Bland-Altman"
+        ],
+        "zh": [
+          "ChatGPT-5",
+          "Gemini 2.5",
+          "心理理论",
+          "Python",
+          "Pearson相关",
+          "Bland-Altman"
         ]
       }
     },
@@ -242,6 +316,20 @@
           "硬件协作：与机械团队密切合作，共同设计垃圾桶外观，确保外观与功能的完美结合，并建立独立分拣机构。",
           "项目成果：项目荣获北京市大学生工程实践与创新能力大赛特等奖，并被推荐进入中国大学生工程实践与创新能力大赛并获得全国二等奖。"
         ]
+      },
+      "keywords": {
+        "en": [
+          "YOLOv8",
+          "Arduino",
+          "Electromechanical",
+          "Vision Recognition"
+        ],
+        "zh": [
+          "YOLOv8",
+          "Arduino",
+          "机电控制",
+          "视觉识别"
+        ]
       }
     },
     {
@@ -270,6 +358,22 @@
           "信号生成：独立设计控制系统，在 Matlab 中实现依据眼球位置生成轮椅运动控制指令的功能，通过蓝牙通信将运动指令实时传送至 Arduino，实现姿态控制指令自定义化和动作标准化。",
           "项目成果：设计并实现智能眼控轮椅，通过眼球运动来控制轮椅的行驶方向，系统响应灵敏、运行稳定；项目获得导师高度评价和推荐信。"
         ]
+      },
+      "keywords": {
+        "en": [
+          "Matlab",
+          "Viola-Jones",
+          "Hough Transform",
+          "Bluetooth",
+          "Arduino"
+        ],
+        "zh": [
+          "Matlab",
+          "Viola-Jones",
+          "Hough变换",
+          "蓝牙通信",
+          "Arduino"
+        ]
       }
     },
     {
@@ -292,6 +396,19 @@
         ],
         "zh": [
           "绘制赤道仪模型的零件图，工程图"
+        ]
+      },
+      "id": "proj-5",
+      "keywords": {
+        "en": [
+          "3D Modeling",
+          "Engineering Drawing",
+          "Parts Design"
+        ],
+        "zh": [
+          "3D建模",
+          "工程制图",
+          "零件设计"
         ]
       }
     },
@@ -317,6 +434,21 @@
         "zh": [
           "制作问卷调查人群滑雪的习惯和消费趋势",
           "通过爬虫技术爬取主流社交媒体对于滑雪的评论，绘制词云"
+        ]
+      },
+      "id": "proj-6",
+      "keywords": {
+        "en": [
+          "Web Scraping",
+          "Word Cloud",
+          "Data Analysis",
+          "Questionnaire"
+        ],
+        "zh": [
+          "网络爬虫",
+          "词云图",
+          "数据分析",
+          "问卷调查"
         ]
       }
     },
@@ -347,6 +479,23 @@
           "通过python编程构建基于时间序列，线性回归和层次分析的奥运奖牌预测模型",
           "和图像的绘制，以及后期论文的撰写"
         ]
+      },
+      "id": "proj-7",
+      "keywords": {
+        "en": [
+          "Time Series",
+          "Linear Regression",
+          "AHP",
+          "Python",
+          "Modeling"
+        ],
+        "zh": [
+          "时间序列",
+          "线性回归",
+          "层次分析法",
+          "Python",
+          "数学建模"
+        ]
       }
     },
     {
@@ -375,6 +524,25 @@
           "基于Java语言创建前端界面和函数",
           "使用sqlite数据库建立后端数据库",
           "使用本地模拟器对软件进行模拟仿真"
+        ]
+      },
+      "id": "proj-8",
+      "keywords": {
+        "en": [
+          "DevEco Studio",
+          "Java",
+          "SQLite",
+          "HarmonyOS",
+          "Frontend",
+          "Backend"
+        ],
+        "zh": [
+          "DevEco Studio",
+          "Java",
+          "SQLite",
+          "HarmonyOS",
+          "前端开发",
+          "后端开发"
         ]
       }
     },
@@ -405,6 +573,25 @@
           "使用Mysql数据库建立后端数据库",
           "使用本地模拟器对软件进行模拟仿真"
         ]
+      },
+      "id": "proj-9",
+      "keywords": {
+        "en": [
+          "DevEco Studio",
+          "Java",
+          "MySQL",
+          "HarmonyOS",
+          "Frontend",
+          "Backend"
+        ],
+        "zh": [
+          "DevEco Studio",
+          "Java",
+          "MySQL",
+          "HarmonyOS",
+          "前端开发",
+          "后端开发"
+        ]
       }
     },
     {
@@ -431,6 +618,19 @@
           "大一下独立参赛，但由于知识量过少，以及项目体系过大难以实现",
           "只停留在软件构思层面，没有实物产出"
         ]
+      },
+      "id": "proj-10",
+      "keywords": {
+        "en": [
+          "3D Modeling",
+          "Hardware Selection",
+          "Mechanism Design"
+        ],
+        "zh": [
+          "3D建模",
+          "硬件选型",
+          "机构设计"
+        ]
       }
     },
     {
@@ -456,6 +656,21 @@
           "基于Arduino构建智能小车",
           "实现循迹和避障功能",
           "以及遥控功能"
+        ]
+      },
+      "id": "proj-11",
+      "keywords": {
+        "en": [
+          "Arduino",
+          "Line-tracking",
+          "Obstacle Avoidance",
+          "Remote Control"
+        ],
+        "zh": [
+          "Arduino",
+          "循迹",
+          "避障",
+          "遥控"
         ]
       }
     }

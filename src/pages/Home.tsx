@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { useTickSound, SoundType } from '../components/useTickSound';
 
 interface CarouselItem {
@@ -14,7 +14,7 @@ interface CarouselItem {
 }
 
 const Home: React.FC = () => {
-  const { data, loading } = usePortfolio();
+  const { data, loading, theme } = usePortfolio();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const lang = i18n.language as 'en' | 'zh';
@@ -25,17 +25,20 @@ const Home: React.FC = () => {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [items, setItems] = useState<CarouselItem[]>([]);
+  const [showEndScreen, setShowEndScreen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const scrollAccumulator = useRef(0);
   const touchStart = useRef(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
-    const checkMobile = () => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
       setIsMobile(window.innerWidth < 768);
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Re-added state for detail modal
@@ -99,10 +102,26 @@ const Home: React.FC = () => {
       const threshold = 80;
 
       if (Math.abs(scrollAccumulator.current) > threshold) {
+        if (showWelcome) {
+          if (scrollAccumulator.current > 0) {
+            setShowWelcome(false);
+          }
+          scrollAccumulator.current = 0;
+          return;
+        }
+
         if (scrollAccumulator.current > 0) {
-          setActiveIndex(prev => Math.min(prev + 1, items.length - 1));
+          if (activeIndex >= items.length - 1) {
+            setShowEndScreen(true);
+          } else {
+            setActiveIndex(prev => Math.min(prev + 1, items.length - 1));
+          }
         } else {
-          setActiveIndex(prev => Math.max(prev - 1, 0));
+          if (showEndScreen) {
+            setShowEndScreen(false);
+          } else {
+            setActiveIndex(prev => Math.max(prev - 1, 0));
+          }
         }
         scrollAccumulator.current = 0;
       }
@@ -120,9 +139,46 @@ const Home: React.FC = () => {
       const threshold = 50;
 
       if (Math.abs(delta) > threshold) {
+        if (showWelcome) {
+          if (delta > 0) {
+            setShowWelcome(false);
+          }
+          return;
+        }
+
         if (delta > 0) {
-          setActiveIndex(prev => Math.min(prev + 1, items.length - 1));
+          if (activeIndex >= items.length - 1) {
+            setShowEndScreen(true);
+          } else {
+            setActiveIndex(prev => Math.min(prev + 1, items.length - 1));
+          }
         } else {
+          if (showEndScreen) {
+            setShowEndScreen(false);
+          } else {
+            setActiveIndex(prev => Math.max(prev - 1, 0));
+          }
+        }
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.body.style.overflow === 'hidden') return;
+      
+      if (e.key === 'ArrowDown') {
+        if (showWelcome) {
+          setShowWelcome(false);
+        } else if (!showEndScreen) {
+          if (activeIndex >= items.length - 1) {
+            setShowEndScreen(true);
+          } else {
+            setActiveIndex(prev => Math.min(prev + 1, items.length - 1));
+          }
+        }
+      } else if (e.key === 'ArrowUp') {
+        if (showEndScreen) {
+          setShowEndScreen(false);
+        } else if (!showWelcome) {
           setActiveIndex(prev => Math.max(prev - 1, 0));
         }
       }
@@ -131,12 +187,14 @@ const Home: React.FC = () => {
     window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('touchstart', handleTouchStart);
     window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [items.length]);
+  }, [items.length, activeIndex, showEndScreen, showWelcome]);
 
   // Lock body scroll when modal opens
   useEffect(() => {
@@ -176,6 +234,7 @@ const Home: React.FC = () => {
   if (currentItem?.type === 'skill') bgColors = ['bg-teal-400/30 dark:bg-teal-900/30', 'bg-emerald-400/30 dark:bg-emerald-900/30', 'bg-green-400/30 dark:bg-green-900/30'];
 
   return (
+    <LayoutGroup>
     <div className={`relative w-full h-full ${isMobile ? '' : 'pt-20'}`}>
 
       {/* Dynamic Background - Simplified for mobile performance */}
@@ -186,53 +245,82 @@ const Home: React.FC = () => {
       </div>
 
       {/* Category Title */}
-      <div className="absolute top-24 right-6 md:right-10 z-30">
-        <AnimatePresence mode="wait">
-          <motion.h2
-            key={currentCategory}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider text-right drop-shadow-xl"
-          >
-            {currentCategory}
-          </motion.h2>
-        </AnimatePresence>
-      </div>
+      <AnimatePresence>
+        {(!showEndScreen && !showWelcome) && (
+          <div className="absolute top-24 right-6 md:right-10 z-30">
+            <AnimatePresence mode="wait">
+              <motion.h2
+                key={currentCategory}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider text-right drop-shadow-xl"
+              >
+                {currentCategory}
+              </motion.h2>
+            </AnimatePresence>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Axis: Profile Photo (Left side) */}
-      <div className="absolute left-[10%] lg:left-[15%] top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center">
-        <motion.div
-          className="w-48 h-48 lg:w-64 lg:h-64 rounded-full overflow-hidden border-4 border-white/50 shadow-2xl cursor-pointer relative group"
-          onDoubleClick={handlePhotoDoubleClick}
-          whileHover={{ scale: 1.05 }}
-        >
-          <img src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
-        </motion.div>
-        <div className="mt-6 text-center">
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md">{data.hero.name[lang]}</h1>
-          <p className="text-sm lg:text-base text-slate-600 dark:text-slate-300 mt-2 font-medium drop-shadow-md">{data.hero.role[lang]}</p>
-          
-          <div className="mt-4 flex flex-col gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
-            {data.hero.visibility?.email !== false && (
-              <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 transition-colors">{data.hero.email}</a>
-            )}
-            {data.hero.visibility?.phone !== false && (
-              <span>{data.hero.phone}</span>
-            )}
-            <div className="mt-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50 flex flex-col gap-1 text-xs opacity-70">
-              {data.hero.visibility?.wechat !== false && <span>WC: {data.hero.wechat}</span>}
-              {data.hero.visibility?.instagram !== false && <span>IG: {data.hero.instagram}</span>}
+      <AnimatePresence>
+        {(!showEndScreen && !showWelcome) && (
+          <div className="absolute left-[10%] lg:left-[15%] top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center">
+            <motion.div
+              layoutId="hero-avatar"
+              className="w-48 h-48 lg:w-64 lg:h-64 rounded-full border-4 border-white/50 shadow-2xl cursor-pointer relative group"
+              onDoubleClick={handlePhotoDoubleClick}
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="w-full h-full rounded-full overflow-hidden">
+                <img src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
+              </div>
+            </motion.div>
+            <div className="mt-6 text-center">
+              <motion.h1 
+                layoutId="hero-name" 
+                transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                className="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md"
+              >
+                {data.hero.name[lang]}
+              </motion.h1>
+              <motion.p 
+                layoutId="hero-role" 
+                transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                className="text-sm lg:text-base text-slate-600 dark:text-slate-300 mt-2 font-medium drop-shadow-md"
+              >
+                {data.hero.role[lang]}
+              </motion.p>
+              
+              <div className="mt-4 flex flex-col gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+                {data.hero.visibility?.email !== false && (
+                  <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 transition-colors">{data.hero.email}</a>
+                )}
+                {data.hero.visibility?.phone !== false && (
+                  <span>{data.hero.phone}</span>
+                )}
+                <div className="mt-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50 flex flex-col gap-1 text-xs opacity-70">
+                  {data.hero.visibility?.wechat !== false && <span>WC: {data.hero.wechat}</span>}
+                  {data.hero.visibility?.instagram !== false && <span>IG: {data.hero.instagram}</span>}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        )}
+      </AnimatePresence>
 
       {/* Roulette Wheel - Centered on mobile, Left-offset on desktop */}
-      <div className="absolute inset-0 md:left-[35%] overflow-visible pointer-events-none">
-        <div className="relative w-full h-full flex items-center justify-center md:justify-start">
-          {items.map((item, index) => {
+      <AnimatePresence>
+        {(!showEndScreen && !showWelcome) && (
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={`absolute inset-0 overflow-visible pointer-events-none transition-all duration-500 ${isMobile ? '' : (windowSize.width < 1100 ? 'left-[40%]' : 'left-[35%]')}`}
+          >
+            <div className="relative w-full h-full flex items-center justify-center md:justify-start">
+              {items.map((item, index) => {
             const diff = index - activeIndex;
             
             // Render window optimization (+/- 3 items for maximum mobile FPS)
@@ -241,8 +329,9 @@ const Home: React.FC = () => {
             const currentActiveItem = items[activeIndex];
             const isSameCategory = item.type === currentActiveItem.type;
 
-            const R = isMobile ? 350 : 600;
-            const thetaDeg = diff * (isMobile ? 18 : 22); 
+            const isNarrow = windowSize.width < 1100;
+            const R = isMobile ? 350 : (isNarrow ? 500 : 600);
+            const thetaDeg = diff * (isMobile ? 18 : (isNarrow ? 20 : 22)); 
             const thetaRad = thetaDeg * (Math.PI / 180);
 
             const xOffset = isMobile ? 0 : R * Math.cos(thetaRad) - R;
@@ -271,10 +360,15 @@ const Home: React.FC = () => {
             if (item.type === 'volunteer') shapeClass = 'rounded-2xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30';
             if (item.type === 'skill') shapeClass = 'rounded-tr-[4rem] rounded-bl-[4rem] rounded-tl-xl rounded-br-xl border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30';
 
+            // Adaptive max-width based on screen width
+            const cardMaxWidth = isMobile 
+              ? 'max-w-[calc(100vw-2rem)]' 
+              : (windowSize.width < 1100 ? 'max-w-2xl' : 'max-w-4xl');
+
             return (
               <motion.div
                 key={item.id}
-                className={`absolute w-full max-w-sm md:max-w-4xl px-4 md:px-6 origin-center md:origin-left ${isActive ? 'z-20 cursor-default pointer-events-auto' : `z-10 ${pointerEventsClass}`}`}
+                className={`absolute w-full ${cardMaxWidth} px-4 md:px-6 origin-center md:origin-left ${isActive ? 'z-20 cursor-default pointer-events-auto' : `z-10 ${pointerEventsClass}`}`}
                 initial={false}
                 animate={{
                   y: yOffset,
@@ -311,8 +405,32 @@ const Home: React.FC = () => {
                   <div className="flex-1 relative z-10 border-l-2 border-slate-200/50 dark:border-slate-700/50 pl-4 md:pl-6">
                     {renderItemContent(item, lang)}
                     {isActive && item.type !== 'skill' && (
-                      <div className="mt-2 md:mt-4 text-left text-xs sm:text-sm font-medium text-blue-500/80 dark:text-blue-400/80 animate-pulse">
-                        Click to read more &rarr;
+                      <div className="mt-2 md:mt-3 flex items-center justify-between gap-3">
+                        {/* Keywords inline */}
+                        {(item.type === 'internship' || item.type === 'project') && item.data.keywords?.[lang] ? (
+                          <div className="flex flex-wrap gap-1.5 md:gap-2 flex-1 overflow-hidden" style={{ maxHeight: '3.5rem' }}>
+                            {item.data.keywords[lang].map((kw: string, i: number) => {
+                              const rot = (kw.length * 7 + i * 17) % 10 - 5;
+                              const sizes = ['text-[9px]', 'text-[10px]', 'text-[11px]', 'text-[10px]', 'text-[9px]', 'text-[11px]'];
+                              const sz = sizes[i % sizes.length];
+                              const colorClass = item.type === 'internship'
+                                ? 'bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-700/50'
+                                : 'bg-purple-100/80 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-700/50';
+                              return (
+                                <span
+                                  key={i}
+                                  className={`inline-block font-semibold px-1.5 py-0.5 border shadow-sm backdrop-blur-sm rounded-tl-lg rounded-br-lg rounded-tr-[2px] rounded-bl-[2px] whitespace-nowrap ${sz} ${colorClass}`}
+                                  style={{ transform: `rotate(${rot}deg)` }}
+                                >
+                                  {kw}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        ) : <div className="flex-1" />}
+                        <div className="text-xs sm:text-sm font-medium text-blue-500/80 dark:text-blue-400/80 animate-pulse whitespace-nowrap flex-shrink-0">
+                          Click to read more &rarr;
+                        </div>
                       </div>
                     )}
                   </div>
@@ -321,10 +439,18 @@ const Home: React.FC = () => {
             );
           })}
         </div>
-      </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
 
-      {/* Pagination Indicator (Far Right) */}
-      <div className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1 md:gap-2">
+  {/* Pagination Indicator (Far Right) */}
+  <AnimatePresence>
+    {(!showEndScreen && !showWelcome) && (
+      <motion.div 
+        initial={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1 md:gap-2"
+      >
         {items.map((item, index) => {
           const isNewSection = index > 0 && item.type !== items[index - 1].type;
           
@@ -354,7 +480,199 @@ const Home: React.FC = () => {
             </React.Fragment>
           );
         })}
-      </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+
+      {/* ─── WELCOME SCREEN OVERLAY ─── */}
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            key="welcome-screen"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center overflow-hidden cursor-pointer"
+            onClick={() => setShowWelcome(false)}
+          >
+            {/* Darker background for welcome screen */}
+            <motion.div 
+              className="absolute inset-0 bg-slate-50/10 dark:bg-black/20 backdrop-blur-[2px]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+
+            <div className="relative z-10 flex flex-col items-center gap-8">
+              <motion.div
+                layoutId="hero-avatar"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ 
+                  opacity: { duration: 0.8, delay: 0.2 },
+                  scale: { type: 'spring', stiffness: 100, damping: 20, delay: 0.2 },
+                  y: { type: 'spring', stiffness: 100, damping: 20, delay: 0.2 }
+                }}
+                className="w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-white dark:border-slate-700 shadow-2xl relative"
+              >
+                {/* Breathing effect for Welcome Screen */}
+                <motion.div 
+                  className="absolute inset-0 rounded-full shadow-[0_0_80px_rgba(255,255,255,0.4)]"
+                  animate={{ 
+                    boxShadow: [
+                      '0 0 60px rgba(255,255,255,0.2)', 
+                      '0 0 120px rgba(255,255,255,0.55)', 
+                      '0 0 60px rgba(255,255,255,0.2)'
+                    ] 
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <div className="w-full h-full rounded-full overflow-hidden relative z-10">
+                  <img
+                    src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`}
+                    alt={data.hero.name[lang]}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </motion.div>
+              
+              <div className="text-center space-y-4">
+                <motion.h1
+                  layoutId="hero-name"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.8 }}
+                  className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter"
+                >
+                  {data.hero.name[lang]}
+                </motion.h1>
+                <motion.p
+                  layoutId="hero-role"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.8 }}
+                  className="text-lg md:text-2xl text-blue-600 dark:text-blue-400 font-bold tracking-wide"
+                >
+                  {data.hero.role[lang]}
+                </motion.p>
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1, duration: 0.8 }}
+                className="mt-12 flex flex-col items-center gap-2"
+              >
+                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium tracking-widest uppercase">
+                  {lang === 'zh' ? '点击或向下滚动进入' : 'Click or scroll to enter'}
+                </p>
+                <motion.div
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="text-slate-400 dark:text-slate-500"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+                  </svg>
+                </motion.div>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── END SCREEN OVERLAY ─── */}
+      <AnimatePresence>
+        {showEndScreen && (
+          <motion.div
+            key="end-screen"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: 'easeInOut' }}
+            className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+          >
+            {/* Progressively blurred background - Reduced blur for performance */}
+            <motion.div
+              className="absolute inset-0"
+              initial={{ backdropFilter: 'blur(0px)', backgroundColor: 'rgba(0,0,0,0)' }}
+              animate={{ 
+                backdropFilter: 'blur(16px)', 
+                backgroundColor: theme === 'dark' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)' 
+              }}
+              exit={{ backdropFilter: 'blur(0px)', backgroundColor: 'rgba(0,0,0,0)' }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+            />
+
+            {/* Orbiting text rings */}
+            <EndScreenOrbit lang={lang} />
+
+            {/* Center: Avatar + Name — shared layout transition from sidebar */}
+            <motion.div
+              className="relative z-10 flex flex-col items-center gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <motion.div
+                layoutId="hero-avatar"
+                transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                className="w-40 h-40 md:w-72 md:h-72 rounded-full border-4 border-white dark:border-slate-300 shadow-xl relative"
+              >
+                {/* Breathing effect on a separate layer to avoid layoutId conflicts */}
+                <motion.div 
+                  className="absolute inset-0 rounded-full"
+                  animate={{ 
+                    boxShadow: theme === 'dark' ? [
+                      '0 0 60px rgba(255,255,255,0.2)', 
+                      '0 0 120px rgba(255,255,255,0.55)', 
+                      '0 0 60px rgba(255,255,255,0.2)'
+                    ] : [
+                      '0 0 60px rgba(59,130,246,0.1)', 
+                      '0 0 120px rgba(59,130,246,0.3)', 
+                      '0 0 60px rgba(59,130,246,0.1)'
+                    ]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <div className="w-full h-full rounded-full overflow-hidden relative z-10">
+                  <img
+                    src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`}
+                    alt={data.hero.name[lang]}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </motion.div>
+              <div className="text-center">
+                <motion.h1
+                  layoutId="hero-name"
+                  transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                  className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-widest drop-shadow-2xl"
+                >
+                  {data.hero.name[lang]}
+                </motion.h1>
+                <motion.p
+                  layoutId="hero-role"
+                  transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                  className="mt-3 text-xs md:text-base text-slate-600 dark:text-white/70 font-medium tracking-widest px-6"
+                >
+                  {data.hero.role[lang]}
+                </motion.p>
+              </div>
+              <motion.p
+                className="text-slate-500 dark:text-white/40 text-[10px] md:text-xs tracking-widest mt-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.0, duration: 0.8 }}
+              >
+                ↑ {lang === 'zh' ? '向上滚动返回' : 'Scroll up to return'}
+              </motion.p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Password Modal */}
       <AnimatePresence>
@@ -533,10 +851,114 @@ const Home: React.FC = () => {
       </AnimatePresence>
 
     </div>
+    </LayoutGroup>
   );
 };
 
-// Helper function to render different types of content ONLY main info
+// Orbiting text rings for the end screen — 6 unique rings, language-aware
+function EndScreenOrbit({ lang }: { lang: 'en' | 'zh' }) {
+  const { theme } = usePortfolio();
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
+
+  const zhTexts = [
+    '求知若渴，虚心若愚  ✦  ',
+    '志之所趋，无远弗届  ✦  ',
+    '博观而约取，厚积而薄发  ✦  ',
+    '不驰于空想，不骛于虚声  ✦  ',
+    '路虽远，行则将至  ✦  ',
+    '自强不息，厚德载物  ✦  ',
+    '心之所向，素履以往  ✦  ',
+    '每一步努力，都算数  ✦  ',
+  ];
+
+  const enTexts = [
+    'Stay Hungry, Stay Foolish  ✦  ',
+    'Dream big. Start small. Act now.  ✦  ',
+    'Excellence is not an act, but a habit  ✦  ',
+    'Be the change you wish to see  ✦  ',
+    'Actions speak louder than words  ✦  ',
+    'Growth begins at the edge of comfort  ✦  ',
+    'Be the architect of your own destiny  ✦  ',
+    'Keep going  ✦  ',
+  ];
+
+  const source = lang === 'zh' ? zhTexts : enTexts;
+
+  // Each ring: { r: radius, text: string, dir: 1|-1, dur: seconds, fontSize, opacity, offset }
+  // Combining more phrases for longer paths and adding offsets to stagger gaps
+  const rings = [
+    { r: 1050, dir: 1, dur: 120, fontSize: 18, opacity: 0.12, text: source[0] + source[2] + source[4] + source[6], offset: 0 },
+    { r: 940, dir: -1, dur: 110, fontSize: 18, opacity: 0.15, text: source[1] + source[3] + source[5] + source[7], offset: 45 },
+    { r: 840, dir: 1, dur: 100, fontSize: 17, opacity: 0.18, text: source[6] + source[7] + source[0] + source[1], offset: 90 },
+    { r: 750, dir: -1, dur: 90, fontSize: 17, opacity: 0.22, text: source[2] + source[4] + source[6] + source[3], offset: 135 },
+    { r: 670, dir: 1, dur: 82, fontSize: 16, opacity: 0.26, text: source[1] + source[5] + source[7] + source[4], offset: 180 },
+    { r: 600, dir: -1, dur: 75, fontSize: 16, opacity: 0.30, text: source[0] + source[3] + source[5] + source[2], offset: 225 },
+    { r: 540, dir: 1, dur: 68, fontSize: 15, opacity: 0.35, text: source[4] + source[1] + source[6], offset: 270 },
+    { r: 485, dir: -1, dur: 60, fontSize: 15, opacity: 0.40, text: source[2] + source[6] + source[0], offset: 315 },
+    { r: 435, dir: 1, dur: 52, fontSize: 14, opacity: 0.45, text: source[5] + source[7] + source[1], offset: 60 },
+    { r: 390, dir: -1, dur: 45, fontSize: 14, opacity: 0.50, text: source[0] + source[4] + source[2], offset: 120 },
+    { r: 350, dir: 1, dur: 40, fontSize: 13, opacity: 0.55, text: source[1] + source[3] + source[5], offset: 180 },
+    { r: 315, dir: -1, dur: 35, fontSize: 13, opacity: 0.60, text: source[2] + source[5] + source[7], offset: 240 },
+  ];
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      {rings.map((ring, i) => {
+        // Scale down rings for mobile
+        const radius = isMobile ? ring.r * 0.6 : ring.r;
+        const fontSize = isMobile ? Math.max(ring.fontSize * 0.7, 10) : ring.fontSize;
+        
+        const size = (radius + 20) * 2;
+        const cx = radius + 20;
+        const d = `M ${cx},${cx} m -${radius},0 a ${radius},${radius} 0 1,1 ${radius * 2},0 a ${radius},${radius} 0 1,1 -${radius * 2},0`;
+        const id = `orbit-ring-${i}`;
+        return (
+          <motion.div
+            key={i}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            initial={{ rotate: ring.offset }}
+            animate={{ rotate: ring.offset + ring.dir * 360 }}
+            transition={{ duration: ring.dur, repeat: Infinity, ease: 'linear' }}
+            style={{ 
+              willChange: 'transform',
+              backfaceVisibility: 'hidden',
+            }}
+          >
+            <svg
+              width={size} height={size}
+              viewBox={`0 0 ${size} ${size}`}
+              className="flex-shrink-0"
+              style={{ maxWidth: 'none', maxHeight: 'none' }}
+            >
+              <defs>
+                <path id={id} d={d} />
+              </defs>
+              <text
+                fontSize={fontSize}
+                fill={theme === 'dark' ? `rgba(255,255,255,${ring.opacity})` : `rgba(15,23,42,${ring.opacity})`}
+                fontFamily="'Inter', 'PingFang SC', sans-serif"
+                letterSpacing="2"
+              >
+                <textPath href={`#${id}`}>{ring.text.repeat(isMobile ? 4 : 6)}</textPath>
+              </text>
+            </svg>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+export default Home;
+
 function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
   if (item.type === 'education') {
     return (
@@ -595,5 +1017,3 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
 
   return null;
 }
-
-export default Home;

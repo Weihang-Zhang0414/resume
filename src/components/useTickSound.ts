@@ -6,19 +6,20 @@ export const useTickSound = () => {
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
+    // Pre-create AudioContext on first ANY interaction so it's ready immediately.
+    // Wheel events ARE valid user gestures in modern browsers.
     const initAudio = () => {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
-      if (audioCtxRef.current.state === 'suspended') {
-        audioCtxRef.current.resume();
-      }
+      // Non-blocking resume; we await properly in playSound
+      audioCtxRef.current.resume().catch(() => {});
     };
-    
-    window.addEventListener('click', initAudio, { once: true });
-    window.addEventListener('touchstart', initAudio, { once: true });
-    window.addEventListener('wheel', initAudio, { once: true });
-    
+
+    window.addEventListener('click', initAudio);
+    window.addEventListener('touchstart', initAudio);
+    window.addEventListener('wheel', initAudio);
+
     return () => {
       window.removeEventListener('click', initAudio);
       window.removeEventListener('touchstart', initAudio);
@@ -26,14 +27,17 @@ export const useTickSound = () => {
     };
   }, []);
 
-  const playSound = useCallback((type: SoundType | undefined) => {
+  const playSound = useCallback(async (type: SoundType | undefined) => {
     if (!type || type === 'none') return;
     try {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       const ctx = audioCtxRef.current;
-      if (ctx.state === 'suspended') ctx.resume();
+      // Always await resume so AudioContext is guaranteed running before scheduling
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+      }
 
       const t = ctx.currentTime;
       
