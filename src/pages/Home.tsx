@@ -53,6 +53,11 @@ const Home: React.FC = () => {
       data.projects.forEach((proj: any, idx: number) => {
         flattenedItems.push({ id: `proj-${idx}`, type: 'project', categoryTitle: { en: 'Research & Projects', zh: '科研经历' }, categoryIndex: idx + 1, data: proj });
       });
+      if (data.exchanges) {
+        data.exchanges.forEach((exc: any, idx: number) => {
+          flattenedItems.push({ id: `exc-${idx}`, type: 'exchange', categoryTitle: { en: 'Exchange Experience', zh: '海外交流经历' }, categoryIndex: idx + 1, data: exc });
+        });
+      }
       if (data.volunteers) {
         data.volunteers.forEach((vol: any, idx: number) => {
           flattenedItems.push({ id: `vol-${idx}`, type: 'volunteer', categoryTitle: { en: 'Volunteer Experience', zh: '志愿服务经历' }, categoryIndex: idx + 1, data: vol });
@@ -146,6 +151,7 @@ const Home: React.FC = () => {
   if (currentItem?.type === 'education') bgColors = ['bg-blue-400/30 dark:bg-blue-900/30', 'bg-cyan-400/30 dark:bg-cyan-900/30', 'bg-sky-400/30 dark:bg-sky-900/30'];
   if (currentItem?.type === 'internship') bgColors = ['bg-indigo-400/30 dark:bg-indigo-900/30', 'bg-violet-400/30 dark:bg-violet-900/30', 'bg-purple-400/30 dark:bg-purple-900/30'];
   if (currentItem?.type === 'project') bgColors = ['bg-purple-400/30 dark:bg-purple-900/30', 'bg-fuchsia-400/30 dark:bg-fuchsia-900/30', 'bg-pink-400/30 dark:bg-pink-900/30'];
+  if (currentItem?.type === 'exchange') bgColors = ['bg-rose-400/30 dark:bg-rose-900/30', 'bg-red-400/30 dark:bg-red-900/30', 'bg-orange-400/30 dark:bg-orange-900/30'];
   if (currentItem?.type === 'volunteer') bgColors = ['bg-amber-400/30 dark:bg-amber-900/30', 'bg-orange-400/30 dark:bg-orange-900/30', 'bg-yellow-400/30 dark:bg-yellow-900/30'];
   if (currentItem?.type === 'skill') bgColors = ['bg-teal-400/30 dark:bg-teal-900/30', 'bg-emerald-400/30 dark:bg-emerald-900/30', 'bg-green-400/30 dark:bg-green-900/30'];
 
@@ -241,6 +247,7 @@ const Home: React.FC = () => {
             if (item.type === 'education') shapeClass = 'rounded-md border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30';
             if (item.type === 'internship') shapeClass = 'rounded-full border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30 px-10';
             if (item.type === 'project') shapeClass = 'rounded-none border-l-8 border-purple-500 bg-purple-50/60 dark:bg-purple-900/30';
+            if (item.type === 'exchange') shapeClass = 'rounded-3xl border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30';
             if (item.type === 'volunteer') shapeClass = 'rounded-2xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30';
             if (item.type === 'skill') shapeClass = 'rounded-tr-[4rem] rounded-bl-[4rem] rounded-tl-xl rounded-br-xl border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30';
 
@@ -308,6 +315,7 @@ const Home: React.FC = () => {
           if (item.type === 'education') { dotColor = 'bg-blue-600 dark:bg-blue-400'; inactiveColor = 'bg-blue-200 dark:bg-blue-900/50'; hoverColor = 'hover:bg-blue-400'; }
           if (item.type === 'internship') { dotColor = 'bg-indigo-600 dark:bg-indigo-400'; inactiveColor = 'bg-indigo-200 dark:bg-indigo-900/50'; hoverColor = 'hover:bg-indigo-400'; }
           if (item.type === 'project') { dotColor = 'bg-purple-600 dark:bg-purple-400'; inactiveColor = 'bg-purple-200 dark:bg-purple-900/50'; hoverColor = 'hover:bg-purple-400'; }
+          if (item.type === 'exchange') { dotColor = 'bg-rose-600 dark:bg-rose-400'; inactiveColor = 'bg-rose-200 dark:bg-rose-900/50'; hoverColor = 'hover:bg-rose-400'; }
           if (item.type === 'volunteer') { dotColor = 'bg-amber-600 dark:bg-amber-400'; inactiveColor = 'bg-amber-200 dark:bg-amber-900/50'; hoverColor = 'hover:bg-amber-400'; }
           if (item.type === 'skill') { dotColor = 'bg-teal-600 dark:bg-teal-400'; inactiveColor = 'bg-teal-200 dark:bg-teal-900/50'; hoverColor = 'hover:bg-teal-400'; }
 
@@ -527,11 +535,12 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
     );
   }
 
-  if (item.type === 'internship' || item.type === 'project' || item.type === 'volunteer') {
+  if (item.type === 'internship' || item.type === 'project' || item.type === 'exchange' || item.type === 'volunteer') {
     const isInternship = item.type === 'internship';
     const isVolunteer = item.type === 'volunteer';
+    const isExchange = item.type === 'exchange';
     const title = isInternship ? item.data.company[lang] : item.data.name[lang];
-    const roleColor = isInternship ? 'text-indigo-600 dark:text-indigo-400' : isVolunteer ? 'text-amber-600 dark:text-amber-400' : 'text-purple-600 dark:text-purple-400';
+    const roleColor = isInternship ? 'text-indigo-600 dark:text-indigo-400' : isExchange ? 'text-rose-600 dark:text-rose-400' : isVolunteer ? 'text-amber-600 dark:text-amber-400' : 'text-purple-600 dark:text-purple-400';
 
     return (
       <div>

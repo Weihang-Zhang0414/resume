@@ -552,6 +552,66 @@
       }
     }
   ],
+  "exchanges": [
+    {
+      "id": "exc-1",
+      "name": {
+        "en": "International Summer School in Engineering and Robotics",
+        "zh": "工程与机器人国际夏校"
+      },
+      "role": {
+        "en": "Participant",
+        "zh": "参与者"
+      },
+      "period": "2024.07.15 - 2024.07.31",
+      "location": {
+        "en": "Brunel University London, UK",
+        "zh": "英国伦敦布鲁内尔大学"
+      },
+      "details": {
+        "en": [
+          "Hardcore Engineering Practice: Participated in Arduino-based Robotics Challenge and 'Eye Controlled Wheelchair' core team project, ultimately completing project roadshow and demonstration.",
+          "Frontier Academic Exploration: Attended scientific lectures by professors from Electrical & Electronic Engineering, Mechanical & Aerospace, and Civil & Environmental Engineering departments, covering cutting-edge fields like 'Future Power Systems', 'Micro-Robotics', and 'Additive Manufacturing in Biomedical Engineering'.",
+          "Academic Skills Enhancement: Received systematic training from the ASK (Academic Skills) team, including critical thinking, paper structure, academic report writing, anti-plagiarism, and presentation skills.",
+          "Industry & Cultural Visit: Visited UK robotics enterprises; toured Oxford University, Cambridge University, Bath, Windsor Castle, and the London Science Museum for deep cultural immersion."
+        ],
+        "zh": [
+          "硬核工程实践：参与了基于 Arduino 的机器人挑战 (Robotics Challenge) 以及“眼控轮椅 (Eye Controlled Wheelchair)”的小组核心项目研发 ，并最终完成了项目路演与演示 。",
+          "前沿学术探索：参加了由大学电气与电子工程、机械与航空航天、土木与环境工程等学系教授主讲的科研讲座，涵盖“未来电力系统”、“微型机器人”和“生物医学工程中的增材制造”等前沿领域 。",
+          "学术技能提升：接受了 ASK (Academic Skills) 团队的系统培训，包括批判性思维、论文结构、学术报告撰写、防抄袭以及演讲技巧 。",
+          "行业与文化探访：实地参访了英国机器人相关企业 ；游历了牛津大学、剑桥大学、巴斯、温莎城堡及伦敦科学博物馆，进行了深度的文化沉浸 。"
+        ]
+      }
+    },
+    {
+      "id": "exc-2",
+      "name": {
+        "en": "Youth Cultural Exchange Program",
+        "zh": "青年使者赴美交流项目"
+      },
+      "role": {
+        "en": "Youth Ambassador",
+        "zh": "青年使者"
+      },
+      "period": "2026.08",
+      "location": {
+        "en": "United States (California / East Coast & Local Communities)",
+        "zh": "美国（涵盖加州/美东及当地社区）"
+      },
+      "details": {
+        "en": [
+          "Cross-cultural Immersion: Stayed with local American families throughout the program, deeply participated in their weekend life, and explored differences in family structures and cultures between China and the US.",
+          "Sino-US Education & Social Research: Visited top US universities including UCLA, Princeton, and UPenn (Wharton) to understand differences in higher education systems; visited local fire departments, police stations, and NGOs (e.g., Food Bank) to study public service, volunteerism, and public safety mechanisms.",
+          "Chinese Culture Output: Acted as a cultural ambassador, demonstrating traditional Chinese culture like Hanfu, paper cutting, and calligraphy to foreign friends and host families, and invited American families to visit China, promoting people-to-people cross-cultural exchange."
+        ],
+        "zh": [
+          "跨文化沉浸：全程入住当地美国家庭，深度参与美式家庭周末生活，探讨中美家庭结构与文化差异 。",
+          "中美教育与社会调研：参访了包括UCLA、普林斯顿大学、宾夕法尼亚大学（沃顿商学院）等美国顶尖高校，了解中美高等教育体系差异 ；深入当地消防局、警察局及非营利组织（如“食物银行”），研讨美国的公共服务、志愿服务及公共安全机制 。",
+          "中国文化输出：作为文化传播使者，向外国友人及寄宿家庭展示汉服、手工剪纸、毛笔字等中国传统特色文化，并邀请美国家庭来华，促进民间跨文化交流 。"
+        ]
+      }
+    }
+  ],
   "volunteers": [
     {
       "name": {

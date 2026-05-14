@@ -8,6 +8,7 @@ interface PortfolioData {
   education: any[];
   internships: any[];
   projects: any[];
+  exchanges: any[];
   volunteers: any[];
   skills: any[];
 }
