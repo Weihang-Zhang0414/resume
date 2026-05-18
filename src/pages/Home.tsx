@@ -249,6 +249,21 @@ const Home: React.FC = () => {
 
   if (loading || !data || items.length === 0) return <div className="flex justify-center items-center h-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div></div>;
 
+  const handleDotsTouch = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isPortrait || items.length === 0) return;
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const relativeX = touch.clientX - rect.left;
+    const pct = relativeX / rect.width;
+    const targetIndex = Math.max(0, Math.min(items.length - 1, Math.floor(pct * items.length)));
+    if (targetIndex !== activeIndex) {
+      setActiveIndex(targetIndex);
+      if (navigator.vibrate) {
+        navigator.vibrate(5);
+      }
+    }
+  };
+
   const handlePhotoDoubleClick = () => {
     setPasswordModalOpen(true);
   };
@@ -317,12 +332,12 @@ const Home: React.FC = () => {
         {(!showEndScreen && !showWelcome) && (
           isPortrait ? (
             /* Portrait Top 1/3 layout (shifted up, enlarged photo and text details) */
-            <div className="absolute top-7 inset-x-4 h-[20vh] max-h-[155px] z-40 flex items-center justify-center pointer-events-auto">
-              <div className="glass-card w-full max-w-[480px] h-full rounded-2xl p-3.5 flex items-center gap-4 border border-white/20 dark:border-slate-800/80 shadow-lg">
-                {/* Avatar on the Left (enlarged to 84px) */}
+            <div className="absolute top-7 inset-x-4 h-[20vh] max-h-[170px] z-40 flex items-center justify-center pointer-events-auto">
+              <div className="glass-card w-full max-w-[480px] h-full rounded-2xl p-4 flex items-center gap-4.5 border border-white/20 dark:border-slate-800/80 shadow-lg">
+                {/* Avatar on the Left (enlarged to 96px) */}
                 <motion.div
                   layoutId="hero-avatar"
-                  className="w-[84px] h-[84px] rounded-full border-2 border-white/50 shadow-md cursor-pointer relative flex-shrink-0"
+                  className="w-24 h-24 rounded-full border-2 border-white/50 shadow-md cursor-pointer relative flex-shrink-0"
                   onDoubleClick={handlePhotoDoubleClick}
                   whileHover={{ scale: 1.05 }}
                 >
@@ -346,20 +361,20 @@ const Home: React.FC = () => {
                   <motion.h1 
                     layoutId="hero-name" 
                     transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                    className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white truncate"
+                    className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white truncate"
                   >
                     {data.hero.name[lang]}
                   </motion.h1>
                   <motion.p 
                     layoutId="hero-role" 
                     transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                    className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-bold truncate mt-0.5"
+                    className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-extrabold truncate mt-0.5"
                   >
                     {data.hero.role[lang]}
                   </motion.p>
                   
-                  {/* Contacts grid (scaled to text-[10px]) */}
-                  <div className="mt-1.5 grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-slate-800/50 pt-1.5 min-h-[35px]">
+                  {/* Contacts grid (scaled to text-[11px] and bold) */}
+                  <div className="mt-1.5 grid grid-cols-2 gap-x-2 gap-y-0.5 text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-slate-800/50 pt-1.5 min-h-[35px]">
                     {data.hero.visibility?.email !== false && (
                       <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 truncate">📧 {data.hero.email}</a>
                     )}
@@ -702,9 +717,11 @@ const Home: React.FC = () => {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className={isPortrait 
-              ? "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-row gap-1.5 max-w-[90vw] overflow-x-auto py-2 scrollbar-none items-center"
+              ? "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-row gap-1.5 max-w-[90vw] overflow-x-auto py-2 scrollbar-none items-center touch-none select-none"
               : "fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1 md:gap-2"
             }
+            onTouchStart={isPortrait ? handleDotsTouch : undefined}
+            onTouchMove={isPortrait ? handleDotsTouch : undefined}
           >
             {items.map((item, index) => {
               const isNewSection = index > 0 && item.type !== items[index - 1].type;
@@ -1198,13 +1215,13 @@ const Home: React.FC = () => {
                         
                         if (detailItem.type === 'project') {
                           // Research -> 3D Rotating Wheel
-                          return <Research3DCarousel photos={detailItem.data.photos} folderPath={folderPath} />;
+                          return <Research3DCarousel photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
                         } else if (detailItem.type === 'internship') {
                           // Internship -> Polaroid wall
-                          return <InternshipPolaroidWall photos={detailItem.data.photos} folderPath={folderPath} />;
+                          return <InternshipPolaroidWall photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
                         } else {
                           // Exchanges & Volunteers -> 3D Cover Flow
-                          return <CoverFlowSlider photos={detailItem.data.photos} folderPath={folderPath} />;
+                          return <CoverFlowSlider photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
                         }
                       })()}
                     </div>
@@ -1420,7 +1437,9 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
 // ==========================================
 
 // 1. Research Project 3D Rotating Carousel
-const Research3DCarousel: React.FC<{ photos: string[], folderPath: string }> = ({ photos, folderPath }) => {
+const Research3DCarousel: React.FC<{ photos: string[], folderPath: string, onPhotoClick: (src: string) => void }> = ({ photos, folderPath, onPhotoClick }) => {
+  const { i18n } = useTranslation();
+  const lang = i18n.language as 'en' | 'zh';
   const count = photos.length;
   const [rotation, setRotation] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -1434,8 +1453,8 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string }> = (
   }, []);
 
   const radius = isLocalMobile 
-    ? (count > 5 ? 115 : count > 3 ? 95 : 75) 
-    : (count > 5 ? 200 : count > 3 ? 160 : 120);
+    ? (count > 5 ? 130 : count > 3 ? 110 : 90) 
+    : (count > 5 ? 240 : count > 3 ? 200 : 160);
 
   // Slow continuous auto-rotation when NOT hovered
   useEffect(() => {
@@ -1466,9 +1485,12 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string }> = (
     setTimeout(() => setIsTransitioning(false), 800);
   };
 
+  // Calculate which card index is closest to the front
+  const activeIdx = (Math.round(-rotation / (360 / count)) % count + count) % count;
+
   return (
     <div 
-      className="relative w-full h-[240px] sm:h-[320px] flex items-center justify-center overflow-hidden bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner group"
+      className="relative w-full h-[260px] sm:h-[380px] flex items-center justify-center overflow-hidden bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
@@ -1478,7 +1500,7 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string }> = (
       <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent pointer-events-none" />
       
       <div 
-        className="relative w-[110px] h-[75px] sm:w-[160px] sm:h-[110px]"
+        className="relative w-[140px] h-[95px] sm:w-[220px] sm:h-[150px]"
         style={{
           perspective: '1000px',
           transformStyle: 'preserve-3d',
@@ -1495,21 +1517,34 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string }> = (
           {photos.map((photo, i) => {
             const angle = (i * 360) / count;
             const src = `${folderPath}/photos/${photo}`;
+            const isActiveCard = i === activeIdx;
+
             return (
               <div
                 key={i}
-                className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.25)] bg-slate-900 cursor-pointer hover:border-purple-400 transition-colors"
+                className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.25)] bg-slate-900 cursor-pointer hover:border-purple-400 transition-colors group"
                 style={{
                   transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
                   backfaceVisibility: 'hidden',
                 }}
                 onClick={() => {
-                  setIsTransitioning(true);
-                  setRotation(-angle);
-                  setTimeout(() => setIsTransitioning(false), 800);
+                  if (isActiveCard) {
+                    onPhotoClick(src);
+                  } else {
+                    setIsTransitioning(true);
+                    setRotation(-angle);
+                    setTimeout(() => setIsTransitioning(false), 800);
+                  }
                 }}
               >
                 <img src={src} alt={`Project Detail ${i}`} className="w-full h-full object-cover select-none" />
+                {isActiveCard && (
+                  <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
+                    <span className="px-3.5 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform duration-300">
+                      🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
+                    </span>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -1536,7 +1571,9 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string }> = (
 
 
 // 2. Internship Scattered Polaroid Photo Wall
-const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string }> = ({ photos, folderPath }) => {
+const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string, onPhotoClick: (src: string) => void }> = ({ photos, folderPath, onPhotoClick }) => {
+  const { i18n } = useTranslation();
+  const lang = i18n.language as 'en' | 'zh';
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   
   const [isLocalMobile, setIsLocalMobile] = useState(window.innerWidth < 640);
@@ -1555,10 +1592,10 @@ const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string }>
   }));
 
   return (
-    <div className="relative w-full h-[260px] sm:h-[360px] bg-slate-100/50 dark:bg-slate-900/30 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 p-4 sm:p-8 overflow-hidden flex items-center justify-center shadow-inner">
+    <div className="relative w-full h-[280px] sm:h-[420px] bg-slate-100/50 dark:bg-slate-900/30 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 p-4 sm:p-8 overflow-hidden flex items-center justify-center shadow-inner">
       <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 to-transparent pointer-events-none" />
       
-      <div className="relative w-[140px] h-[170px] sm:w-[210px] sm:h-[250px]">
+      <div className="relative w-[160px] h-[200px] sm:w-[260px] sm:h-[310px]">
         {photos.map((photo, i) => {
           const src = `${folderPath}/photos/${photo}`;
           const isHovered = hoveredIdx === i;
@@ -1567,7 +1604,7 @@ const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string }>
           return (
             <motion.div
               key={i}
-              className="absolute inset-0 p-2 sm:p-3 pb-5 sm:pb-8 bg-white dark:bg-slate-900 rounded-lg sm:rounded-xl shadow-lg border border-slate-200/60 dark:border-slate-800/80 flex flex-col items-center justify-between cursor-pointer origin-center"
+              className="absolute inset-0 p-2 sm:p-3 pb-5 sm:pb-8 bg-white dark:bg-slate-900 rounded-lg sm:rounded-xl shadow-lg border border-slate-200/60 dark:border-slate-800/80 flex flex-col items-center justify-between cursor-pointer origin-center group"
               style={{
                 zIndex: isHovered ? 50 : i + 10,
                 x: isHovered ? 0 : x,
@@ -1586,9 +1623,15 @@ const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string }>
               transition={{ type: 'spring', stiffness: 220, damping: 22 }}
               onMouseEnter={() => setHoveredIdx(i)}
               onMouseLeave={() => setHoveredIdx(null)}
+              onClick={() => onPhotoClick(src)}
             >
-              <div className="w-full aspect-square rounded overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200/30 dark:border-slate-800/80">
+              <div className="relative w-full aspect-square rounded overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200/30 dark:border-slate-800/80">
                 <img src={src} alt={`Polaroid Detail ${i}`} className="w-full h-full object-cover select-none" />
+                <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
+                  <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-[10px] sm:text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform">
+                    🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
+                  </span>
+                </div>
               </div>
               <div className="text-[7px] sm:text-[9px] font-bold font-mono tracking-wider mt-1 sm:mt-2 text-slate-400 dark:text-slate-500 select-none uppercase">
                 PHOTO DETAIL #{i + 1}
@@ -1601,8 +1644,11 @@ const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string }>
   );
 };
 
+
 // 3. Volunteer & Exchange 3D Cover Flow Slider
-const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string }> = ({ photos, folderPath }) => {
+const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string, onPhotoClick: (src: string) => void }> = ({ photos, folderPath, onPhotoClick }) => {
+  const { i18n } = useTranslation();
+  const lang = i18n.language as 'en' | 'zh';
   const [activeIndex, setActiveIndex] = useState(0);
   
   const [isLocalMobile, setIsLocalMobile] = useState(window.innerWidth < 640);
@@ -1616,11 +1662,11 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string }> = ({ p
   const next = () => setActiveIndex(i => (i + 1) % photos.length);
 
   return (
-    <div className="relative w-full h-[200px] sm:h-[280px] bg-slate-950/10 dark:bg-black/30 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md overflow-hidden flex items-center justify-center shadow-inner group">
+    <div className="relative w-full h-[230px] sm:h-[340px] bg-slate-950/10 dark:bg-black/30 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md overflow-hidden flex items-center justify-center shadow-inner group">
       <div className="absolute inset-0 bg-gradient-to-t from-rose-500/10 via-transparent to-transparent pointer-events-none" />
       
       <div 
-        className="relative w-full max-w-[420px] h-[110px] sm:h-[160px] flex items-center justify-center"
+        className="relative w-full max-w-[420px] h-[115px] sm:h-[170px] flex items-center justify-center"
         style={{ perspective: '800px' }}
       >
         {photos.map((photo, i) => {
@@ -1634,8 +1680,8 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string }> = ({ p
           let translateX = 0;
           let opacity = 0;
 
-          const txOffset = isLocalMobile ? 72 : 115;
-          const farTxOffset = isLocalMobile ? 150 : 250;
+          const txOffset = isLocalMobile ? 85 : 140;
+          const farTxOffset = isLocalMobile ? 170 : 280;
 
           if (isActive) {
             rotateY = 0;
@@ -1663,7 +1709,7 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string }> = ({ p
           return (
             <motion.div
               key={i}
-              className="absolute w-[130px] h-[95px] sm:w-[180px] sm:h-[130px] rounded-xl sm:rounded-2xl overflow-hidden border border-white/20 dark:border-slate-800 shadow-2xl cursor-pointer"
+              className="absolute w-[160px] h-[115px] sm:w-[240px] sm:h-[170px] rounded-xl sm:rounded-2xl overflow-hidden border border-white/20 dark:border-slate-800 shadow-2xl cursor-pointer group"
               style={{ transformStyle: 'preserve-3d', zIndex: isActive ? 30 : 10 }}
               animate={{
                 x: translateX,
@@ -1674,10 +1720,21 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string }> = ({ p
               }}
               transition={{ type: 'spring', stiffness: 180, damping: 20 }}
               onClick={() => {
-                if (!isActive) setActiveIndex(i);
+                if (isActive) {
+                  onPhotoClick(src);
+                } else {
+                  setActiveIndex(i);
+                }
               }}
             >
               <img src={src} alt={`Cover Flow Detail ${i}`} className="w-full h-full object-cover select-none" />
+              {isActive && (
+                <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
+                  <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-[10px] sm:text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform">
+                    🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
+                  </span>
+                </div>
+              )}
             </motion.div>
           );
         })}
@@ -1686,7 +1743,7 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string }> = ({ p
       <div className="absolute inset-x-4 bottom-3 flex items-center justify-between pointer-events-none">
         <button 
           onClick={prev}
-          className="pointer-events-auto w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-800 text-white flex items-center justify-center border border-white/10 hover:border-white/30 text-xs backdrop-blur-sm transition-all"
+          className="pointer-events-auto w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-800 text-white flex items-center justify-center border border-white/10 hover:border-white/30 text-xs backdrop-blur-sm transition-all active:scale-90"
         >
           &larr;
         </button>
@@ -1703,7 +1760,7 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string }> = ({ p
 
         <button 
           onClick={next}
-          className="pointer-events-auto w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-800 text-white flex items-center justify-center border border-white/10 hover:border-white/30 text-xs backdrop-blur-sm transition-all"
+          className="pointer-events-auto w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-800 text-white flex items-center justify-center border border-white/10 hover:border-white/30 text-xs backdrop-blur-sm transition-all active:scale-90"
         >
           &rarr;
         </button>
