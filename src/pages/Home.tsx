@@ -50,6 +50,15 @@ const Home: React.FC = () => {
   const [markdownContent, setMarkdownContent] = useState<string>('');
   const [markdownLoading, setMarkdownLoading] = useState<boolean>(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'info' | 'success' | 'warning' } | null>(null);
+
+  // Auto-hide toast after 3 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   useEffect(() => {
     if (detailItem && detailItem.type !== 'education' && detailItem.data.hasMarkdown) {
@@ -61,12 +70,18 @@ const Home: React.FC = () => {
       if (detailItem.type === 'exchange') folderType = 'exchanges';
       if (detailItem.type === 'volunteer') folderType = 'volunteers';
       
-      const mdUrl = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}/details.md`;
+      // Try language-specific file first, fallback to details.md
+      const langMdUrl = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}/details_${lang}.md`;
+      const fallbackMdUrl = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}/details.md`;
       
-      fetch(mdUrl)
+      fetch(langMdUrl)
         .then(res => {
           if (res.ok) return res.text();
-          throw new Error('Failed to load markdown');
+          // Fallback to details.md if specific language file isn't found
+          return fetch(fallbackMdUrl).then(fallbackRes => {
+            if (fallbackRes.ok) return fallbackRes.text();
+            throw new Error('Failed to load fallback markdown');
+          });
         })
         .then(text => {
           setMarkdownContent(text);
@@ -81,7 +96,7 @@ const Home: React.FC = () => {
     } else {
       setMarkdownContent('');
     }
-  }, [detailItem]);
+  }, [detailItem, lang]);
 
   const playTickSound = useTickSound();
   const prevIndex = useRef(activeIndex);
@@ -1049,13 +1064,15 @@ const Home: React.FC = () => {
               </div>
 
               {/* Scrollable Columns Wrapper */}
-              <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 md:gap-10 pr-2 scrollbar-thin">
+              <div className={`flex-1 overflow-y-auto grid grid-cols-1 gap-8 md:gap-10 pr-2 scrollbar-thin w-full ${
+                detailItem.type === 'education' ? 'lg:grid-cols-[1fr_2fr]' : 'lg:grid-cols-[1fr_1.25fr]'
+              }`}>
                 
                 {/* Left Column: Summary and Markdown Detail */}
-                <div className="space-y-6">
+                <div className="space-y-6 flex flex-col">
                   {/* Keywords if present */}
                   {detailItem.data.keywords?.[lang] && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mb-2">
                       {detailItem.data.keywords[lang].map((kw: string, i: number) => (
                         <span key={i} className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800/80">
                           #{kw}
@@ -1066,50 +1083,100 @@ const Home: React.FC = () => {
 
                   {/* Bullet points Summary */}
                   {detailItem.type === 'education' ? (
-                    /* Education Section Specific Layout */
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                      <div className="space-y-6">
-                        {detailItem.data.gpa && (
-                          <div className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/40 dark:border-blue-900/30">
-                            <h4 className="text-base font-bold text-blue-800 dark:text-blue-300 mb-2">📊 学业绩点 / GPA</h4>
+                    /* Education Left Column: GPA, Courses, Scholarships stacked vertically */
+                    <div className="flex flex-col gap-6 flex-1">
+                      {detailItem.data.gpa && (
+                        <div 
+                          className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/40 dark:border-blue-900/30 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
+                        >
+                          <div>
+                            <h4 className="text-base font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
+                              <span>📊</span>
+                              <span>学业绩点 / GPA</span>
+                            </h4>
                             <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.gpa[lang]}</p>
                           </div>
-                        )}
-                        {detailItem.data.courses && (
-                          <div className="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/40 dark:border-indigo-900/30">
-                            <h4 className="text-base font-bold text-indigo-800 dark:text-indigo-300 mb-2">📚 核心课程 / Courses</h4>
+                          
+                          {detailItem.data.transcriptImage && (
+                            <button
+                              onClick={() => {
+                                const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/transcript/${detailItem.data.transcriptImage}`;
+                                setLightboxImage(src);
+                              }}
+                              className="w-fit px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-950/40 hover:bg-blue-200/70 dark:hover:bg-blue-900/60 border border-blue-200/40 dark:border-blue-800/50 rounded-lg shadow-sm hover:shadow hover:scale-[1.02] transition-all flex items-center gap-1.5 group/btn"
+                            >
+                              <span className="text-xs group-hover/btn:scale-110 transition-transform">🔍</span>
+                              <span>{lang === 'zh' ? '点击查看官方成绩单' : 'View Transcript'}</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      
+                      {detailItem.data.courses && (
+                        <div 
+                          className="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/40 dark:border-indigo-900/30 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
+                        >
+                          <div>
+                            <h4 className="text-base font-bold text-indigo-800 dark:text-indigo-300 mb-2 flex items-center gap-2">
+                              <span>📚</span>
+                              <span>核心课程 / Courses</span>
+                            </h4>
                             <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.courses[lang]}</p>
                           </div>
-                        )}
-                      </div>
-                      <div className="space-y-6">
-                        {detailItem.data.scholarships && (
-                          <div className="p-5 rounded-2xl bg-amber-50/50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-900/30">
-                            <h4 className="text-base font-bold text-amber-800 dark:text-amber-300 mb-3">🏅 奖学金 / Scholarships</h4>
-                            <ul className="space-y-2">
-                              {detailItem.data.scholarships[lang].map((s: string, i: number) => (
-                                <li key={i} className="flex gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                                  <span className="text-amber-500 mt-0.5">•</span>
-                                  <span>{s}</span>
-                                </li>
-                              ))}
+                          
+                          {detailItem.data.transcriptImage && (
+                            <button
+                              onClick={() => {
+                                  const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/transcript/${detailItem.data.transcriptImage}`;
+                                  setLightboxImage(src);
+                                }}
+                              className="w-fit px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100/50 dark:bg-indigo-950/40 hover:bg-indigo-200/70 dark:hover:bg-indigo-900/60 border border-indigo-200/40 dark:border-indigo-800/50 rounded-lg shadow-sm hover:shadow hover:scale-[1.02] transition-all flex items-center gap-1.5 group/btn"
+                            >
+                              <span className="text-xs group-hover/btn:scale-110 transition-transform">🔍</span>
+                              <span>{lang === 'zh' ? '点击查看官方成绩单' : 'View Transcript'}</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      {detailItem.data.scholarships && (
+                        <div className="p-5 rounded-2xl bg-amber-50/50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-900/30 shadow-sm flex-1 flex flex-col justify-between">
+                          <div>
+                            <h4 className="text-base font-bold text-amber-800 dark:text-amber-300 mb-3 flex items-center gap-2">
+                              <span>🏅</span>
+                              <span>奖学金 / Scholarships</span>
+                            </h4>
+                            <ul className="space-y-3">
+                              {detailItem.data.scholarships[lang].map((s: string, i: number) => {
+                                const cert = detailItem.data.scholarshipCertificates?.[i];
+                                return (
+                                  <li 
+                                    key={i} 
+                                    className="flex flex-col gap-2.5 p-3 rounded-xl border border-slate-200/10 dark:border-slate-800/10 bg-white/10 dark:bg-slate-950/10 hover:bg-amber-100/20 dark:hover:bg-amber-950/20 hover:border-amber-200/20 dark:hover:border-amber-800/15 transition-all"
+                                  >
+                                    <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed min-w-0 flex-1">
+                                      <span className="text-amber-500 mt-0.5 shrink-0">•</span>
+                                      <span className="font-semibold text-xs md:text-sm">{s}</span>
+                                    </div>
+                                    {cert && (
+                                      <button 
+                                        onClick={() => {
+                                          const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/scholarships/${cert}`;
+                                          setLightboxImage(src);
+                                        }}
+                                        className="w-fit px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-100/60 dark:bg-amber-950/40 hover:bg-amber-200/70 dark:hover:bg-amber-900/60 border border-amber-200/40 dark:border-amber-800/40 rounded-lg shadow-sm hover:shadow hover:scale-[1.01] transition-all flex items-center gap-1 shrink-0 group/btn"
+                                      >
+                                        <span className="group-hover/btn:translate-x-0.5 transition-transform">🔍</span>
+                                        <span>{lang === 'zh' ? '点击查看证书' : 'View Cert'}</span>
+                                      </button>
+                                    )}
+                                  </li>
+                                );
+                              })}
                             </ul>
                           </div>
-                        )}
-                        {detailItem.data.awards && (
-                          <div className="p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/40 dark:border-purple-900/30">
-                            <h4 className="text-base font-bold text-purple-800 dark:text-purple-300 mb-3">🏆 竞赛获奖 / Awards</h4>
-                            <ul className="space-y-2.5">
-                              {detailItem.data.awards[lang].map((a: string, i: number) => (
-                                <li key={i} className="flex gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border-b border-slate-200/20 dark:border-slate-800/40 pb-2 last:border-0 last:pb-0">
-                                  <span className="text-purple-500 mt-0.5">★</span>
-                                  <span>{a}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     /* Bullet Points for experience types */
@@ -1150,80 +1217,143 @@ const Home: React.FC = () => {
                   )}
                 </div>
 
-                {/* Right Column: Media Showcases */}
+                {/* Right Column: Media Showcases / Education Awards */}
                 <div className="space-y-8">
-                  {/* Certificate adaptive showcase */}
-                  {detailItem.data.showCerts !== false && detailItem.data.certificates && detailItem.data.certificates.length > 0 && (
-                    <div className="space-y-4">
-                      <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                        <span>📜</span>
-                        <span>{lang === 'zh' ? '获得证书 / Certificates' : 'Certificates Obtained'}</span>
-                      </h4>
-                      
-                      {/* Grid structure adaptive to cert count */}
-                      <div className={`grid gap-4 ${
-                        detailItem.data.certificates.length === 1 
-                          ? 'grid-cols-1' 
-                          : detailItem.data.certificates.length === 2 
-                          ? 'grid-cols-2' 
-                          : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
-                      }`}>
-                        {detailItem.data.certificates.slice(0, 3).map((cert: string, idx: number) => {
-                          let folderType = 'projects';
-                          if (detailItem.type === 'internship') folderType = 'internships';
-                          if (detailItem.type === 'exchange') folderType = 'exchanges';
-                          if (detailItem.type === 'volunteer') folderType = 'volunteers';
-                          
-                          const certSrc = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}/certificates/${cert}`;
-                          
-                          return (
-                            <motion.div
-                              key={idx}
-                              onClick={() => setLightboxImage(certSrc)}
-                              className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-slate-200/50 dark:border-slate-800/80 bg-slate-900 group cursor-pointer shadow-md shadow-slate-100 dark:shadow-none hover:shadow-lg transition-all"
-                              whileHover={{ y: -3, scale: 1.02 }}
-                            >
-                              <img src={certSrc} alt={`Certificate ${idx + 1}`} className="w-full h-full object-cover" />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
-                                <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md">
-                                  🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
-                                </span>
-                              </div>
-                            </motion.div>
-                          );
-                        })}
+                  {detailItem.type === 'education' ? (
+                    /* Education Right Column: Awards list */
+                    detailItem.data.awards && (
+                      <div className="p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/40 dark:border-purple-900/30 backdrop-blur-md flex flex-col justify-between h-full">
+                        <div>
+                          <h4 className="text-base font-bold text-purple-800 dark:text-purple-300 mb-4 flex items-center gap-2">
+                            <span>🏆</span>
+                            <span>{lang === 'zh' ? '竞赛获奖 / Awards' : 'Awards & Competitions'}</span>
+                          </h4>
+                          <ul className="space-y-3">
+                            {detailItem.data.awards[lang].map((a: string, i: number) => {
+                              const cert = detailItem.data.awardCertificates?.[i];
+                              return (
+                                <li 
+                                  key={i} 
+                                  onClick={() => {
+                                    if (cert) {
+                                      const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/awards/${cert}`;
+                                      setLightboxImage(src);
+                                    } else {
+                                      setToast({
+                                        message: lang === 'zh' 
+                                          ? `【${a}】暂未关联本地证书文件。请在后台管理系统中指定对应的文件名！`
+                                          : `"${a}" is not linked to a certificate file yet. Please specify it in the admin panel!`,
+                                        type: 'info'
+                                      });
+                                    }
+                                  }}
+                                  className="group/item flex items-center justify-between gap-3 text-xs md:text-sm text-slate-700 dark:text-slate-300 border-b border-slate-200/20 dark:border-slate-800/40 py-2.5 last:border-0 last:pb-0 cursor-pointer hover:bg-purple-100/20 dark:hover:bg-purple-950/20 px-2 rounded-lg -mx-2 transition-all"
+                                >
+                                  <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                                    <span className="text-purple-500 shrink-0 text-xs mt-0.5 group-hover/item:scale-110 transition-transform">★</span>
+                                    {/* Text-wrap enabled naturally as requested */}
+                                    <span className="font-semibold text-slate-700 dark:text-slate-300 leading-normal break-words" title={a}>{a}</span>
+                                  </div>
+                                  
+                                  <button
+                                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg shadow-sm border transition-all shrink-0 flex items-center gap-1 group/btn ${
+                                      cert 
+                                        ? 'text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-950/40 hover:bg-purple-200/70 dark:hover:bg-purple-900/60 border-purple-200/40 dark:border-purple-800/50'
+                                        : 'text-slate-500 dark:text-slate-400 bg-slate-100/40 dark:bg-slate-950/20 hover:bg-slate-200/50 dark:hover:bg-slate-900/40 border-slate-200/30 dark:border-slate-800/40 opacity-60 hover:opacity-100'
+                                    }`}
+                                    title={cert ? (lang === 'zh' ? '点击查看证书' : 'Click to view certificate') : (lang === 'zh' ? '暂无关联文件' : 'No file linked')}
+                                  >
+                                    <span>🔍</span>
+                                    <span>
+                                      {cert 
+                                        ? (lang === 'zh' ? '查看证书' : 'View Cert') 
+                                        : (lang === 'zh' ? '暂无证书' : 'No Cert')}
+                                    </span>
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )
+                  ) : (
+                    /* Standard experience type right column showcases */
+                    <div className="space-y-8">
+                      {/* Certificate adaptive showcase */}
+                      {detailItem.data.showCerts !== false && detailItem.data.certificates && detailItem.data.certificates.length > 0 && (
+                        <div className="space-y-4">
+                          <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span>📜</span>
+                            <span>{lang === 'zh' ? '获得证书 / Certificates' : 'Certificates Obtained'}</span>
+                          </h4>
+                          
+                          {/* Grid structure adaptive to cert count */}
+                          <div className={`grid gap-4 ${
+                            detailItem.data.certificates.length === 1 
+                              ? 'grid-cols-1' 
+                              : detailItem.data.certificates.length === 2 
+                              ? 'grid-cols-2' 
+                              : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+                          }`}>
+                            {detailItem.data.certificates.slice(0, 3).map((cert: string, idx: number) => {
+                              let folderType = 'projects';
+                              if (detailItem.type === 'internship') folderType = 'internships';
+                              if (detailItem.type === 'exchange') folderType = 'exchanges';
+                              if (detailItem.type === 'volunteer') folderType = 'volunteers';
+                              
+                              const certSrc = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}/certificates/${cert}`;
+                              
+                              return (
+                                <motion.div
+                                  key={idx}
+                                  onClick={() => setLightboxImage(certSrc)}
+                                  className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-slate-200/50 dark:border-slate-800/80 bg-slate-900 group cursor-pointer shadow-md shadow-slate-100 dark:shadow-none hover:shadow-lg transition-all"
+                                  whileHover={{ y: -3, scale: 1.02 }}
+                                >
+                                  <img src={certSrc} alt={`Certificate ${idx + 1}`} className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
+                                    <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md">
+                                      🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
+                                    </span>
+                                  </div>
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
 
-                  {/* Experience details photo gallery with distinct animation based on type */}
-                  {detailItem.data.photos && detailItem.data.photos.length > 0 && (
-                    <div className="space-y-4">
-                      <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                        <span>🖼️</span>
-                        <span>{lang === 'zh' ? '现场细节与过程 / Project Gallery' : 'Process & Gallery'}</span>
-                      </h4>
-                      
-                      {/* Render type-specific layout */}
-                      {(() => {
-                        let folderType = 'projects';
-                        if (detailItem.type === 'internship') folderType = 'internships';
-                        if (detailItem.type === 'exchange') folderType = 'exchanges';
-                        if (detailItem.type === 'volunteer') folderType = 'volunteers';
-                        
-                        const folderPath = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}`;
-                        
-                        if (detailItem.type === 'project') {
-                          // Research -> 3D Rotating Wheel
-                          return <Research3DCarousel photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
-                        } else if (detailItem.type === 'internship') {
-                          // Internship -> Polaroid wall
-                          return <InternshipPolaroidWall photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
-                        } else {
-                          // Exchanges & Volunteers -> 3D Cover Flow
-                          return <CoverFlowSlider photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
-                        }
-                      })()}
+                      {/* Experience details photo gallery with distinct animation based on type */}
+                      {detailItem.data.showPhotos !== false && detailItem.data.photos && detailItem.data.photos.length > 0 && (
+                        <div className="space-y-4">
+                          <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span>🖼️</span>
+                            <span>{lang === 'zh' ? '现场细节与过程 / Project Gallery' : 'Process & Gallery'}</span>
+                          </h4>
+                          
+                          {/* Render type-specific layout */}
+                          {(() => {
+                            let folderType = 'projects';
+                            if (detailItem.type === 'internship') folderType = 'internships';
+                            if (detailItem.type === 'exchange') folderType = 'exchanges';
+                            if (detailItem.type === 'volunteer') folderType = 'volunteers';
+                            
+                            const folderPath = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}`;
+                            
+                            if (detailItem.type === 'project') {
+                              // Research -> 3D Rotating Wheel
+                              return <Research3DCarousel photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
+                            } else if (detailItem.type === 'internship') {
+                              // Internship -> Polaroid wall
+                              return <InternshipPolaroidWall photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
+                            } else {
+                              // Exchanges & Volunteers -> 3D Cover Flow
+                              return <CoverFlowSlider photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
+                            }
+                          })()}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1260,6 +1390,21 @@ const Home: React.FC = () => {
               className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl border border-white/10"
               onClick={e => e.stopPropagation()}
             />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[1000] px-5 py-3 rounded-2xl bg-slate-900/95 dark:bg-slate-950/95 border border-slate-700/50 text-slate-100 text-xs md:text-sm font-semibold shadow-2xl backdrop-blur-md flex items-center gap-2 max-w-md text-center"
+          >
+            <span>🔔</span>
+            <span>{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1452,15 +1597,103 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string, onPho
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const radius = isLocalMobile 
-    ? (count > 5 ? 130 : count > 3 ? 110 : 90) 
-    : (count > 5 ? 240 : count > 3 ? 200 : 160);
+  // Adaptive layout strategy based on card count
+  if (count === 1) {
+    const src = `${folderPath}/photos/${photos[0]}`;
+    return (
+      <div className="relative w-full h-[230px] sm:h-[340px] flex items-center justify-center bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner">
+        <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent pointer-events-none rounded-3xl" />
+        <div 
+          className="relative w-[220px] h-[146px] sm:w-[360px] sm:h-[240px] rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_20px_rgba(168,85,247,0.2)] bg-slate-900 cursor-pointer hover:border-purple-400 hover:scale-[1.02] transition-all duration-300 group"
+          onClick={() => onPhotoClick(src)}
+        >
+          <img 
+            src={src} 
+            alt="Project Detail" 
+            className="w-full h-full object-cover select-none"
+            style={{
+              imageRendering: '-webkit-optimize-contrast',
+              backfaceVisibility: 'hidden',
+              transform: 'translate3d(0,0,0)',
+            }}
+          />
+          <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
+            <span className="px-3.5 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform duration-300">
+              🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (count === 2) {
+    return (
+      <div className="relative w-full h-[230px] sm:h-[340px] flex items-center justify-center bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner px-4 sm:px-6">
+        <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent pointer-events-none rounded-3xl" />
+        <div className="flex gap-4 sm:gap-6 w-full max-w-[500px] justify-center">
+          {photos.slice(0, 2).map((photo, idx) => {
+            const src = `${folderPath}/photos/${photo}`;
+            return (
+              <div 
+                key={idx}
+                className="relative w-[110px] h-[73px] sm:w-[220px] sm:h-[146px] rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.15)] bg-slate-900 cursor-pointer hover:border-purple-400 hover:scale-[1.04] transition-all duration-300 group"
+                onClick={() => onPhotoClick(src)}
+              >
+                <img 
+                  src={src} 
+                  alt={`Project Detail ${idx}`} 
+                  className="w-full h-full object-cover select-none"
+                  style={{
+                    imageRendering: '-webkit-optimize-contrast',
+                    backfaceVisibility: 'hidden',
+                    transform: 'translate3d(0,0,0)',
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
+                  <span className="px-3 py-1 rounded-full bg-white/20 border border-white/20 text-white text-[10px] sm:text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform duration-300">
+                    🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // Dynamic card and cylinder spacing based on image count to prevent clipping and overlap completely
+  let cardWidth = 200;
+  let cardHeight = 135;
+  let radius = 240;
+
+  if (isLocalMobile) {
+    cardWidth = 120;
+    cardHeight = 80;
+    radius = count > 8 ? 160 : count > 5 ? 130 : count > 3 ? 100 : 80;
+  } else {
+    if (count <= 4) {
+      cardWidth = 210;
+      cardHeight = 140;
+      radius = 180;
+    } else if (count <= 6) {
+      cardWidth = 190;
+      cardHeight = 127;
+      radius = 240;
+    } else {
+      // 7-9 images: slightly more compact width and scientifically optimal radius to fit completely inside container bounds
+      cardWidth = 175;
+      cardHeight = 118;
+      radius = 300;
+    }
+  }
 
   // Slow continuous auto-rotation when NOT hovered
   useEffect(() => {
     if (isHovered || isTransitioning) return;
     const timer = setInterval(() => {
-      setRotation(r => r + 0.15);
+      setRotation(r => r + 0.12);
     }, 30);
     return () => clearInterval(timer);
   }, [isHovered, isTransitioning]);
@@ -1490,27 +1723,29 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string, onPho
 
   return (
     <div 
-      className="relative w-full h-[260px] sm:h-[380px] flex items-center justify-center overflow-hidden bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner group"
+      className="relative w-full h-[230px] sm:h-[340px] flex items-center justify-center overflow-hidden bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
         setIsTransitioning(false);
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent pointer-events-none rounded-3xl" />
       
       <div 
-        className="relative w-[140px] h-[95px] sm:w-[220px] sm:h-[150px]"
         style={{
-          perspective: '1000px',
+          width: `${cardWidth}px`,
+          height: `${cardHeight}px`,
+          perspective: isLocalMobile ? '1200px' : '2200px',
           transformStyle: 'preserve-3d',
         }}
+        className="relative"
       >
         <div
           className="absolute w-full h-full"
           style={{
             transformStyle: 'preserve-3d',
-            transform: `rotateY(${rotation}deg) rotateX(-6deg)`,
+            transform: `rotateY(${rotation}deg) rotateX(-4deg)`,
             transition: isTransitioning ? 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
           }}
         >
@@ -1519,13 +1754,47 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string, onPho
             const src = `${folderPath}/photos/${photo}`;
             const isActiveCard = i === activeIdx;
 
+            // Calculate distance in the circle
+            const diff = Math.min(
+              Math.abs(i - activeIdx),
+              count - Math.abs(i - activeIdx)
+            );
+            const isVisible = diff <= 2;
+
+            // Compute opacity and scale based on distance
+            let opacity = 0;
+            let scale = 1;
+            let zIndex = 0;
+
+            if (diff === 0) {
+              opacity = 1;
+              scale = 1.15;
+              zIndex = 30;
+            } else if (diff === 1) {
+              opacity = 0.75;
+              scale = 0.85;
+              zIndex = 20;
+            } else if (diff === 2) {
+              opacity = 0.25;
+              scale = 0.65;
+              zIndex = 10;
+            } else {
+              opacity = 0;
+              scale = 0.5;
+              zIndex = 0;
+            }
+
             return (
               <div
                 key={i}
-                className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.25)] bg-slate-900 cursor-pointer hover:border-purple-400 transition-colors group"
+                className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.25)] bg-slate-900 cursor-pointer hover:border-purple-400 transition-all duration-500 group"
                 style={{
-                  transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
+                  transform: `rotateY(${angle}deg) translateZ(${radius}px) scale(${scale})`,
                   backfaceVisibility: 'hidden',
+                  opacity,
+                  zIndex,
+                  pointerEvents: opacity > 0.1 ? 'auto' : 'none',
+                  willChange: 'transform, opacity',
                 }}
                 onClick={() => {
                   if (isActiveCard) {
@@ -1537,8 +1806,19 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string, onPho
                   }
                 }}
               >
-                <img src={src} alt={`Project Detail ${i}`} className="w-full h-full object-cover select-none" />
-                {isActiveCard && (
+                {isVisible && (
+                  <img 
+                    src={src} 
+                    alt={`Project Detail ${i}`} 
+                    className="w-full h-full object-cover select-none"
+                    style={{
+                      imageRendering: '-webkit-optimize-contrast',
+                      backfaceVisibility: 'hidden',
+                      transform: 'translate3d(0,0,0)',
+                    }}
+                  />
+                )}
+                {isActiveCard && opacity > 0.5 && (
                   <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
                     <span className="px-3.5 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform duration-300">
                       🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}

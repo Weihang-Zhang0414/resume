@@ -91,8 +91,10 @@ const Admin: React.FC = () => {
     if (key === 'internships') folderType = 'internships';
     if (key === 'exchanges') folderType = 'exchanges';
     if (key === 'volunteers') folderType = 'volunteers';
+    if (key === 'education') folderType = 'education';
     
     const relativeFolderPath = `public/experiences/${folderType}/${item.id}`;
+    const isEducation = key === 'education';
     const photoCount = item.photos?.length || 0;
     const certCount = item.certificates?.length || 0;
     
@@ -105,33 +107,66 @@ const Admin: React.FC = () => {
               {relativeFolderPath}/
             </code>
           </div>
-          <div className="flex items-center gap-2">
-            {renderToggle([...itemPath, 'showCerts'], '启用证书模块 / Show Certificates')}
-          </div>
+          {!isEducation && (
+            <div className="flex items-center gap-2">
+              {renderToggle([...itemPath, 'showCerts'], '启用证书模块 / Show Certificates')}
+            </div>
+          )}
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <span className="text-slate-500">🖼️ 项目照片 / Photos:</span>
-            <span className={`font-bold ${photoCount > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
-              {photoCount} 张/pcs (1-9)
-            </span>
+        {isEducation ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-slate-500">📊 成绩单 / Transcript:</span>
+              <span className={`font-bold ${item.transcriptImage ? 'text-green-500' : 'text-slate-400'}`}>
+                {item.transcriptImage ? '已指定 / Set' : '无 / None'}
+              </span>
+            </div>
+            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-slate-500">🏅 奖学金证书 / Scholarships:</span>
+              <span className={`font-bold ${item.scholarshipCertificates?.length > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
+                {item.scholarshipCertificates?.length || 0} 张/pcs
+              </span>
+            </div>
+            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-slate-500">🏆 竞赛证书 / Awards:</span>
+              <span className={`font-bold ${item.awardCertificates?.length > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
+                {item.awardCertificates?.length || 0} 张/pcs
+              </span>
+            </div>
           </div>
-          <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <span className="text-slate-500">📜 证书 / Certificates:</span>
-            <span className={`font-bold ${certCount > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
-              {certCount} 张/pcs (1-3)
-            </span>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-slate-500">🖼️ 项目照片 / Photos:</span>
+              <span className={`font-bold ${photoCount > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
+                {photoCount} 张/pcs (1-9)
+              </span>
+            </div>
+            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-slate-500">📜 证书 / Certificates:</span>
+              <span className={`font-bold ${certCount > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
+                {certCount} 张/pcs (1-3)
+              </span>
+            </div>
+            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-slate-500">📝 Markdown 详情 / MD:</span>
+              <span className={`font-bold ${item.hasMarkdown ? 'text-green-500' : 'text-red-500 font-extrabold'}`}>
+                {item.hasMarkdown ? '已就绪 / Ready' : '无 / None'}
+              </span>
+            </div>
           </div>
-          <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <span className="text-slate-500">📝 Markdown 详情 / MD:</span>
-            <span className={`font-bold ${item.hasMarkdown ? 'text-green-500' : 'text-red-500 font-extrabold'}`}>
-              {item.hasMarkdown ? '已就绪 / Ready' : '无 / None'}
-            </span>
-          </div>
-        </div>
+        )}
         <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-normal">
-          * 请在本地将经历照片放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/photos/</code> 目录，证书放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/certificates/</code> 目录，并在 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">details.md</code> 中编写 Markdown 详情。保存后前台会自动加载！
+          {isEducation ? (
+            <span>
+              * 请在本地将成绩单图片放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/transcript/</code> 目录，奖学金证书放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/scholarships/</code> 目录，竞赛证书放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/awards/</code> 目录。并在下方指定对应文件名！
+            </span>
+          ) : (
+            <span>
+              * 请在本地将经历照片放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/photos/</code> 目录，证书放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/certificates/</code> 目录，并在 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">details.md</code> 中编写 Markdown 详情。保存后前台会自动加载！
+            </span>
+          )}
         </p>
       </div>
     );
@@ -436,65 +471,83 @@ const Admin: React.FC = () => {
         {renderArraySection(
           'education', 
           'Education 背景',
-          { id: `edu-${Date.now()}`, institution: { en: '', zh: '' }, degree: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, gpa: { en: '', zh: '' }, courses: { en: '', zh: '' }, scholarships: { en: [], zh: [] }, awards: { en: [], zh: [] } },
-          (path) => (
-            <div className="space-y-6">
-              {/* Basic Info */}
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
-                  {renderTextField([...path, 'institution', 'en'], 'Institution')}
-                  {renderTextField([...path, 'degree', 'en'], 'Degree')}
-                  {renderTextField([...path, 'location', 'en'], 'Location')}
+          { id: `edu-${Date.now()}`, institution: { en: '', zh: '' }, degree: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, gpa: { en: '', zh: '' }, courses: { en: '', zh: '' }, scholarships: { en: [], zh: [] }, awards: { en: [], zh: [] }, transcriptImage: '', scholarshipCertificates: [], awardCertificates: [] },
+          (path, index) => {
+            const item = formData.education[index];
+            return (
+              <div className="space-y-6">
+                {/* Basic Info */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
+                    {renderTextField([...path, 'institution', 'en'], 'Institution')}
+                    {renderTextField([...path, 'degree', 'en'], 'Degree')}
+                    {renderTextField([...path, 'location', 'en'], 'Location')}
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
+                    {renderTextField([...path, 'institution', 'zh'], '学校名称')}
+                    {renderTextField([...path, 'degree', 'zh'], '学位/专业')}
+                    {renderTextField([...path, 'location', 'zh'], '地点')}
+                  </div>
+                  <div className="md:col-span-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+                    {renderTextField([...path, 'period'], 'Period (e.g. 2023.09 - 2027.06)')}
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
-                  {renderTextField([...path, 'institution', 'zh'], '学校名称')}
-                  {renderTextField([...path, 'degree', 'zh'], '学位/专业')}
-                  {renderTextField([...path, 'location', 'zh'], '地点')}
-                </div>
-                <div className="md:col-span-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                  {renderTextField([...path, 'period'], 'Period (e.g. 2023.09 - 2027.06)')}
-                </div>
-              </div>
 
-              {/* GPA */}
-              <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-900/10">
-                <h4 className="text-sm font-bold text-blue-700 dark:text-blue-300 mb-3">📊 Academic Performance (GPA)</h4>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {renderTextField([...path, 'gpa', 'en'], 'GPA (EN)', true)}
-                  {renderTextField([...path, 'gpa', 'zh'], '学业绩点 (ZH)', true)}
+                {/* GPA */}
+                <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-900/10">
+                  <h4 className="text-sm font-bold text-blue-700 dark:text-blue-300 mb-3">📊 Academic Performance (GPA)</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {renderTextField([...path, 'gpa', 'en'], 'GPA (EN)', true)}
+                    {renderTextField([...path, 'gpa', 'zh'], '学业绩点 (ZH)', true)}
+                  </div>
                 </div>
-              </div>
 
-              {/* Core Courses */}
-              <div className="p-4 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/30 dark:bg-indigo-900/10">
-                <h4 className="text-sm font-bold text-indigo-700 dark:text-indigo-300 mb-3">📚 Core Courses & Grades</h4>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {renderTextField([...path, 'courses', 'en'], 'Courses (EN)', true)}
-                  {renderTextField([...path, 'courses', 'zh'], '核心课程 (ZH)', true)}
+                {/* Core Courses */}
+                <div className="p-4 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/30 dark:bg-indigo-900/10">
+                  <h4 className="text-sm font-bold text-indigo-700 dark:text-indigo-300 mb-3">📚 Core Courses & Grades</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {renderTextField([...path, 'courses', 'en'], 'Courses (EN)', true)}
+                    {renderTextField([...path, 'courses', 'zh'], '核心课程 (ZH)', true)}
+                  </div>
                 </div>
-              </div>
 
-              {/* Scholarships */}
-              <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-900/10">
-                <h4 className="text-sm font-bold text-amber-700 dark:text-amber-300 mb-3">🏅 Scholarships</h4>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {renderStringArrayField([...path, 'scholarships', 'en'], 'Scholarships (EN)')}
-                  {renderStringArrayField([...path, 'scholarships', 'zh'], '奖学金 (ZH)')}
+                {/* Scholarships */}
+                <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-900/10">
+                  <h4 className="text-sm font-bold text-amber-700 dark:text-amber-300 mb-3">🏅 Scholarships</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {renderStringArrayField([...path, 'scholarships', 'en'], 'Scholarships (EN)')}
+                    {renderStringArrayField([...path, 'scholarships', 'zh'], '奖学金 (ZH)')}
+                  </div>
                 </div>
-              </div>
 
-              {/* Awards */}
-              <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/30 dark:bg-purple-900/10">
-                <h4 className="text-sm font-bold text-purple-700 dark:text-purple-300 mb-3">🏆 Competitions & Awards</h4>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {renderStringArrayField([...path, 'awards', 'en'], 'Awards (EN)')}
-                  {renderStringArrayField([...path, 'awards', 'zh'], '竞赛获奖 (ZH)')}
+                {/* Awards */}
+                <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/30 dark:bg-purple-900/10">
+                  <h4 className="text-sm font-bold text-purple-700 dark:text-purple-300 mb-3">🏆 Competitions & Awards</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {renderStringArrayField([...path, 'awards', 'en'], 'Awards (EN)')}
+                    {renderStringArrayField([...path, 'awards', 'zh'], '竞赛获奖 (ZH)')}
+                  </div>
                 </div>
+
+                {/* Associated Certificates & Images */}
+                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10 space-y-4">
+                  <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-850 pb-2">🖼️ 关联证书与图片文件名 / Associate Certificates & Images</h4>
+                  
+                  {renderTextField([...path, 'transcriptImage'], '成绩单图片文件名 / Transcript Image Filename (放在 transcript/ 目录，如 transcript.png)')}
+                  
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {renderStringArrayField([...path, 'scholarshipCertificates'], '奖学金证书文件名列表 / Scholarship Certificate Filenames (按顺序放在 scholarships/ 目录)')}
+                    {renderStringArrayField([...path, 'awardCertificates'], '竞赛证书文件名列表 / Award Certificate Filenames (按顺序放在 awards/ 目录)')}
+                  </div>
+                </div>
+
+                {/* Local directory instruction banner */}
+                {renderExperienceDirectoryBanner('education', item, path)}
               </div>
-            </div>
-          )
+            );
+          }
         )}
 
 

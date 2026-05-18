@@ -28,7 +28,8 @@ function syncExperienceFolders(data: any) {
     { key: 'projects', folder: 'projects', idPrefix: 'proj', nameField: 'name' },
     { key: 'internships', folder: 'internships', idPrefix: 'int', nameField: 'company' },
     { key: 'exchanges', folder: 'exchanges', idPrefix: 'exc', nameField: 'name' },
-    { key: 'volunteers', folder: 'volunteers', idPrefix: 'vol', nameField: 'name' }
+    { key: 'volunteers', folder: 'volunteers', idPrefix: 'vol', nameField: 'name' },
+    { key: 'education', folder: 'education', idPrefix: 'edu', nameField: 'institution' }
   ];
 
   let modified = false;
@@ -72,55 +73,96 @@ function syncExperienceFolders(data: any) {
       }
 
       const folderPath = path.resolve('public', 'experiences', folder, item.id);
-      const photosPath = path.join(folderPath, 'photos');
-      const certsPath = path.join(folderPath, 'certificates');
-      const mdPath = path.join(folderPath, 'details.md');
 
-      // 2. Create directory and default files if not exists
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true });
-        fs.mkdirSync(photosPath, { recursive: true });
-        fs.mkdirSync(certsPath, { recursive: true });
-        
-        const titleEn = item.name?.en || item.company?.en || item.institution?.en || 'Experience details';
-        const titleZh = item.name?.zh || item.company?.zh || item.institution?.zh || '经历详情';
-        
-        const defaultMd = `# ${titleZh} / ${titleEn}\n\n在这里编辑该经历的详细介绍。支持 Markdown 格式排版，会在前台详情页面中自动渲染。\n\n## 核心收获 / Core Highlights\n- **创新实践**: 深度应用所学技术解决实际痛点问题\n- **团队协作**: 协同多方资源，高效率推进项目落地\n- **个人成长**: 提升了专业技术水平与解决复杂工程问题的能力\n`;
-        fs.writeFileSync(mdPath, defaultMd, 'utf-8');
-        modified = true;
-      }
+      if (key === 'education') {
+        const transcriptPath = path.join(folderPath, 'transcript');
+        const scholarshipsPath = path.join(folderPath, 'scholarships');
+        const awardsPath = path.join(folderPath, 'awards');
 
-      // 3. Scan photos folder
-      let photos: string[] = [];
-      if (fs.existsSync(photosPath)) {
-        photos = fs.readdirSync(photosPath).filter(file => {
-          const ext = path.extname(file).toLowerCase();
-          return ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'].includes(ext);
-        });
-      }
-      if (JSON.stringify(item.photos) !== JSON.stringify(photos)) {
-        item.photos = photos;
-        modified = true;
-      }
+        if (!fs.existsSync(folderPath)) {
+          fs.mkdirSync(folderPath, { recursive: true });
+        }
+        if (!fs.existsSync(transcriptPath)) {
+          fs.mkdirSync(transcriptPath, { recursive: true });
+        }
+        if (!fs.existsSync(scholarshipsPath)) {
+          fs.mkdirSync(scholarshipsPath, { recursive: true });
+        }
+        if (!fs.existsSync(awardsPath)) {
+          fs.mkdirSync(awardsPath, { recursive: true });
+        }
 
-      // 4. Scan certificates folder
-      let certificates: string[] = [];
-      if (fs.existsSync(certsPath)) {
-        certificates = fs.readdirSync(certsPath).filter(file => {
-          const ext = path.extname(file).toLowerCase();
-          return ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'].includes(ext);
-        });
-      }
-      if (JSON.stringify(item.certificates) !== JSON.stringify(certificates)) {
-        item.certificates = certificates;
-        modified = true;
-      }
+        // Initialize default empty values for portfolio.json if not present
+        if (item.transcriptImage === undefined) {
+          item.transcriptImage = '';
+          modified = true;
+        }
+        if (item.scholarshipCertificates === undefined) {
+          item.scholarshipCertificates = [];
+          modified = true;
+        }
+        if (item.awardCertificates === undefined) {
+          item.awardCertificates = [];
+          modified = true;
+        }
+      } else {
+        const photosPath = path.join(folderPath, 'photos');
+        const certsPath = path.join(folderPath, 'certificates');
+        const mdPath = path.join(folderPath, 'details.md');
+        const mdZhPath = path.join(folderPath, 'details_zh.md');
+        const mdEnPath = path.join(folderPath, 'details_en.md');
 
-      // 5. Check markdown details
-      const hasMarkdown = fs.existsSync(mdPath);
-      if (item.hasMarkdown !== hasMarkdown) {
-        item.hasMarkdown = hasMarkdown;
-        modified = true;
+        // 2. Create directory and default files if not exists
+        if (!fs.existsSync(folderPath)) {
+          fs.mkdirSync(folderPath, { recursive: true });
+          fs.mkdirSync(photosPath, { recursive: true });
+          fs.mkdirSync(certsPath, { recursive: true });
+          
+          const titleEn = item.name?.en || item.company?.en || item.institution?.en || 'Experience details';
+          const titleZh = item.name?.zh || item.company?.zh || item.institution?.zh || '经历详情';
+          
+          const defaultMd = `# ${titleZh} / ${titleEn}\n\n在这里编辑该经历的详细介绍。支持 Markdown 格式排版，会在前台详情页面中自动渲染。\n\n## 核心收获 / Core Highlights\n- **创新实践**: 深度应用所学技术解决实际痛点问题\n- **团队协作**: 协同多方资源，高效率推进项目落地\n- **个人成长**: 提升了专业技术水平与解决复杂工程问题的能力\n`;
+          const defaultMdZh = `# ${titleZh}\n\n在这里编辑该经历的详细中文介绍。支持 Markdown 格式排版，会在前台详情页面中自动渲染。\n\n## 核心收获\n- **创新实践**: 深度应用所学技术解决实际痛点问题\n- **团队协作**: 协同多方资源，高效率推进项目落地\n- **个人成长**: 提升了专业技术水平与解决复杂工程问题的能力\n`;
+          const defaultMdEn = `# ${titleEn}\n\nEdit the detailed English introduction of this experience here. It supports Markdown formatting and will be automatically rendered in the frontend details page.\n\n## Key Learnings & Growth\n- **Innovative Practice**: Deeply applied learned technology to solve real-world problems.\n- **Teamwork**: Collaborated with multiple resources to efficiently promote project landing.\n- **Personal Growth**: Enhanced professional technical skills and the ability to solve complex engineering problems.\n`;
+          
+          fs.writeFileSync(mdPath, defaultMd, 'utf-8');
+          fs.writeFileSync(mdZhPath, defaultMdZh, 'utf-8');
+          fs.writeFileSync(mdEnPath, defaultMdEn, 'utf-8');
+          modified = true;
+        }
+
+        // 3. Scan photos folder
+        let photos: string[] = [];
+        if (fs.existsSync(photosPath)) {
+          photos = fs.readdirSync(photosPath).filter(file => {
+            const ext = path.extname(file).toLowerCase();
+            return ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'].includes(ext);
+          });
+        }
+        if (JSON.stringify(item.photos) !== JSON.stringify(photos)) {
+          item.photos = photos;
+          modified = true;
+        }
+
+        // 4. Scan certificates folder
+        let certificates: string[] = [];
+        if (fs.existsSync(certsPath)) {
+          certificates = fs.readdirSync(certsPath).filter(file => {
+            const ext = path.extname(file).toLowerCase();
+            return ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'].includes(ext);
+          });
+        }
+        if (JSON.stringify(item.certificates) !== JSON.stringify(certificates)) {
+          item.certificates = certificates;
+          modified = true;
+        }
+
+        // 5. Check markdown details
+        const hasMarkdown = fs.existsSync(mdPath) || fs.existsSync(mdZhPath) || fs.existsSync(mdEnPath);
+        if (item.hasMarkdown !== hasMarkdown) {
+          item.hasMarkdown = hasMarkdown;
+          modified = true;
+        }
       }
     });
   }
@@ -134,7 +176,8 @@ function cleanDeletedExperienceFolders(oldData: any, newData: any) {
     { key: 'projects', folder: 'projects' },
     { key: 'internships', folder: 'internships' },
     { key: 'exchanges', folder: 'exchanges' },
-    { key: 'volunteers', folder: 'volunteers' }
+    { key: 'volunteers', folder: 'volunteers' },
+    { key: 'education', folder: 'education' }
   ];
 
   types.forEach(({ key, folder }) => {
@@ -219,7 +262,25 @@ const portfolioApiPlugin = () => {
 };
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  base: '/resume/',
-  plugins: [react(), portfolioApiPlugin()],
+export default defineConfig(() => {
+  // Sync and scan experience folders immediately when Vite starts (both on dev server and production build)
+  try {
+    const dataPath = path.resolve('public/data/portfolio.json');
+    if (fs.existsSync(dataPath)) {
+      const data = fs.readFileSync(dataPath, 'utf-8');
+      const jsonData = JSON.parse(data);
+      const isModified = syncExperienceFolders(jsonData);
+      if (isModified) {
+        fs.writeFileSync(dataPath, JSON.stringify(jsonData, null, 2), 'utf-8');
+        console.log('[Sync] Automatically scanned folders and updated portfolio.json on startup.');
+      }
+    }
+  } catch (err: any) {
+    console.error(`[Sync] Startup scan failed: ${err.message}`);
+  }
+
+  return {
+    base: '/resume/',
+    plugins: [react(), portfolioApiPlugin()],
+  };
 });
