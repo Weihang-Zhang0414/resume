@@ -30,15 +30,29 @@ const PortfolioContext = createContext<PortfolioContextType | undefined>(undefin
 export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [data, setData] = useState<PortfolioData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const { i18n } = useTranslation();
-
-  useEffect(() => {
-    // Check initial theme from system
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    // 1. Check user override in localStorage first
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      return savedTheme;
     }
-  }, []);
+
+    // 2. Check system preference for dark mode (highest device/OS priority)
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+
+    // 3. Fallback to time-based judgment:
+    // If local hour is >= 18 (6:00 PM) or < 6 (6:00 AM), default to dark mode.
+    const currentHour = new Date().getHours();
+    if (currentHour >= 18 || currentHour < 6) {
+      return 'dark';
+    }
+
+    // 4. Default fallback is light mode
+    return 'light';
+  });
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -49,7 +63,11 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setTheme(prev => {
+      const nextTheme = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', nextTheme);
+      return nextTheme;
+    });
   };
 
   useEffect(() => {

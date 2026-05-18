@@ -285,17 +285,17 @@ const Home: React.FC = () => {
     <LayoutGroup>
     <div className={`relative w-full h-full ${isMobile ? '' : 'pt-20'}`}>
 
-      {/* Dynamic Background - Simplified for mobile performance */}
+      {/* Dynamic Background - Dreamy, vibrant floating gradient bubbles for all viewport sizes */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none transition-colors duration-700">
-        <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full ${bgColors[0]} ${isMobile ? 'blur-2xl opacity-50' : 'blur-3xl animate-blob'} mix-blend-multiply dark:mix-blend-screen transition-colors duration-700`}></div>
-        <div className={`absolute top-[20%] right-[-10%] w-[50%] h-[50%] rounded-full ${bgColors[1]} ${isMobile ? 'blur-2xl opacity-50' : 'blur-3xl animate-blob animation-delay-2000'} mix-blend-multiply dark:mix-blend-screen transition-colors duration-700`}></div>
-        <div className={`absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] rounded-full ${bgColors[2]} ${isMobile ? 'blur-2xl opacity-50' : 'blur-3xl animate-blob animation-delay-4000'} mix-blend-multiply dark:mix-blend-screen transition-colors duration-700`}></div>
+        <div className={`absolute top-[-10%] left-[-15%] w-[80vw] h-[80vw] md:w-[40%] md:h-[40%] rounded-full ${bgColors[0]} blur-[80px] md:blur-3xl opacity-75 dark:opacity-60 animate-blob mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
+        <div className={`absolute top-[25%] right-[-20%] w-[90vw] h-[90vw] md:w-[50%] md:h-[50%] rounded-full ${bgColors[1]} blur-[90px] md:blur-3xl opacity-75 dark:opacity-60 animate-blob animation-delay-2000 mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
+        <div className={`absolute bottom-[-15%] left-[-10%] w-[100vw] h-[100vw] md:w-[60%] md:h-[60%] rounded-full ${bgColors[2]} blur-[100px] md:blur-3xl opacity-75 dark:opacity-60 animate-blob animation-delay-4000 mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
       </div>
 
       {/* Category Title */}
       <AnimatePresence>
         {(!showEndScreen && !showWelcome) && (
-          <div className={`absolute z-30 transition-all duration-500 ${isPortrait ? 'top-[31%] left-1/2 -translate-x-1/2' : 'top-24 right-6 md:right-10'}`}>
+          <div className={`absolute z-30 transition-all duration-500 ${isPortrait ? 'top-[27%] left-1/2 -translate-x-1/2' : 'top-24 right-6 md:right-10'}`}>
             <AnimatePresence mode="wait">
               <motion.h2
                 key={currentCategory}
@@ -316,13 +316,13 @@ const Home: React.FC = () => {
       <AnimatePresence>
         {(!showEndScreen && !showWelcome) && (
           isPortrait ? (
-            /* Portrait Top 1/3 layout */
-            <div className="absolute top-16 inset-x-4 h-[22vh] z-40 flex items-center justify-center pointer-events-auto">
-              <div className="glass-card w-full max-w-[480px] h-full rounded-2xl p-3 flex items-center gap-4 border border-white/20 dark:border-slate-800/80 shadow-lg">
-                {/* Avatar on the Left */}
+            /* Portrait Top 1/3 layout (shifted up, enlarged photo and text details) */
+            <div className="absolute top-7 inset-x-4 h-[20vh] max-h-[155px] z-40 flex items-center justify-center pointer-events-auto">
+              <div className="glass-card w-full max-w-[480px] h-full rounded-2xl p-3.5 flex items-center gap-4 border border-white/20 dark:border-slate-800/80 shadow-lg">
+                {/* Avatar on the Left (enlarged to 84px) */}
                 <motion.div
                   layoutId="hero-avatar"
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/50 shadow-md cursor-pointer relative flex-shrink-0"
+                  className="w-[84px] h-[84px] rounded-full border-2 border-white/50 shadow-md cursor-pointer relative flex-shrink-0"
                   onDoubleClick={handlePhotoDoubleClick}
                   whileHover={{ scale: 1.05 }}
                 >
@@ -341,25 +341,25 @@ const Home: React.FC = () => {
                   </div>
                 </motion.div>
                 
-                {/* Info on the Right */}
+                {/* Info on the Right (scaled text sizes) */}
                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                   <motion.h1 
                     layoutId="hero-name" 
                     transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                    className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white truncate"
+                    className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white truncate"
                   >
                     {data.hero.name[lang]}
                   </motion.h1>
                   <motion.p 
                     layoutId="hero-role" 
                     transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                    className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-semibold truncate mt-0.5"
+                    className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-bold truncate mt-0.5"
                   >
                     {data.hero.role[lang]}
                   </motion.p>
                   
-                  {/* Contacts grid */}
-                  <div className="mt-1.5 grid grid-cols-2 gap-x-2 gap-y-0.5 text-[9px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-slate-800/50 pt-1.5 min-h-[35px]">
+                  {/* Contacts grid (scaled to text-[10px]) */}
+                  <div className="mt-1.5 grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-slate-800/50 pt-1.5 min-h-[35px]">
                     {data.hero.visibility?.email !== false && (
                       <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 truncate">📧 {data.hero.email}</a>
                     )}
@@ -514,9 +514,9 @@ const Home: React.FC = () => {
                     : 'rounded-tr-[4rem] rounded-bl-[4rem] rounded-tl-xl rounded-br-xl border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30';
                 }
     
-                // Adaptive card width and height (compressed slightly for tighter vertical fit)
+                // Adaptive card width and height (compressed slightly for tighter vertical fit and narrow to avoid overlaps)
                 const cardSizeClass = isPortrait 
-                  ? 'w-[82vw] max-w-[360px] h-[42vh] max-h-[340px]' 
+                  ? 'w-[75vw] max-w-[310px] h-[42vh] max-h-[340px]' 
                   : 'w-full max-w-[calc(100vw-2rem)] md:max-w-2xl lg:max-w-4xl';
     
                 return (
