@@ -478,22 +478,40 @@ const Home: React.FC = () => {
     
                 // Shape based on type
                 let shapeClass = 'rounded-xl border-blue-200 dark:border-blue-800 bg-white/40 dark:bg-slate-900/40';
-                if (item.type === 'education') shapeClass = 'rounded-md border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30';
-                if (item.type === 'internship') shapeClass = 'rounded-full border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30 px-6 sm:px-10';
-                if (item.type === 'project') shapeClass = 'rounded-none border-l-8 border-purple-500 bg-purple-50/60 dark:bg-purple-900/30';
-                if (item.type === 'exchange') shapeClass = 'rounded-3xl border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30';
-                if (item.type === 'volunteer') shapeClass = 'rounded-2xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30';
-                if (item.type === 'skill') shapeClass = 'rounded-tr-[4rem] rounded-bl-[4rem] rounded-tl-xl rounded-br-xl border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30';
+                if (item.type === 'education') {
+                  shapeClass = 'rounded-md border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30';
+                }
+                if (item.type === 'internship') {
+                  shapeClass = isPortrait 
+                    ? 'rounded-[2rem] border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30 p-5' 
+                    : 'rounded-full border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30 px-6 sm:px-10';
+                }
+                if (item.type === 'project') {
+                  shapeClass = isPortrait
+                    ? 'rounded-xl border-t-8 border-purple-500 bg-purple-50/60 dark:bg-purple-900/30 p-5'
+                    : 'rounded-none border-l-8 border-purple-500 bg-purple-50/60 dark:bg-purple-900/30';
+                }
+                if (item.type === 'exchange') {
+                  shapeClass = 'rounded-3xl border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30';
+                }
+                if (item.type === 'volunteer') {
+                  shapeClass = 'rounded-2xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30';
+                }
+                if (item.type === 'skill') {
+                  shapeClass = isPortrait
+                    ? 'rounded-[2rem] border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30 p-5'
+                    : 'rounded-tr-[4rem] rounded-bl-[4rem] rounded-tl-xl rounded-br-xl border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30';
+                }
     
-                // Adaptive card width
-                const cardWidthClass = isPortrait 
-                  ? 'w-[78vw] max-w-[420px]' 
+                // Adaptive card width and height (portrait vertical card)
+                const cardSizeClass = isPortrait 
+                  ? 'w-[82vw] max-w-[360px] h-[46vh] max-h-[380px]' 
                   : 'w-full max-w-[calc(100vw-2rem)] md:max-w-2xl lg:max-w-4xl';
     
                 return (
                   <motion.div
                     key={item.id}
-                    className={`absolute ${cardWidthClass} px-3 md:px-6 origin-center md:origin-left ${isActive ? 'z-20 cursor-default pointer-events-auto' : `z-10 ${pointerEventsClass}`}`}
+                    className={`absolute ${cardSizeClass} px-3 md:px-6 origin-center md:origin-left ${isActive ? 'z-20 cursor-default pointer-events-auto' : `z-10 ${pointerEventsClass}`}`}
                     initial={false}
                     animate={{
                       y: yOffset,
@@ -520,45 +538,102 @@ const Home: React.FC = () => {
                       transformStyle: 'preserve-3d'
                     }}
                   >
-                    <div className={`relative overflow-hidden backdrop-blur-md p-3.5 sm:p-6 md:p-8 border transition-all duration-300 flex items-center gap-3 md:gap-6 ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'}`}>
-                      {/* Left Side Number */}
-                      <div className="text-3xl sm:text-6xl md:text-7xl font-black text-slate-300/80 dark:text-slate-600/50 flex-shrink-0 w-10 sm:w-20 md:w-24 text-center select-none">
-                        {String(item.categoryIndex).padStart(2, '0')}
-                      </div>
-    
-                      {/* Right Side Content */}
-                      <div className="flex-1 relative z-10 border-l-2 border-slate-200/50 dark:border-slate-700/50 pl-3 md:pl-6 min-w-0">
-                        {renderItemContent(item, lang)}
-                        {isActive && item.type !== 'skill' && (
-                          <div className="mt-1.5 md:mt-3 flex items-center justify-between gap-3">
-                            {/* Keywords inline */}
-                            {(item.type === 'internship' || item.type === 'project') && item.data.keywords?.[lang] ? (
-                              <div className="flex flex-wrap gap-1 md:gap-2 flex-1 overflow-hidden" style={{ maxHeight: '3.5rem' }}>
-                                {item.data.keywords[lang].map((kw: string, i: number) => {
-                                  const rot = (kw.length * 7 + i * 17) % 10 - 5;
-                                  const sizes = ['text-[9px]', 'text-[10px]', 'text-[11px]', 'text-[10px]', 'text-[9px]', 'text-[11px]'];
-                                  const sz = sizes[i % sizes.length];
-                                  const colorClass = item.type === 'internship'
-                                    ? 'bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-700/50'
-                                    : 'bg-purple-100/80 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-700/50';
-                                  return (
-                                    <span
-                                      key={i}
-                                      className={`inline-block font-semibold px-1.5 py-0.5 border shadow-sm backdrop-blur-sm rounded-tl-lg rounded-br-lg rounded-tr-[2px] rounded-bl-[2px] whitespace-nowrap ${sz} ${colorClass}`}
-                                      style={{ transform: `rotate(${rot}deg)` }}
-                                    >
-                                      {kw}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            ) : <div className="flex-1" />}
-                            <div className="text-[10px] sm:text-sm font-medium text-blue-500/80 dark:text-blue-400/80 animate-pulse whitespace-nowrap flex-shrink-0">
-                              {lang === 'zh' ? '点击查看详情' : 'Read more'} &rarr;
+                    <div className={`relative overflow-hidden backdrop-blur-md transition-all duration-300 border ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'} ${isPortrait ? 'h-full flex flex-col justify-between p-5' : 'p-3.5 sm:p-6 md:p-8 flex items-center gap-3 md:gap-6'}`}>
+                      {isPortrait ? (
+                        /* Portrait Vertical Card Structure */
+                        <div className="flex-1 flex flex-col justify-between min-w-0 h-full">
+                          {/* Top Header Row inside Card */}
+                          <div className="flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 pb-2 mb-2.5 flex-shrink-0">
+                            <div className="text-xl sm:text-2xl font-black text-slate-400/80 dark:text-slate-500/60 select-none">
+                              {String(item.categoryIndex).padStart(2, '0')}
+                            </div>
+                            <div className="text-[10px] font-bold tracking-wider uppercase text-slate-500/85 dark:text-slate-400/85 bg-slate-200/50 dark:bg-slate-800/50 px-2 py-0.5 rounded">
+                              {item.categoryTitle[lang]}
                             </div>
                           </div>
-                        )}
-                      </div>
+
+                          {/* Middle Content Section - takes remaining vertical space */}
+                          <div className="flex-1 min-w-0 flex flex-col justify-start overflow-y-auto scrollbar-none pr-1">
+                            {renderItemContent(item, lang)}
+                          </div>
+
+                          {/* Bottom Section inside Card */}
+                          {isActive && (
+                            <div className="mt-2.5 pt-2.5 border-t border-slate-200/30 dark:border-slate-800/30 flex-shrink-0 flex flex-col gap-2">
+                              {/* Keywords */}
+                              {(item.type === 'internship' || item.type === 'project') && item.data.keywords?.[lang] && (
+                                <div className="flex flex-wrap gap-1 max-h-[85px] overflow-y-auto scrollbar-none">
+                                  {item.data.keywords[lang].map((kw: string, i: number) => {
+                                    const sizes = ['text-[9px]', 'text-[10px]', 'text-[9px]'];
+                                    const sz = sizes[i % sizes.length];
+                                    const colorClass = item.type === 'internship'
+                                      ? 'bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-700/50'
+                                      : 'bg-purple-100/80 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-700/50';
+                                    return (
+                                      <span
+                                        key={i}
+                                        className={`inline-block font-semibold px-1.5 py-0.5 border shadow-sm backdrop-blur-sm rounded-md whitespace-nowrap ${sz} ${colorClass}`}
+                                      >
+                                        {kw}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                              
+                              {/* Action text */}
+                              {item.type !== 'skill' && (
+                                <div className="text-[10px] sm:text-xs font-semibold text-blue-500/90 dark:text-blue-400/90 flex items-center justify-end gap-1.5 animate-pulse mt-0.5">
+                                  <span>{lang === 'zh' ? '点击查看详情' : 'Read more'}</span>
+                                  <span className="text-xs">&rarr;</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        /* Desktop Horizontal Card Structure */
+                        <>
+                          {/* Left Side Number */}
+                          <div className="text-3xl sm:text-6xl md:text-7xl font-black text-slate-300/80 dark:text-slate-600/50 flex-shrink-0 w-10 sm:w-20 md:w-24 text-center select-none">
+                            {String(item.categoryIndex).padStart(2, '0')}
+                          </div>
+        
+                          {/* Right Side Content */}
+                          <div className="flex-1 relative z-10 border-l-2 border-slate-200/50 dark:border-slate-700/50 pl-3 md:pl-6 min-w-0">
+                            {renderItemContent(item, lang)}
+                            {isActive && item.type !== 'skill' && (
+                              <div className="mt-1.5 md:mt-3 flex items-center justify-between gap-3">
+                                {/* Keywords inline */}
+                                {(item.type === 'internship' || item.type === 'project') && item.data.keywords?.[lang] ? (
+                                  <div className="flex flex-wrap gap-1 md:gap-2 flex-1 overflow-hidden" style={{ maxHeight: '3.5rem' }}>
+                                    {item.data.keywords[lang].map((kw: string, i: number) => {
+                                      const rot = (kw.length * 7 + i * 17) % 10 - 5;
+                                      const sizes = ['text-[9px]', 'text-[10px]', 'text-[11px]', 'text-[10px]', 'text-[9px]', 'text-[11px]'];
+                                      const sz = sizes[i % sizes.length];
+                                      const colorClass = item.type === 'internship'
+                                        ? 'bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-700/50'
+                                        : 'bg-purple-100/80 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-700/50';
+                                      return (
+                                        <span
+                                          key={i}
+                                          className={`inline-block font-semibold px-1.5 py-0.5 border shadow-sm backdrop-blur-sm rounded-tl-lg rounded-br-lg rounded-tr-[2px] rounded-bl-[2px] whitespace-nowrap ${sz} ${colorClass}`}
+                                          style={{ transform: `rotate(${rot}deg)` }}
+                                        >
+                                          {kw}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                ) : <div className="flex-1" />}
+                                <div className="text-[10px] sm:text-sm font-medium text-blue-500/80 dark:text-blue-400/80 animate-pulse whitespace-nowrap flex-shrink-0">
+                                  {lang === 'zh' ? '点击查看详情' : 'Read more'} &rarr;
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </motion.div>
                 );
