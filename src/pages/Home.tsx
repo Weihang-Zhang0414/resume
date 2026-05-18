@@ -273,7 +273,13 @@ const Home: React.FC = () => {
   if (currentItem?.type === 'project') bgColors = ['bg-purple-400/30 dark:bg-purple-900/30', 'bg-fuchsia-400/30 dark:bg-fuchsia-900/30', 'bg-pink-400/30 dark:bg-pink-900/30'];
   if (currentItem?.type === 'exchange') bgColors = ['bg-rose-400/30 dark:bg-rose-900/30', 'bg-red-400/30 dark:bg-red-900/30', 'bg-orange-400/30 dark:bg-orange-900/30'];
   if (currentItem?.type === 'volunteer') bgColors = ['bg-amber-400/30 dark:bg-amber-900/30', 'bg-orange-400/30 dark:bg-orange-900/30', 'bg-yellow-400/30 dark:bg-yellow-900/30'];
-  if (currentItem?.type === 'skill') bgColors = ['bg-teal-400/30 dark:bg-teal-900/30', 'bg-emerald-400/30 dark:bg-emerald-900/30', 'bg-green-400/30 dark:bg-green-900/30'];
+  let categoryColorClass = 'text-blue-600 dark:text-blue-400';
+  if (currentItem?.type === 'education') categoryColorClass = 'text-blue-600 dark:text-blue-400';
+  if (currentItem?.type === 'internship') categoryColorClass = 'text-indigo-600 dark:text-indigo-400';
+  if (currentItem?.type === 'project') categoryColorClass = 'text-purple-600 dark:text-purple-400';
+  if (currentItem?.type === 'exchange') categoryColorClass = 'text-rose-600 dark:text-rose-400';
+  if (currentItem?.type === 'volunteer') categoryColorClass = 'text-amber-600 dark:text-amber-400';
+  if (currentItem?.type === 'skill') categoryColorClass = 'text-teal-600 dark:text-teal-400';
 
   return (
     <LayoutGroup>
@@ -297,7 +303,7 @@ const Home: React.FC = () => {
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 exit={isPortrait ? { opacity: 0, y: 10 } : { opacity: 0, x: -20 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider drop-shadow-xl text-center md:text-right whitespace-nowrap"
+                className={`text-2xl sm:text-4xl md:text-5xl font-black tracking-widest drop-shadow-xl text-center md:text-right whitespace-nowrap ${categoryColorClass} ${isPortrait ? 'border-b-2 border-current/25 pb-1 px-4' : ''}`}
               >
                 {currentCategory}
               </motion.h2>
@@ -475,37 +481,42 @@ const Home: React.FC = () => {
     
                 // Render all items for smooth opacity transitions! Pointer events disabled if hidden
                 const pointerEventsClass = opacity === 0 ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer';
-    
                 // Shape based on type
                 let shapeClass = 'rounded-xl border-blue-200 dark:border-blue-800 bg-white/40 dark:bg-slate-900/40';
                 if (item.type === 'education') {
-                  shapeClass = 'rounded-md border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30';
+                  shapeClass = isPortrait
+                    ? 'rounded-tr-[2rem] rounded-bl-[2rem] rounded-tl-lg rounded-br-lg border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30'
+                    : 'rounded-md border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30';
                 }
                 if (item.type === 'internship') {
                   shapeClass = isPortrait 
-                    ? 'rounded-[2rem] border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30 p-5' 
+                    ? 'rounded-tl-[2rem] rounded-br-[2rem] rounded-tr-lg rounded-bl-lg border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30' 
                     : 'rounded-full border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30 px-6 sm:px-10';
                 }
                 if (item.type === 'project') {
                   shapeClass = isPortrait
-                    ? 'rounded-xl border-t-8 border-purple-500 bg-purple-50/60 dark:bg-purple-900/30 p-5'
+                    ? 'rounded-tr-[1.5rem] border-t-8 border-l border-purple-500 bg-purple-50/60 dark:bg-purple-900/30'
                     : 'rounded-none border-l-8 border-purple-500 bg-purple-50/60 dark:bg-purple-900/30';
                 }
                 if (item.type === 'exchange') {
-                  shapeClass = 'rounded-3xl border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30';
+                  shapeClass = isPortrait
+                    ? 'rounded-[2.5rem] rounded-tr-md rounded-bl-md border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30'
+                    : 'rounded-3xl border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30';
                 }
                 if (item.type === 'volunteer') {
-                  shapeClass = 'rounded-2xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30';
+                  shapeClass = isPortrait
+                    ? 'rounded-3xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30'
+                    : 'rounded-2xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30';
                 }
                 if (item.type === 'skill') {
                   shapeClass = isPortrait
-                    ? 'rounded-[2rem] border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30 p-5'
+                    ? 'rounded-tl-[3.5rem] rounded-br-[3.5rem] rounded-tr-lg rounded-bl-lg border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30'
                     : 'rounded-tr-[4rem] rounded-bl-[4rem] rounded-tl-xl rounded-br-xl border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30';
                 }
     
-                // Adaptive card width and height (portrait vertical card)
+                // Adaptive card width and height (compressed slightly for tighter vertical fit)
                 const cardSizeClass = isPortrait 
-                  ? 'w-[82vw] max-w-[360px] h-[46vh] max-h-[380px]' 
+                  ? 'w-[82vw] max-w-[360px] h-[42vh] max-h-[340px]' 
                   : 'w-full max-w-[calc(100vw-2rem)] md:max-w-2xl lg:max-w-4xl';
     
                 return (
@@ -538,28 +549,39 @@ const Home: React.FC = () => {
                       transformStyle: 'preserve-3d'
                     }}
                   >
-                    <div className={`relative overflow-hidden backdrop-blur-md transition-all duration-300 border ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'} ${isPortrait ? 'h-full flex flex-col justify-between p-5' : 'p-3.5 sm:p-6 md:p-8 flex items-center gap-3 md:gap-6'}`}>
+                    <div className={`relative overflow-hidden backdrop-blur-md transition-all duration-300 border ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'} ${isPortrait ? 'h-full flex flex-col justify-start gap-2.5 p-5' : 'p-3.5 sm:p-6 md:p-8 flex items-center gap-3 md:gap-6'}`}>
                       {isPortrait ? (
-                        /* Portrait Vertical Card Structure */
-                        <div className="flex-1 flex flex-col justify-between min-w-0 h-full">
+                        /* Portrait Vertical Card Structure (tightened vertical gaps) */
+                        <div className="flex-1 flex flex-col justify-start gap-2 min-w-0 h-full">
                           {/* Top Header Row inside Card */}
-                          <div className="flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 pb-2 mb-2.5 flex-shrink-0">
+                          <div className="flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 pb-2 mb-1 flex-shrink-0">
                             <div className="text-xl sm:text-2xl font-black text-slate-400/80 dark:text-slate-500/60 select-none">
                               {String(item.categoryIndex).padStart(2, '0')}
                             </div>
-                            <div className="text-[10px] font-bold tracking-wider uppercase text-slate-500/85 dark:text-slate-400/85 bg-slate-200/50 dark:bg-slate-800/50 px-2 py-0.5 rounded">
-                              {item.categoryTitle[lang]}
-                            </div>
+                            {(() => {
+                              let badgeColorClass = 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-700/50';
+                              if (item.type === 'education') badgeColorClass = 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-700/50';
+                              if (item.type === 'internship') badgeColorClass = 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-700/50';
+                              if (item.type === 'project') badgeColorClass = 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-700/50';
+                              if (item.type === 'exchange') badgeColorClass = 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-700/50';
+                              if (item.type === 'volunteer') badgeColorClass = 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-700/50';
+                              if (item.type === 'skill') badgeColorClass = 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 border-teal-200/60 dark:border-teal-700/50';
+                              return (
+                                <div className={`text-[10px] font-extrabold tracking-widest uppercase px-2.5 py-0.5 rounded-full border shadow-sm ${badgeColorClass}`}>
+                                  {item.categoryTitle[lang]}
+                                </div>
+                              );
+                            })()}
                           </div>
 
-                          {/* Middle Content Section - takes remaining vertical space */}
-                          <div className="flex-1 min-w-0 flex flex-col justify-start overflow-y-auto scrollbar-none pr-1">
+                          {/* Middle Content Section - flows naturally closely packed */}
+                          <div className="min-w-0 flex flex-col justify-start overflow-y-auto scrollbar-none pr-1">
                             {renderItemContent(item, lang)}
                           </div>
 
                           {/* Bottom Section inside Card */}
                           {isActive && (
-                            <div className="mt-2.5 pt-2.5 border-t border-slate-200/30 dark:border-slate-800/30 flex-shrink-0 flex flex-col gap-2">
+                            <div className="mt-2 pt-2 border-t border-slate-200/30 dark:border-slate-800/30 flex-shrink-0 flex flex-col gap-2">
                               {/* Keywords */}
                               {(item.type === 'internship' || item.type === 'project') && item.data.keywords?.[lang] && (
                                 <div className="flex flex-wrap gap-1 max-h-[85px] overflow-y-auto scrollbar-none">
