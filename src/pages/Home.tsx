@@ -31,11 +31,13 @@ const Home: React.FC = () => {
   const touchStart = useRef(0);
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isPortrait, setIsPortrait] = useState(window.innerWidth < 768 || window.innerWidth < window.innerHeight);
 
   useEffect(() => {
     const handleResize = () => {
       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
       setIsMobile(window.innerWidth < 768);
+      setIsPortrait(window.innerWidth < 768 || window.innerWidth < window.innerHeight);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -43,6 +45,43 @@ const Home: React.FC = () => {
 
   // Re-added state for detail modal
   const [detailItem, setDetailItem] = useState<CarouselItem | null>(null);
+
+  // Markdown fetching states
+  const [markdownContent, setMarkdownContent] = useState<string>('');
+  const [markdownLoading, setMarkdownLoading] = useState<boolean>(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (detailItem && detailItem.type !== 'education' && detailItem.data.hasMarkdown) {
+      setMarkdownLoading(true);
+      setMarkdownContent('');
+      
+      let folderType = 'projects';
+      if (detailItem.type === 'internship') folderType = 'internships';
+      if (detailItem.type === 'exchange') folderType = 'exchanges';
+      if (detailItem.type === 'volunteer') folderType = 'volunteers';
+      
+      const mdUrl = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}/details.md`;
+      
+      fetch(mdUrl)
+        .then(res => {
+          if (res.ok) return res.text();
+          throw new Error('Failed to load markdown');
+        })
+        .then(text => {
+          setMarkdownContent(text);
+        })
+        .catch(err => {
+          console.error(err);
+          setMarkdownContent('');
+        })
+        .finally(() => {
+          setMarkdownLoading(false);
+        });
+    } else {
+      setMarkdownContent('');
+    }
+  }, [detailItem]);
 
   const playTickSound = useTickSound();
   const prevIndex = useRef(activeIndex);
@@ -129,12 +168,12 @@ const Home: React.FC = () => {
 
     const handleTouchStart = (e: TouchEvent) => {
       if (document.body.style.overflow === 'hidden') return;
-      touchStart.current = e.touches[0].clientY;
+      touchStart.current = isPortrait ? e.touches[0].clientX : e.touches[0].clientY;
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (document.body.style.overflow === 'hidden') return;
-      const touchEnd = e.changedTouches[0].clientY;
+      const touchEnd = isPortrait ? e.changedTouches[0].clientX : e.changedTouches[0].clientY;
       const delta = touchStart.current - touchEnd;
       const threshold = 50;
 
@@ -165,7 +204,10 @@ const Home: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.body.style.overflow === 'hidden') return;
       
-      if (e.key === 'ArrowDown') {
+      const nextKey = isPortrait ? 'ArrowRight' : 'ArrowDown';
+      const prevKey = isPortrait ? 'ArrowLeft' : 'ArrowUp';
+
+      if (e.key === nextKey || e.key === 'ArrowDown') {
         if (showWelcome) {
           setShowWelcome(false);
         } else if (!showEndScreen) {
@@ -175,7 +217,7 @@ const Home: React.FC = () => {
             setActiveIndex(prev => Math.min(prev + 1, items.length - 1));
           }
         }
-      } else if (e.key === 'ArrowUp') {
+      } else if (e.key === prevKey || e.key === 'ArrowUp') {
         if (showEndScreen) {
           setShowEndScreen(false);
         } else if (!showWelcome) {
@@ -194,7 +236,7 @@ const Home: React.FC = () => {
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [items.length, activeIndex, showEndScreen, showWelcome]);
+  }, [items.length, activeIndex, showEndScreen, showWelcome, isPortrait]);
 
   // Lock body scroll when modal opens
   useEffect(() => {
@@ -247,15 +289,15 @@ const Home: React.FC = () => {
       {/* Category Title */}
       <AnimatePresence>
         {(!showEndScreen && !showWelcome) && (
-          <div className="absolute top-24 right-6 md:right-10 z-30">
+          <div className={`absolute z-30 transition-all duration-500 ${isPortrait ? 'top-[31%] left-1/2 -translate-x-1/2' : 'top-24 right-6 md:right-10'}`}>
             <AnimatePresence mode="wait">
               <motion.h2
                 key={currentCategory}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                initial={isPortrait ? { opacity: 0, y: -10 } : { opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={isPortrait ? { opacity: 0, y: 10 } : { opacity: 0, x: -20 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider text-right drop-shadow-xl"
+                className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 tracking-wider drop-shadow-xl text-center md:text-right whitespace-nowrap"
               >
                 {currentCategory}
               </motion.h2>
@@ -264,50 +306,114 @@ const Home: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Axis: Profile Photo (Left side) */}
+      {/* Axis: Profile Photo (Left side or top-down) */}
       <AnimatePresence>
         {(!showEndScreen && !showWelcome) && (
-          <div className="absolute left-[10%] lg:left-[15%] top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center">
-            <motion.div
-              layoutId="hero-avatar"
-              className="w-48 h-48 lg:w-64 lg:h-64 rounded-full border-4 border-white/50 shadow-2xl cursor-pointer relative group"
-              onDoubleClick={handlePhotoDoubleClick}
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="w-full h-full rounded-full overflow-hidden">
-                <img src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
-              </div>
-            </motion.div>
-            <div className="mt-6 text-center">
-              <motion.h1 
-                layoutId="hero-name" 
-                transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                className="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md"
-              >
-                {data.hero.name[lang]}
-              </motion.h1>
-              <motion.p 
-                layoutId="hero-role" 
-                transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                className="text-sm lg:text-base text-slate-600 dark:text-slate-300 mt-2 font-medium drop-shadow-md"
-              >
-                {data.hero.role[lang]}
-              </motion.p>
-              
-              <div className="mt-4 flex flex-col gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
-                {data.hero.visibility?.email !== false && (
-                  <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 transition-colors">{data.hero.email}</a>
-                )}
-                {data.hero.visibility?.phone !== false && (
-                  <span>{data.hero.phone}</span>
-                )}
-                <div className="mt-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50 flex flex-col gap-1 text-xs opacity-70">
-                  {data.hero.visibility?.wechat !== false && <span>WC: {data.hero.wechat}</span>}
-                  {data.hero.visibility?.instagram !== false && <span>IG: {data.hero.instagram}</span>}
+          isPortrait ? (
+            /* Portrait Top 1/3 layout */
+            <div className="absolute top-16 inset-x-4 h-[22vh] z-40 flex items-center justify-center pointer-events-auto">
+              <div className="glass-card w-full max-w-[480px] h-full rounded-2xl p-3 flex items-center gap-4 border border-white/20 dark:border-slate-800/80 shadow-lg">
+                {/* Avatar on the Left */}
+                <motion.div
+                  layoutId="hero-avatar"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/50 shadow-md cursor-pointer relative flex-shrink-0"
+                  onDoubleClick={handlePhotoDoubleClick}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  {/* Breathing effect light-glow */}
+                  <motion.div 
+                    className="absolute inset-0 rounded-full"
+                    animate={{ 
+                      boxShadow: theme === 'dark'
+                        ? ['0 0 10px rgba(255,255,255,0.1)', '0 0 25px rgba(255,255,255,0.3)', '0 0 10px rgba(255,255,255,0.1)']
+                        : ['0 0 10px rgba(59,130,246,0.1)', '0 0 25px rgba(59,130,246,0.2)', '0 0 10px rgba(59,130,246,0.1)']
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                  <div className="w-full h-full rounded-full overflow-hidden relative z-10">
+                    <img src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
+                  </div>
+                </motion.div>
+                
+                {/* Info on the Right */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                  <motion.h1 
+                    layoutId="hero-name" 
+                    transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                    className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white truncate"
+                  >
+                    {data.hero.name[lang]}
+                  </motion.h1>
+                  <motion.p 
+                    layoutId="hero-role" 
+                    transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                    className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-semibold truncate mt-0.5"
+                  >
+                    {data.hero.role[lang]}
+                  </motion.p>
+                  
+                  {/* Contacts grid */}
+                  <div className="mt-1.5 grid grid-cols-2 gap-x-2 gap-y-0.5 text-[9px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-slate-800/50 pt-1.5 min-h-[35px]">
+                    {data.hero.visibility?.email !== false && (
+                      <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 truncate">📧 {data.hero.email}</a>
+                    )}
+                    {data.hero.visibility?.phone !== false && (
+                      <span className="truncate">📞 {data.hero.phone}</span>
+                    )}
+                    {data.hero.visibility?.wechat !== false && (
+                      <span className="truncate">💬 WC: {data.hero.wechat}</span>
+                    )}
+                    {data.hero.visibility?.instagram !== false && (
+                      <span className="truncate">📸 IG: {data.hero.instagram}</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            /* Desktop sidebar */
+            <div className="absolute left-[10%] lg:left-[15%] top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center">
+              <motion.div
+                layoutId="hero-avatar"
+                className="w-48 h-48 lg:w-64 lg:h-64 rounded-full border-4 border-white/50 shadow-2xl cursor-pointer relative group"
+                onDoubleClick={handlePhotoDoubleClick}
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="w-full h-full rounded-full overflow-hidden">
+                  <img src={data.hero.avatarUrl.startsWith('http') ? data.hero.avatarUrl : `${import.meta.env.BASE_URL}${data.hero.avatarUrl.replace(/^\.?\//, '')}`} alt={data.hero.name[lang]} className="w-full h-full object-cover" />
+                </div>
+              </motion.div>
+              <div className="mt-6 text-center">
+                <motion.h1 
+                  layoutId="hero-name" 
+                  transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                  className="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white drop-shadow-md"
+                >
+                  {data.hero.name[lang]}
+                </motion.h1>
+                <motion.p 
+                  layoutId="hero-role" 
+                  transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                  className="text-sm lg:text-base text-slate-600 dark:text-slate-300 mt-2 font-medium drop-shadow-md"
+                >
+                  {data.hero.role[lang]}
+                </motion.p>
+                
+                <div className="mt-4 flex flex-col gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+                  {data.hero.visibility?.email !== false && (
+                    <a href={`mailto:${data.hero.email}`} className="hover:text-blue-500 transition-colors">{data.hero.email}</a>
+                  )}
+                  {data.hero.visibility?.phone !== false && (
+                    <span>{data.hero.phone}</span>
+                  )}
+                  <div className="mt-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50 flex flex-col gap-1 text-xs opacity-70">
+                    {data.hero.visibility?.wechat !== false && <span>WC: {data.hero.wechat}</span>}
+                    {data.hero.visibility?.instagram !== false && <span>IG: {data.hero.instagram}</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
         )}
       </AnimatePresence>
 
@@ -317,172 +423,229 @@ const Home: React.FC = () => {
           <motion.div 
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={`absolute inset-0 overflow-visible pointer-events-none transition-all duration-500 ${isMobile ? '' : (windowSize.width < 1100 ? 'left-[40%]' : 'left-[35%]')}`}
+            className={`absolute overflow-visible pointer-events-none transition-all duration-500 ${
+              isPortrait 
+                ? 'bottom-20 inset-x-0 h-[58vh] z-30' 
+                : `inset-0 ${isMobile ? '' : (windowSize.width < 1100 ? 'left-[40%]' : 'left-[35%]')}`
+            }`}
           >
-            <div className="relative w-full h-full flex items-center justify-center md:justify-start">
+            <div className={`relative w-full h-full flex items-center ${isPortrait ? 'justify-center' : 'justify-center md:justify-start'}`}>
               {items.map((item, index) => {
-            const diff = index - activeIndex;
-            
-            // Render window optimization (+/- 3 items for maximum mobile FPS)
-            if (Math.abs(diff) > 3) return null;
-
-            const currentActiveItem = items[activeIndex];
-            const isSameCategory = item.type === currentActiveItem.type;
-
-            const isNarrow = windowSize.width < 1100;
-            const R = isMobile ? 350 : (isNarrow ? 500 : 600);
-            const thetaDeg = diff * (isMobile ? 18 : (isNarrow ? 20 : 22)); 
-            const thetaRad = thetaDeg * (Math.PI / 180);
-
-            const xOffset = isMobile ? 0 : R * Math.cos(thetaRad) - R;
-            const yOffset = R * Math.sin(thetaRad);
-
-            const scale = Math.max(1 - Math.abs(diff) * (isMobile ? 0.18 : 0.15), 0.7); 
-            const rotateX = diff * -8;
-            const rotateZ = isMobile ? 0 : diff * 5; 
-
-            const isActive = diff === 0;
-
-            let opacity = 0;
-            if (isSameCategory) {
-              opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * 0.45, 0.1);
-            }
-
-            // Render all items for smooth opacity transitions! Pointer events disabled if hidden
-            const pointerEventsClass = opacity === 0 ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer';
-
-            // Shape based on type
-            let shapeClass = 'rounded-xl border-blue-200 dark:border-blue-800 bg-white/40 dark:bg-slate-900/40';
-            if (item.type === 'education') shapeClass = 'rounded-md border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30';
-            if (item.type === 'internship') shapeClass = 'rounded-full border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30 px-10';
-            if (item.type === 'project') shapeClass = 'rounded-none border-l-8 border-purple-500 bg-purple-50/60 dark:bg-purple-900/30';
-            if (item.type === 'exchange') shapeClass = 'rounded-3xl border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30';
-            if (item.type === 'volunteer') shapeClass = 'rounded-2xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30';
-            if (item.type === 'skill') shapeClass = 'rounded-tr-[4rem] rounded-bl-[4rem] rounded-tl-xl rounded-br-xl border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30';
-
-            // Adaptive max-width based on screen width
-            const cardMaxWidth = isMobile 
-              ? 'max-w-[calc(100vw-2rem)]' 
-              : (windowSize.width < 1100 ? 'max-w-2xl' : 'max-w-4xl');
-
-            return (
-              <motion.div
-                key={item.id}
-                className={`absolute w-full ${cardMaxWidth} px-4 md:px-6 origin-center md:origin-left ${isActive ? 'z-20 cursor-default pointer-events-auto' : `z-10 ${pointerEventsClass}`}`}
-                initial={false}
-                animate={{
-                  y: yOffset,
-                  x: xOffset,
-                  scale,
-                  opacity,
-                  rotateX,
-                  rotateZ,
-                  z: isActive ? 50 : 0
-                }}
-                transition={{ type: 'spring', stiffness: 180, damping: 28 }}
-                onClick={() => {
-                  if (opacity === 0) return;
-                  if (!isActive) {
-                    setActiveIndex(index);
-                  } else if (item.type !== 'skill') {
-                    setDetailItem(item);
+                const diff = index - activeIndex;
+                
+                // Render window optimization (+/- 1 item for portrait horizontal carousel, +/- 3 for desktop)
+                if (isPortrait && Math.abs(diff) > 1) return null;
+                if (!isPortrait && Math.abs(diff) > 3) return null;
+    
+                const currentActiveItem = items[activeIndex];
+                const isSameCategory = item.type === currentActiveItem.type;
+    
+                const isNarrow = windowSize.width < 1100;
+                const R = isPortrait ? 0 : (isMobile ? 350 : (isNarrow ? 500 : 600));
+                const thetaDeg = diff * (isMobile ? 18 : (isNarrow ? 20 : 22)); 
+                const thetaRad = thetaDeg * (Math.PI / 180);
+    
+                const xOffset = isPortrait 
+                  ? diff * (windowSize.width * 0.82) 
+                  : (isMobile ? 0 : R * Math.cos(thetaRad) - R);
+                const yOffset = isPortrait 
+                  ? 0 
+                  : R * Math.sin(thetaRad);
+    
+                const scale = isPortrait
+                  ? (diff === 0 ? 1 : 0.86)
+                  : Math.max(1 - Math.abs(diff) * (isMobile ? 0.18 : 0.15), 0.7);
+                const rotateX = isPortrait ? 0 : diff * -8;
+                const rotateZ = isPortrait ? 0 : (isMobile ? 0 : diff * 5); 
+    
+                const isActive = diff === 0;
+    
+                let opacity = 0;
+                if (isPortrait) {
+                  if (diff === 0) {
+                    opacity = 1;
+                  } else if (Math.abs(diff) === 1) {
+                    opacity = isSameCategory ? 0.45 : 0;
                   }
-                }}
-                style={{ 
-                  perspective: 1200,
-                  willChange: 'transform, opacity',
-                  backfaceVisibility: 'hidden',
-                  transformStyle: 'preserve-3d'
-                }}
-              >
-                <div className={`relative overflow-hidden backdrop-blur-md p-4 sm:p-6 md:p-8 border transition-all duration-300 flex items-center gap-4 md:gap-6 ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'}`}>
-                  {/* Left Side Number */}
-                  <div className="text-4xl sm:text-6xl md:text-7xl font-black text-slate-300/80 dark:text-slate-600/50 flex-shrink-0 w-12 sm:w-20 md:w-24 text-center select-none">
-                    {String(item.categoryIndex).padStart(2, '0')}
-                  </div>
-
-                  {/* Right Side Content */}
-                  <div className="flex-1 relative z-10 border-l-2 border-slate-200/50 dark:border-slate-700/50 pl-4 md:pl-6">
-                    {renderItemContent(item, lang)}
-                    {isActive && item.type !== 'skill' && (
-                      <div className="mt-2 md:mt-3 flex items-center justify-between gap-3">
-                        {/* Keywords inline */}
-                        {(item.type === 'internship' || item.type === 'project') && item.data.keywords?.[lang] ? (
-                          <div className="flex flex-wrap gap-1.5 md:gap-2 flex-1 overflow-hidden" style={{ maxHeight: '3.5rem' }}>
-                            {item.data.keywords[lang].map((kw: string, i: number) => {
-                              const rot = (kw.length * 7 + i * 17) % 10 - 5;
-                              const sizes = ['text-[9px]', 'text-[10px]', 'text-[11px]', 'text-[10px]', 'text-[9px]', 'text-[11px]'];
-                              const sz = sizes[i % sizes.length];
-                              const colorClass = item.type === 'internship'
-                                ? 'bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-700/50'
-                                : 'bg-purple-100/80 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-700/50';
-                              return (
-                                <span
-                                  key={i}
-                                  className={`inline-block font-semibold px-1.5 py-0.5 border shadow-sm backdrop-blur-sm rounded-tl-lg rounded-br-lg rounded-tr-[2px] rounded-bl-[2px] whitespace-nowrap ${sz} ${colorClass}`}
-                                  style={{ transform: `rotate(${rot}deg)` }}
-                                >
-                                  {kw}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        ) : <div className="flex-1" />}
-                        <div className="text-xs sm:text-sm font-medium text-blue-500/80 dark:text-blue-400/80 animate-pulse whitespace-nowrap flex-shrink-0">
-                          Click to read more &rarr;
-                        </div>
+                } else {
+                  if (isSameCategory) {
+                    opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * 0.45, 0.1);
+                  }
+                }
+    
+                // Render all items for smooth opacity transitions! Pointer events disabled if hidden
+                const pointerEventsClass = opacity === 0 ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer';
+    
+                // Shape based on type
+                let shapeClass = 'rounded-xl border-blue-200 dark:border-blue-800 bg-white/40 dark:bg-slate-900/40';
+                if (item.type === 'education') shapeClass = 'rounded-md border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30';
+                if (item.type === 'internship') shapeClass = 'rounded-full border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30 px-6 sm:px-10';
+                if (item.type === 'project') shapeClass = 'rounded-none border-l-8 border-purple-500 bg-purple-50/60 dark:bg-purple-900/30';
+                if (item.type === 'exchange') shapeClass = 'rounded-3xl border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30';
+                if (item.type === 'volunteer') shapeClass = 'rounded-2xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30';
+                if (item.type === 'skill') shapeClass = 'rounded-tr-[4rem] rounded-bl-[4rem] rounded-tl-xl rounded-br-xl border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30';
+    
+                // Adaptive card width
+                const cardWidthClass = isPortrait 
+                  ? 'w-[78vw] max-w-[420px]' 
+                  : 'w-full max-w-[calc(100vw-2rem)] md:max-w-2xl lg:max-w-4xl';
+    
+                return (
+                  <motion.div
+                    key={item.id}
+                    className={`absolute ${cardWidthClass} px-3 md:px-6 origin-center md:origin-left ${isActive ? 'z-20 cursor-default pointer-events-auto' : `z-10 ${pointerEventsClass}`}`}
+                    initial={false}
+                    animate={{
+                      y: yOffset,
+                      x: xOffset,
+                      scale,
+                      opacity,
+                      rotateX,
+                      rotateZ,
+                      z: isActive ? 50 : 0
+                    }}
+                    transition={{ type: 'spring', stiffness: 180, damping: 28 }}
+                    onClick={() => {
+                      if (opacity === 0) return;
+                      if (!isActive) {
+                        setActiveIndex(index);
+                      } else if (item.type !== 'skill') {
+                        setDetailItem(item);
+                      }
+                    }}
+                    style={{ 
+                      perspective: 1200,
+                      willChange: 'transform, opacity',
+                      backfaceVisibility: 'hidden',
+                      transformStyle: 'preserve-3d'
+                    }}
+                  >
+                    <div className={`relative overflow-hidden backdrop-blur-md p-3.5 sm:p-6 md:p-8 border transition-all duration-300 flex items-center gap-3 md:gap-6 ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'}`}>
+                      {/* Left Side Number */}
+                      <div className="text-3xl sm:text-6xl md:text-7xl font-black text-slate-300/80 dark:text-slate-600/50 flex-shrink-0 w-10 sm:w-20 md:w-24 text-center select-none">
+                        {String(item.categoryIndex).padStart(2, '0')}
                       </div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-
-  {/* Pagination Indicator (Far Right) */}
-  <AnimatePresence>
-    {(!showEndScreen && !showWelcome) && (
-      <motion.div 
-        initial={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1 md:gap-2"
-      >
-        {items.map((item, index) => {
-          const isNewSection = index > 0 && item.type !== items[index - 1].type;
-          
-          let dotColor = 'bg-blue-600 dark:bg-blue-400';
-          let inactiveColor = 'bg-blue-200 dark:bg-blue-900/50';
-          let hoverColor = 'hover:bg-blue-400 dark:hover:bg-blue-300';
-          
-          if (item.type === 'education') { dotColor = 'bg-blue-600 dark:bg-blue-400'; inactiveColor = 'bg-blue-200 dark:bg-blue-900/50'; hoverColor = 'hover:bg-blue-400'; }
-          if (item.type === 'internship') { dotColor = 'bg-indigo-600 dark:bg-indigo-400'; inactiveColor = 'bg-indigo-200 dark:bg-indigo-900/50'; hoverColor = 'hover:bg-indigo-400'; }
-          if (item.type === 'project') { dotColor = 'bg-purple-600 dark:bg-purple-400'; inactiveColor = 'bg-purple-200 dark:bg-purple-900/50'; hoverColor = 'hover:bg-purple-400'; }
-          if (item.type === 'exchange') { dotColor = 'bg-rose-600 dark:bg-rose-400'; inactiveColor = 'bg-rose-200 dark:bg-rose-900/50'; hoverColor = 'hover:bg-rose-400'; }
-          if (item.type === 'volunteer') { dotColor = 'bg-amber-600 dark:bg-amber-400'; inactiveColor = 'bg-amber-200 dark:bg-amber-900/50'; hoverColor = 'hover:bg-amber-400'; }
-          if (item.type === 'skill') { dotColor = 'bg-teal-600 dark:bg-teal-400'; inactiveColor = 'bg-teal-200 dark:bg-teal-900/50'; hoverColor = 'hover:bg-teal-400'; }
-
-          return (
-            <React.Fragment key={item.id}>
-              {isNewSection && <div className="h-4 border-r-2 border-slate-200 dark:border-slate-800 mr-[-4px]" />} {/* Gap between sections */}
-              <button
-                onClick={() => setActiveIndex(index)}
-                className={`w-2 rounded-full transition-all duration-300 ${index === activeIndex
-                  ? `h-8 ${dotColor} shadow-[0_0_15px_rgba(0,0,0,0.1)]`
-                  : `h-2 ${inactiveColor} ${hoverColor}`
-                  }`}
-                aria-label={`Go to slide ${index + 1}`}
-                title={item.categoryTitle[lang]}
-              />
-            </React.Fragment>
-          );
-        })}
-      </motion.div>
-    )}
-  </AnimatePresence>
+    
+                      {/* Right Side Content */}
+                      <div className="flex-1 relative z-10 border-l-2 border-slate-200/50 dark:border-slate-700/50 pl-3 md:pl-6 min-w-0">
+                        {renderItemContent(item, lang)}
+                        {isActive && item.type !== 'skill' && (
+                          <div className="mt-1.5 md:mt-3 flex items-center justify-between gap-3">
+                            {/* Keywords inline */}
+                            {(item.type === 'internship' || item.type === 'project') && item.data.keywords?.[lang] ? (
+                              <div className="flex flex-wrap gap-1 md:gap-2 flex-1 overflow-hidden" style={{ maxHeight: '3.5rem' }}>
+                                {item.data.keywords[lang].map((kw: string, i: number) => {
+                                  const rot = (kw.length * 7 + i * 17) % 10 - 5;
+                                  const sizes = ['text-[9px]', 'text-[10px]', 'text-[11px]', 'text-[10px]', 'text-[9px]', 'text-[11px]'];
+                                  const sz = sizes[i % sizes.length];
+                                  const colorClass = item.type === 'internship'
+                                    ? 'bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-700/50'
+                                    : 'bg-purple-100/80 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-700/50';
+                                  return (
+                                    <span
+                                      key={i}
+                                      className={`inline-block font-semibold px-1.5 py-0.5 border shadow-sm backdrop-blur-sm rounded-tl-lg rounded-br-lg rounded-tr-[2px] rounded-bl-[2px] whitespace-nowrap ${sz} ${colorClass}`}
+                                      style={{ transform: `rotate(${rot}deg)` }}
+                                    >
+                                      {kw}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            ) : <div className="flex-1" />}
+                            <div className="text-[10px] sm:text-sm font-medium text-blue-500/80 dark:text-blue-400/80 animate-pulse whitespace-nowrap flex-shrink-0">
+                              {lang === 'zh' ? '点击查看详情' : 'Read more'} &rarr;
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    
+      {/* Navigation Buttons for Portrait Mode */}
+      {isPortrait && (!showEndScreen && !showWelcome) && (
+        <>
+          {/* Left Arrow Button */}
+          {activeIndex > 0 && (
+            <button
+              onClick={() => setActiveIndex(prev => Math.max(prev - 1, 0))}
+              className="fixed left-3 bottom-[38%] -translate-y-1/2 z-50 w-10 h-10 rounded-full glass-card hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/20 dark:border-slate-700/50 flex items-center justify-center shadow-lg active:scale-90 transition-transform pointer-events-auto text-slate-700 dark:text-slate-200"
+              aria-label="Previous Card"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+          )}
+          {/* Right Arrow Button */}
+          {activeIndex < items.length - 1 && (
+            <button
+              onClick={() => setActiveIndex(prev => Math.min(prev + 1, items.length - 1))}
+              className="fixed right-3 bottom-[38%] -translate-y-1/2 z-50 w-10 h-10 rounded-full glass-card hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/20 dark:border-slate-700/50 flex items-center justify-center shadow-lg active:scale-90 transition-transform pointer-events-auto text-slate-700 dark:text-slate-200"
+              aria-label="Next Card"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          )}
+        </>
+      )}
+    
+      {/* Pagination Indicator (Far Right or Bottom Center) */}
+      <AnimatePresence>
+        {(!showEndScreen && !showWelcome) && (
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={isPortrait 
+              ? "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-row gap-1.5 max-w-[90vw] overflow-x-auto py-2 scrollbar-none items-center"
+              : "fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1 md:gap-2"
+            }
+          >
+            {items.map((item, index) => {
+              const isNewSection = index > 0 && item.type !== items[index - 1].type;
+              
+              let dotColor = 'bg-blue-600 dark:bg-blue-400';
+              let inactiveColor = 'bg-blue-200 dark:bg-blue-900/50';
+              let hoverColor = 'hover:bg-blue-400 dark:hover:bg-blue-300';
+              
+              if (item.type === 'education') { dotColor = 'bg-blue-600 dark:bg-blue-400'; inactiveColor = 'bg-blue-200 dark:bg-blue-900/50'; hoverColor = 'hover:bg-blue-400'; }
+              if (item.type === 'internship') { dotColor = 'bg-indigo-600 dark:bg-indigo-400'; inactiveColor = 'bg-indigo-200 dark:bg-indigo-900/50'; hoverColor = 'hover:bg-indigo-400'; }
+              if (item.type === 'project') { dotColor = 'bg-purple-600 dark:bg-purple-400'; inactiveColor = 'bg-purple-200 dark:bg-purple-900/50'; hoverColor = 'hover:bg-purple-400'; }
+              if (item.type === 'exchange') { dotColor = 'bg-rose-600 dark:bg-rose-400'; inactiveColor = 'bg-rose-200 dark:bg-rose-900/50'; hoverColor = 'hover:bg-rose-400'; }
+              if (item.type === 'volunteer') { dotColor = 'bg-amber-600 dark:bg-amber-400'; inactiveColor = 'bg-amber-200 dark:bg-amber-900/50'; hoverColor = 'hover:bg-amber-400'; }
+              if (item.type === 'skill') { dotColor = 'bg-teal-600 dark:bg-teal-400'; inactiveColor = 'bg-teal-200 dark:bg-teal-900/50'; hoverColor = 'hover:bg-teal-400'; }
+    
+              const activeDotClass = isPortrait 
+                ? (index === activeIndex ? `w-6 h-2 ${dotColor} shadow-[0_0_15px_rgba(0,0,0,0.1)]` : `w-2 h-2 ${inactiveColor} ${hoverColor}`)
+                : (index === activeIndex ? `h-8 w-2 ${dotColor} shadow-[0_0_15px_rgba(0,0,0,0.1)]` : `h-2 w-2 ${inactiveColor} ${hoverColor}`);
+    
+              return (
+                <React.Fragment key={item.id}>
+                  {isNewSection && (
+                    isPortrait 
+                      ? <div className="w-px h-3 bg-slate-300 dark:bg-slate-700 mx-1 flex-shrink-0" />
+                      : <div className="h-4 border-r-2 border-slate-200 dark:border-slate-800 mr-[-4px]" />
+                  )}
+                  <button
+                    onClick={() => setActiveIndex(index)}
+                    className={`rounded-full transition-all duration-300 flex-shrink-0 ${activeDotClass}`}
+                    aria-label={`Go to slide ${index + 1}`}
+                    title={item.categoryTitle[lang]}
+                  />
+                </React.Fragment>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ─── WELCOME SCREEN OVERLAY ─── */}
       <AnimatePresence>
@@ -722,130 +885,267 @@ const Home: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-400/20 dark:bg-black/60 backdrop-blur-xl"
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-950/40 dark:bg-black/80 backdrop-blur-xl"
             onClick={() => setDetailItem(null)}
           >
             <motion.div
-              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              initial={{ scale: 0.96, y: 15, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-2xl p-8 sm:p-12 rounded-3xl w-full max-w-7xl max-h-[90vh] overflow-y-auto relative border border-white dark:border-slate-700 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+              exit={{ scale: 0.96, y: 15, opacity: 0 }}
+              className="bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-3xl p-4 sm:p-8 md:p-10 rounded-3xl w-[96vw] md:w-[95vw] max-w-[1400px] h-[94vh] md:h-[92vh] max-h-[95vh] overflow-hidden relative border border-white/20 dark:border-slate-800/80 shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.55)] flex flex-col text-left"
               onClick={e => e.stopPropagation()}
             >
+              {/* Fixed Close Button */}
               <button
                 onClick={() => setDetailItem(null)}
-                className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors text-lg"
+                className="absolute top-4 right-4 md:top-6 md:right-6 p-2 md:p-2.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all text-slate-500 hover:text-slate-900 dark:hover:text-white text-base md:text-lg z-50 shadow-md border border-slate-200/30 bg-white/80 dark:bg-slate-900/80"
               >
                 ✕
               </button>
 
-              {/* Header */}
-              <div className="mb-8 pr-10 text-center md:text-left">
-                <h2 className="text-2xl sm:text-4xl font-bold mb-2">
+              {/* Fixed Header */}
+              <div className="mb-6 pr-14 text-left border-b border-slate-200/60 dark:border-slate-800/80 pb-4 flex-shrink-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${
+                    detailItem.type === 'project' 
+                      ? 'bg-purple-100/50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200/30' 
+                      : detailItem.type === 'internship'
+                      ? 'bg-indigo-100/50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 border-indigo-200/30'
+                      : 'bg-rose-100/50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border-rose-200/30'
+                  }`}>
+                    {detailItem.type === 'project' ? (lang === 'zh' ? '科研项目' : 'Research') :
+                     detailItem.type === 'internship' ? (lang === 'zh' ? '实习经历' : 'Internship') :
+                     detailItem.type === 'education' ? (lang === 'zh' ? '教育背景' : 'Education') :
+                     (lang === 'zh' ? '海外交流与志愿服务' : 'Exchange & Volunteer')}
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-3xl font-black mb-1.5 text-slate-900 dark:text-white tracking-tight">
                   {detailItem.type === 'education' ? detailItem.data.institution[lang] :
                     detailItem.type === 'internship' ? detailItem.data.company[lang] : detailItem.data.name[lang]}
                 </h2>
-                <h3 className="text-xl sm:text-2xl text-blue-600 dark:text-blue-400 font-medium mb-4">
-                  {detailItem.type === 'education' ? detailItem.data.degree[lang] : detailItem.data.role[lang]}
-                </h3>
-                <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm sm:text-base text-slate-500 dark:text-slate-400">
-                  <span>🗓 {detailItem.data.period}</span>
-                  <span>📍 {detailItem.data.location[lang]}</span>
+                <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-6 gap-y-1 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400">
+                  <span className="text-slate-850 dark:text-slate-250 font-bold">
+                    {detailItem.type === 'education' ? detailItem.data.degree[lang] : detailItem.data.role[lang]}
+                  </span>
+                  <span className="text-slate-300 dark:text-slate-700 font-normal">|</span>
+                  <span className="text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">🗓 {detailItem.data.period}</span>
+                  <span className="text-slate-300 dark:text-slate-700 font-normal">|</span>
+                  <span className="text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">📍 {detailItem.data.location[lang]}</span>
                 </div>
               </div>
 
-              {/* Education: Structured Sections */}
-              {detailItem.type === 'education' ? (
-                <div className="grid grid-cols-1 md:grid-cols-[1.2fr_2.8fr] gap-8 items-start">
-                  {/* Left Column: GPA, Courses, Scholarships */}
-                  <div className="space-y-6">
-                    {/* GPA */}
-                    {detailItem.data.gpa && (
-                      <div className="p-5 rounded-2xl bg-blue-50/70 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 shadow-sm">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xl">📊</span>
-                          <h4 className="text-base font-bold text-blue-700 dark:text-blue-300">
-                            {lang === 'zh' ? '学业绩点' : 'Academic Performance'}
-                          </h4>
-                        </div>
-                        <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                          {detailItem.data.gpa[lang]}
-                        </p>
-                      </div>
-                    )}
+              {/* Scrollable Columns Wrapper */}
+              <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 md:gap-10 pr-2 scrollbar-thin">
+                
+                {/* Left Column: Summary and Markdown Detail */}
+                <div className="space-y-6">
+                  {/* Keywords if present */}
+                  {detailItem.data.keywords?.[lang] && (
+                    <div className="flex flex-wrap gap-2">
+                      {detailItem.data.keywords[lang].map((kw: string, i: number) => (
+                        <span key={i} className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800/80">
+                          #{kw}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
-                    {/* Core Courses */}
-                    {detailItem.data.courses && (
-                      <div className="p-5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 shadow-sm">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xl">📚</span>
-                          <h4 className="text-base font-bold text-indigo-700 dark:text-indigo-300">
-                            {lang === 'zh' ? '核心课程及成绩' : 'Core Courses & Grades'}
-                          </h4>
-                        </div>
-                        <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                          {detailItem.data.courses[lang]}
-                        </p>
+                  {/* Bullet points Summary */}
+                  {detailItem.type === 'education' ? (
+                    /* Education Section Specific Layout */
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                      <div className="space-y-6">
+                        {detailItem.data.gpa && (
+                          <div className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/40 dark:border-blue-900/30">
+                            <h4 className="text-base font-bold text-blue-800 dark:text-blue-300 mb-2">📊 学业绩点 / GPA</h4>
+                            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.gpa[lang]}</p>
+                          </div>
+                        )}
+                        {detailItem.data.courses && (
+                          <div className="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/40 dark:border-indigo-900/30">
+                            <h4 className="text-base font-bold text-indigo-800 dark:text-indigo-300 mb-2">📚 核心课程 / Courses</h4>
+                            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.courses[lang]}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
+                      <div className="space-y-6">
+                        {detailItem.data.scholarships && (
+                          <div className="p-5 rounded-2xl bg-amber-50/50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-900/30">
+                            <h4 className="text-base font-bold text-amber-800 dark:text-amber-300 mb-3">🏅 奖学金 / Scholarships</h4>
+                            <ul className="space-y-2">
+                              {detailItem.data.scholarships[lang].map((s: string, i: number) => (
+                                <li key={i} className="flex gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                  <span className="text-amber-500 mt-0.5">•</span>
+                                  <span>{s}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {detailItem.data.awards && (
+                          <div className="p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/40 dark:border-purple-900/30">
+                            <h4 className="text-base font-bold text-purple-800 dark:text-purple-300 mb-3">🏆 竞赛获奖 / Awards</h4>
+                            <ul className="space-y-2.5">
+                              {detailItem.data.awards[lang].map((a: string, i: number) => (
+                                <li key={i} className="flex gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border-b border-slate-200/20 dark:border-slate-800/40 pb-2 last:border-0 last:pb-0">
+                                  <span className="text-purple-500 mt-0.5">★</span>
+                                  <span>{a}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Bullet Points for experience types */
+                    <div className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md">
+                      <h4 className="text-base font-bold mb-4 text-slate-805 dark:text-slate-205">
+                        {lang === 'zh' ? '工作要点 / Overview' : 'Key Highlights'}
+                      </h4>
+                      <ul className="list-none space-y-3.5 text-slate-750 dark:text-slate-250 text-sm leading-relaxed">
+                        {detailItem.data.details?.[lang] && detailItem.data.details[lang].map((detail: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2.5">
+                            <span className="text-blue-500 mt-1 flex-shrink-0 text-xs">◆</span>
+                            <span>{detail}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                    {/* Scholarships */}
-                    {detailItem.data.scholarships && (
-                      <div className="p-5 rounded-2xl bg-amber-50/70 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 shadow-sm">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xl">🏅</span>
-                          <h4 className="text-base font-bold text-amber-700 dark:text-amber-300">
-                            {lang === 'zh' ? '奖学金' : 'Scholarships'}
-                          </h4>
+                  {/* Markdown Renderer Section */}
+                  {detailItem.type !== 'education' && detailItem.data.hasMarkdown && (
+                    <div className="mt-8 pt-8 border-t border-slate-200/60 dark:border-slate-800/80">
+                      <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                        <span>📝</span>
+                        <span>{lang === 'zh' ? '详细记录 / Detailed Process' : 'Details & Documentation'}</span>
+                      </h4>
+                      
+                      {markdownLoading ? (
+                        <div className="flex items-center gap-3 text-sm text-slate-400 py-6">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+                          <span>Loading details...</span>
                         </div>
-                        <ul className="space-y-2">
-                          {detailItem.data.scholarships[lang].map((s: string, i: number) => (
-                            <li key={i} className="flex gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                              <span className="text-amber-500 mt-0.5 flex-shrink-0">◆</span>
-                              <span>{s}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Column: Awards */}
-                  <div className="space-y-6">
-                    {/* Awards */}
-                    {detailItem.data.awards && (
-                      <div className="p-5 rounded-2xl bg-purple-50/70 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 shadow-sm">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xl">🏆</span>
-                          <h4 className="text-base font-bold text-purple-700 dark:text-purple-300">
-                            {lang === 'zh' ? '竞赛获奖' : 'Competitions & Awards'}
-                          </h4>
+                      ) : (
+                        <div className="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed">
+                          {renderMarkdown(markdownContent)}
                         </div>
-                        <ul className="space-y-3">
-                          {detailItem.data.awards[lang].map((a: string, i: number) => (
-                            <li key={i} className="flex gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border-b border-slate-200/50 dark:border-slate-700/50 pb-2 last:border-0 last:pb-0">
-                              <span className="text-purple-500 mt-0.5 flex-shrink-0">★</span>
-                              <span>{a}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              ) : (
-                /* Non-education: standard bullet list */
-                <div className="space-y-4">
-                  <h4 className="text-lg font-bold">{lang === 'zh' ? '工作内容' : 'Details'}</h4>
-                  <ul className="list-disc list-inside space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
-                    {detailItem.data.details[lang].map((detail: string, i: number) => (
-                      <li key={i} className="pl-2">{detail}</li>
-                    ))}
-                  </ul>
+
+                {/* Right Column: Media Showcases */}
+                <div className="space-y-8">
+                  {/* Certificate adaptive showcase */}
+                  {detailItem.data.showCerts !== false && detailItem.data.certificates && detailItem.data.certificates.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                        <span>📜</span>
+                        <span>{lang === 'zh' ? '获得证书 / Certificates' : 'Certificates Obtained'}</span>
+                      </h4>
+                      
+                      {/* Grid structure adaptive to cert count */}
+                      <div className={`grid gap-4 ${
+                        detailItem.data.certificates.length === 1 
+                          ? 'grid-cols-1' 
+                          : detailItem.data.certificates.length === 2 
+                          ? 'grid-cols-2' 
+                          : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+                      }`}>
+                        {detailItem.data.certificates.slice(0, 3).map((cert: string, idx: number) => {
+                          let folderType = 'projects';
+                          if (detailItem.type === 'internship') folderType = 'internships';
+                          if (detailItem.type === 'exchange') folderType = 'exchanges';
+                          if (detailItem.type === 'volunteer') folderType = 'volunteers';
+                          
+                          const certSrc = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}/certificates/${cert}`;
+                          
+                          return (
+                            <motion.div
+                              key={idx}
+                              onClick={() => setLightboxImage(certSrc)}
+                              className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-slate-200/50 dark:border-slate-800/80 bg-slate-900 group cursor-pointer shadow-md shadow-slate-100 dark:shadow-none hover:shadow-lg transition-all"
+                              whileHover={{ y: -3, scale: 1.02 }}
+                            >
+                              <img src={certSrc} alt={`Certificate ${idx + 1}`} className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
+                                <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md">
+                                  🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
+                                </span>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Experience details photo gallery with distinct animation based on type */}
+                  {detailItem.data.photos && detailItem.data.photos.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                        <span>🖼️</span>
+                        <span>{lang === 'zh' ? '现场细节与过程 / Project Gallery' : 'Process & Gallery'}</span>
+                      </h4>
+                      
+                      {/* Render type-specific layout */}
+                      {(() => {
+                        let folderType = 'projects';
+                        if (detailItem.type === 'internship') folderType = 'internships';
+                        if (detailItem.type === 'exchange') folderType = 'exchanges';
+                        if (detailItem.type === 'volunteer') folderType = 'volunteers';
+                        
+                        const folderPath = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}`;
+                        
+                        if (detailItem.type === 'project') {
+                          // Research -> 3D Rotating Wheel
+                          return <Research3DCarousel photos={detailItem.data.photos} folderPath={folderPath} />;
+                        } else if (detailItem.type === 'internship') {
+                          // Internship -> Polaroid wall
+                          return <InternshipPolaroidWall photos={detailItem.data.photos} folderPath={folderPath} />;
+                        } else {
+                          // Exchanges & Volunteers -> 3D Cover Flow
+                          return <CoverFlowSlider photos={detailItem.data.photos} folderPath={folderPath} />;
+                        }
+                      })()}
+                    </div>
+                  )}
                 </div>
-              )}
+
+              </div>
 
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox for zooming in certificates */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLightboxImage(null)}
+            className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+          >
+            <button
+              onClick={() => setLightboxImage(null)}
+              className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-lg transition-colors"
+            >
+              ✕
+            </button>
+            <motion.img
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              src={lightboxImage}
+              alt="Zoomed certificate"
+              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl border border-white/10"
+              onClick={e => e.stopPropagation()}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -963,12 +1263,12 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
   if (item.type === 'education') {
     return (
       <div>
-        <div className="flex flex-col sm:flex-row justify-between items-start">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-1">
           <div>
-            <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">{item.data.institution[lang]}</h4>
-            <p className="text-blue-600 dark:text-blue-400 font-medium text-base sm:text-lg mt-1">{item.data.degree[lang]}</p>
+            <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight">{item.data.institution[lang]}</h4>
+            <p className="text-blue-600 dark:text-blue-400 font-medium text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1">{item.data.degree[lang]}</p>
           </div>
-          <div className="text-left sm:text-right text-xs sm:text-sm text-slate-500 font-medium whitespace-nowrap mt-2 sm:mt-0 sm:pl-4">
+          <div className="text-left sm:text-right text-[10px] sm:text-xs md:text-sm text-slate-500 font-medium whitespace-nowrap mt-1 sm:mt-0 sm:pl-4">
             <div>{item.data.period}</div>
             <div>{item.data.location[lang]}</div>
           </div>
@@ -986,12 +1286,12 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
 
     return (
       <div>
-        <div className="flex flex-col sm:flex-row justify-between items-start">
-          <div className="pr-4">
-            <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight">{title}</h4>
-            <p className={`${roleColor} font-medium text-base sm:text-lg mt-1 md:mt-2`}>{item.data.role[lang]}</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-1">
+          <div className="pr-2 min-w-0">
+            <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight truncate-multiline">{title}</h4>
+            <p className={`${roleColor} font-medium text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1`}>{item.data.role[lang]}</p>
           </div>
-          <div className="text-left sm:text-right text-xs sm:text-sm text-slate-500 font-medium whitespace-nowrap mt-2 sm:mt-0 sm:pl-4">
+          <div className="text-left sm:text-right text-[10px] sm:text-xs md:text-sm text-slate-500 font-medium whitespace-nowrap mt-1 sm:mt-0 sm:pl-4">
             <div>{item.data.period}</div>
             <div>{item.data.location[lang]}</div>
           </div>
@@ -1003,10 +1303,10 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
   if (item.type === 'skill') {
     return (
       <div>
-        <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 md:mb-6">{item.data.category[lang]}</h4>
-        <div className="flex flex-wrap gap-2 md:gap-3">
+        <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1.5 sm:mb-3 md:mb-6">{item.data.category[lang]}</h4>
+        <div className="flex flex-wrap gap-1.5 md:gap-3">
           {item.data.items[lang].map((skill: string, i: number) => (
-            <span key={i} className="px-3 py-1.5 md:px-4 md:py-2 bg-white/60 dark:bg-slate-800/60 rounded-lg md:rounded-xl text-xs md:text-sm font-medium border border-slate-200 dark:border-slate-700 shadow-sm">
+            <span key={i} className="px-2 py-1 md:px-4 md:py-2 bg-white/60 dark:bg-slate-800/60 rounded-md md:rounded-xl text-[10px] sm:text-xs md:text-sm font-medium border border-slate-200 dark:border-slate-700 shadow-sm">
               {skill}
             </span>
           ))}
@@ -1016,4 +1316,373 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
   }
 
   return null;
+}
+
+// ==========================================
+// Custom Experience Photo Gallery Components
+// ==========================================
+
+// 1. Research Project 3D Rotating Carousel
+const Research3DCarousel: React.FC<{ photos: string[], folderPath: string }> = ({ photos, folderPath }) => {
+  const count = photos.length;
+  const [rotation, setRotation] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  const [isLocalMobile, setIsLocalMobile] = useState(window.innerWidth < 640);
+  useEffect(() => {
+    const handleResize = () => setIsLocalMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const radius = isLocalMobile 
+    ? (count > 5 ? 115 : count > 3 ? 95 : 75) 
+    : (count > 5 ? 200 : count > 3 ? 160 : 120);
+
+  // Slow continuous auto-rotation when NOT hovered
+  useEffect(() => {
+    if (isHovered || isTransitioning) return;
+    const timer = setInterval(() => {
+      setRotation(r => r + 0.15);
+    }, 30);
+    return () => clearInterval(timer);
+  }, [isHovered, isTransitioning]);
+
+  const handlePrev = () => {
+    setIsTransitioning(true);
+    const step = 360 / count;
+    setRotation(r => {
+      const nearestStep = Math.round(r / step) * step;
+      return nearestStep + step;
+    });
+    setTimeout(() => setIsTransitioning(false), 800);
+  };
+
+  const handleNext = () => {
+    setIsTransitioning(true);
+    const step = 360 / count;
+    setRotation(r => {
+      const nearestStep = Math.round(r / step) * step;
+      return nearestStep - step;
+    });
+    setTimeout(() => setIsTransitioning(false), 800);
+  };
+
+  return (
+    <div 
+      className="relative w-full h-[240px] sm:h-[320px] flex items-center justify-center overflow-hidden bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setIsTransitioning(false);
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent pointer-events-none" />
+      
+      <div 
+        className="relative w-[110px] h-[75px] sm:w-[160px] sm:h-[110px]"
+        style={{
+          perspective: '1000px',
+          transformStyle: 'preserve-3d',
+        }}
+      >
+        <div
+          className="absolute w-full h-full"
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: `rotateY(${rotation}deg) rotateX(-6deg)`,
+            transition: isTransitioning ? 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+          }}
+        >
+          {photos.map((photo, i) => {
+            const angle = (i * 360) / count;
+            const src = `${folderPath}/photos/${photo}`;
+            return (
+              <div
+                key={i}
+                className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.25)] bg-slate-900 cursor-pointer hover:border-purple-400 transition-colors"
+                style={{
+                  transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
+                  backfaceVisibility: 'hidden',
+                }}
+                onClick={() => {
+                  setIsTransitioning(true);
+                  setRotation(-angle);
+                  setTimeout(() => setIsTransitioning(false), 800);
+                }}
+              >
+                <img src={src} alt={`Project Detail ${i}`} className="w-full h-full object-cover select-none" />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+        <button 
+          onClick={handlePrev}
+          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-xs text-white backdrop-blur-sm transition-colors active:scale-95"
+        >
+          &larr;
+        </button>
+        <button 
+          onClick={handleNext}
+          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-xs text-white backdrop-blur-sm transition-colors active:scale-95"
+        >
+          &rarr;
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
+// 2. Internship Scattered Polaroid Photo Wall
+const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string }> = ({ photos, folderPath }) => {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  
+  const [isLocalMobile, setIsLocalMobile] = useState(window.innerWidth < 640);
+  useEffect(() => {
+    const handleResize = () => setIsLocalMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Generate stable rotation/position offsets for polaroids
+  const offsets = useRef(photos.map((_, idx) => {
+    const rot = (idx * 47) % 16 - 8; // -8deg to 8deg
+    const x = (idx * 31) % (isLocalMobile ? 16 : 30) - (isLocalMobile ? 8 : 15);   
+    const y = (idx * 17) % (isLocalMobile ? 12 : 20) - (isLocalMobile ? 6 : 10);   
+    return { rot, x, y };
+  }));
+
+  return (
+    <div className="relative w-full h-[260px] sm:h-[360px] bg-slate-100/50 dark:bg-slate-900/30 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 p-4 sm:p-8 overflow-hidden flex items-center justify-center shadow-inner">
+      <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 to-transparent pointer-events-none" />
+      
+      <div className="relative w-[140px] h-[170px] sm:w-[210px] sm:h-[250px]">
+        {photos.map((photo, i) => {
+          const src = `${folderPath}/photos/${photo}`;
+          const isHovered = hoveredIdx === i;
+          const { rot, x, y } = offsets.current[i] || { rot: 0, x: 0, y: 0 };
+          
+          return (
+            <motion.div
+              key={i}
+              className="absolute inset-0 p-2 sm:p-3 pb-5 sm:pb-8 bg-white dark:bg-slate-900 rounded-lg sm:rounded-xl shadow-lg border border-slate-200/60 dark:border-slate-800/80 flex flex-col items-center justify-between cursor-pointer origin-center"
+              style={{
+                zIndex: isHovered ? 50 : i + 10,
+                x: isHovered ? 0 : x,
+                y: isHovered ? 0 : y,
+                rotate: isHovered ? 0 : rot,
+              }}
+              animate={{
+                scale: isHovered ? (isLocalMobile ? 1.15 : 1.25) : 1,
+                rotate: isHovered ? 0 : rot,
+                x: isHovered ? 0 : x,
+                y: isHovered ? 0 : y,
+                boxShadow: isHovered 
+                  ? '0 20px 40px rgba(0,0,0,0.25)' 
+                  : '0 4px 10px rgba(0,0,0,0.08)',
+              }}
+              transition={{ type: 'spring', stiffness: 220, damping: 22 }}
+              onMouseEnter={() => setHoveredIdx(i)}
+              onMouseLeave={() => setHoveredIdx(null)}
+            >
+              <div className="w-full aspect-square rounded overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200/30 dark:border-slate-800/80">
+                <img src={src} alt={`Polaroid Detail ${i}`} className="w-full h-full object-cover select-none" />
+              </div>
+              <div className="text-[7px] sm:text-[9px] font-bold font-mono tracking-wider mt-1 sm:mt-2 text-slate-400 dark:text-slate-500 select-none uppercase">
+                PHOTO DETAIL #{i + 1}
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// 3. Volunteer & Exchange 3D Cover Flow Slider
+const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string }> = ({ photos, folderPath }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  
+  const [isLocalMobile, setIsLocalMobile] = useState(window.innerWidth < 640);
+  useEffect(() => {
+    const handleResize = () => setIsLocalMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const prev = () => setActiveIndex(i => (i - 1 + photos.length) % photos.length);
+  const next = () => setActiveIndex(i => (i + 1) % photos.length);
+
+  return (
+    <div className="relative w-full h-[200px] sm:h-[280px] bg-slate-950/10 dark:bg-black/30 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md overflow-hidden flex items-center justify-center shadow-inner group">
+      <div className="absolute inset-0 bg-gradient-to-t from-rose-500/10 via-transparent to-transparent pointer-events-none" />
+      
+      <div 
+        className="relative w-full max-w-[420px] h-[110px] sm:h-[160px] flex items-center justify-center"
+        style={{ perspective: '800px' }}
+      >
+        {photos.map((photo, i) => {
+          const src = `${folderPath}/photos/${photo}`;
+          const diff = i - activeIndex;
+          const isActive = diff === 0;
+          
+          let rotateY = 0;
+          let translateZ = 0;
+          let scale = 1;
+          let translateX = 0;
+          let opacity = 0;
+
+          const txOffset = isLocalMobile ? 72 : 115;
+          const farTxOffset = isLocalMobile ? 150 : 250;
+
+          if (isActive) {
+            rotateY = 0;
+            translateZ = 80;
+            translateX = 0;
+            scale = 1.15;
+            opacity = 1;
+          } else if (diff === -1 || (activeIndex === 0 && i === photos.length - 1)) {
+            rotateY = 32;
+            translateZ = -50;
+            translateX = -txOffset;
+            scale = 0.85;
+            opacity = 0.7;
+          } else if (diff === 1 || (activeIndex === photos.length - 1 && i === 0)) {
+            rotateY = -32;
+            translateZ = -50;
+            translateX = txOffset;
+            scale = 0.85;
+            opacity = 0.7;
+          } else {
+            opacity = 0;
+            translateX = diff > 0 ? farTxOffset : -farTxOffset;
+          }
+
+          return (
+            <motion.div
+              key={i}
+              className="absolute w-[130px] h-[95px] sm:w-[180px] sm:h-[130px] rounded-xl sm:rounded-2xl overflow-hidden border border-white/20 dark:border-slate-800 shadow-2xl cursor-pointer"
+              style={{ transformStyle: 'preserve-3d', zIndex: isActive ? 30 : 10 }}
+              animate={{
+                x: translateX,
+                rotateY,
+                z: translateZ,
+                scale,
+                opacity,
+              }}
+              transition={{ type: 'spring', stiffness: 180, damping: 20 }}
+              onClick={() => {
+                if (!isActive) setActiveIndex(i);
+              }}
+            >
+              <img src={src} alt={`Cover Flow Detail ${i}`} className="w-full h-full object-cover select-none" />
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <div className="absolute inset-x-4 bottom-3 flex items-center justify-between pointer-events-none">
+        <button 
+          onClick={prev}
+          className="pointer-events-auto w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-800 text-white flex items-center justify-center border border-white/10 hover:border-white/30 text-xs backdrop-blur-sm transition-all"
+        >
+          &larr;
+        </button>
+        
+        <div className="flex gap-1.5">
+          {photos.map((_, i) => (
+            <span 
+              key={i} 
+              onClick={() => setActiveIndex(i)}
+              className={`pointer-events-auto cursor-pointer h-1.5 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-5 bg-rose-500' : 'w-1.5 bg-slate-400/50'}`} 
+            />
+          ))}
+        </div>
+
+        <button 
+          onClick={next}
+          className="pointer-events-auto w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-800 text-white flex items-center justify-center border border-white/10 hover:border-white/30 text-xs backdrop-blur-sm transition-all"
+        >
+          &rarr;
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
+// Custom Lightweight Markdown Parser
+// ==========================================
+
+function renderMarkdown(md: string) {
+  if (!md) return null;
+  
+  const lines = md.split('\n');
+  let listItems: string[] = [];
+  const renderedElements: React.ReactNode[] = [];
+  
+  const flushList = (key: number) => {
+    if (listItems.length > 0) {
+      renderedElements.push(
+        <ul key={`ul-${key}`} className="list-disc pl-5 space-y-2.5 my-4 text-slate-700 dark:text-slate-300">
+          {listItems.map((item, idx) => (
+            <li key={idx} dangerouslySetInnerHTML={{ __html: parseInlineMarkdown(item) }} />
+          ))}
+        </ul>
+      );
+      listItems = [];
+    }
+  };
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    
+    if (trimmed.startsWith('# ')) {
+      flushList(index);
+      renderedElements.push(
+        <h1 key={index} className="text-2xl font-black mt-6 mb-4 text-slate-900 dark:text-white border-b border-slate-200/50 dark:border-slate-800/80 pb-2">
+          {trimmed.substring(2)}
+        </h1>
+      );
+    } else if (trimmed.startsWith('## ')) {
+      flushList(index);
+      renderedElements.push(
+        <h2 key={index} className="text-xl font-bold mt-5 mb-3 text-slate-800 dark:text-slate-100">
+          {trimmed.substring(3)}
+        </h2>
+      );
+    } else if (trimmed.startsWith('### ')) {
+      flushList(index);
+      renderedElements.push(
+        <h3 key={index} className="text-lg font-bold mt-4 mb-2 text-slate-800 dark:text-slate-200">
+          {trimmed.substring(4)}
+        </h3>
+      );
+    } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      listItems.push(trimmed.substring(2));
+    } else if (trimmed === '') {
+      flushList(index);
+    } else {
+      flushList(index);
+      renderedElements.push(
+        <p key={index} className="my-3 text-slate-700 dark:text-slate-300 leading-relaxed" 
+           dangerouslySetInnerHTML={{ __html: parseInlineMarkdown(trimmed) }} />
+      );
+    }
+  });
+  
+  flushList(lines.length);
+  return renderedElements;
+}
+
+function parseInlineMarkdown(text: string) {
+  let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  html = html.replace(/`(.*?)`/g, '<code class="bg-slate-100 dark:bg-slate-800/60 px-1.5 py-0.5 rounded font-mono text-xs text-blue-600 dark:text-blue-400">$1</code>');
+  return html;
 }

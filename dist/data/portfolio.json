@@ -1,5 +1,9 @@
 {
   "defaultLanguage": "en",
+  "settings": {
+    "cardSound": "click",
+    "sectionSound": "clock"
+  },
   "hero": {
     "name": {
       "en": "Weihang Zhang",
@@ -15,7 +19,7 @@
       "en": "Passionate about AI, Large Language Models, and Full-Stack Development. Experienced in building intelligent systems, data mining, and machine learning models.",
       "zh": "对人工智能、大语言模型和全栈开发充满热情。在构建智能系统、数据挖掘和机器学习模型方面拥有丰富经验。"
     },
-    "avatarUrl": "/me.jpg",
+    "avatarUrl": "me.jpg",
     "wechat": "YourWeChatID",
     "instagram": "@YourInsta",
     "visibility": {
@@ -91,7 +95,7 @@
   ],
   "internships": [
     {
-      "id": "int-1",
+      "id": "beijing-ascend-artificial-intelligence-technology-co-ltd",
       "company": {
         "en": "Beijing Ascend Artificial Intelligence Technology Co., Ltd.",
         "zh": "北京昇腾人工智能科技有限公司"
@@ -104,6 +108,26 @@
       "location": {
         "en": "Beijing, China",
         "zh": "北京, 中国"
+      },
+      "keywords": {
+        "en": [
+          "LLM",
+          "RAG",
+          "Transformer",
+          "FAISS",
+          "Spring Boot",
+          "FastAPI",
+          "DeepSeek"
+        ],
+        "zh": [
+          "大语言模型",
+          "RAG",
+          "Transformer",
+          "FAISS",
+          "Spring Boot",
+          "FastAPI",
+          "DeepSeek"
+        ]
       },
       "details": {
         "en": [
@@ -120,10 +144,17 @@
           "模型集成与后端开发：使用 Spring Boot 与 FastAPI 集成蒸馏大语言模型 (DeepSeek, 蒸馏自 Qwen-1.5B)，完成统一 API 封装。",
           "AI 全栈应用开发：参与前端 (Java) 与后端协同开发，完成可本地部署运行的原型系统。"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
-      "id": "int-2",
+      "id": "beijing-trs-information-technology-co-ltd",
       "company": {
         "en": "Beijing TRS Information Technology Co., Ltd.",
         "zh": "北京拓尔思信息技术股份有限公司"
@@ -136,6 +167,24 @@
       "location": {
         "en": "Beijing, China",
         "zh": "北京, 中国"
+      },
+      "keywords": {
+        "en": [
+          "Data Mining",
+          "Machine Learning",
+          "Python",
+          "Pandas",
+          "Scikit-learn",
+          "XGBoost"
+        ],
+        "zh": [
+          "数据挖掘",
+          "机器学习",
+          "Python",
+          "Pandas",
+          "Scikit-learn",
+          "XGBoost"
+        ]
       },
       "details": {
         "en": [
@@ -152,12 +201,19 @@
           "项目实战与评估：完成住宿价格预测、信用卡交易欺诈检测等项目。",
           "业务理解与报告输出：结合业务场景解释模型结果，输出结构化分析报告与可视化结论。"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     }
   ],
   "projects": [
     {
-      "id": "proj-1",
+      "id": "senvix-ai-edge-cloud-synergetic-multi-modal-smart-mobility-system",
       "name": {
         "en": "SenviX: AI Edge-Cloud Synergetic Multi-Modal Smart Mobility System",
         "zh": "基于 AI 边云协同与多模态感知的 “SenviX” 泛场景智能助行系统"
@@ -182,10 +238,37 @@
           "多模态系统集成与算法落地：基于 ROS 系统与 SLAM 技术实现室内高精度环境建图与自主导航；部署 YOLO 目标检测模型，完成 Ollama 本地大语言模型部署，实现语音控制。",
           "科研成果与荣誉认可：成功交付具备感知、决策、反馈闭环的产品原型，带队斩获 2025 年 “挑战杯” 首都大学生课外学术科技作品竞赛三等奖，并评定为北京市级大创项目。"
         ]
-      }
+      },
+      "keywords": {
+        "en": [
+          "ROS",
+          "SLAM",
+          "YOLO",
+          "Ollama",
+          "Edge-Cloud",
+          "Agile"
+        ],
+        "zh": [
+          "ROS",
+          "SLAM",
+          "YOLO",
+          "Ollama",
+          "边云协同",
+          "敏捷开发"
+        ]
+      },
+      "photos": [
+        "2025-08-10 163256.jpg",
+        "2025-08-10 163257.jpg",
+        "2025-08-10 165142.jpg"
+      ],
+      "certificates": [
+        "2025-08-10 150346.jpg"
+      ],
+      "hasMarkdown": true
     },
     {
-      "id": "proj-2",
+      "id": "multidimensional-psychological-abilities-in-new-generation-llms",
       "name": {
         "en": "Multidimensional Psychological Abilities in New-Generation LLMs",
         "zh": "新一代大模型多维心理学能力研究"
@@ -210,10 +293,35 @@
           "量化分析：独立解析大规模 JSON 实验输出数据，利用 Python (Pandas、NumPy、SciPy) 进行核心数据处理与可视化绘制；引入 Pearson 相关系数、Bland-Altman 等严谨的统计学方法。",
           "科研成果：以第一作者身份撰写并发表英文学术论文，该论文已被第五届电子信息工程与数据处理国际会议 (EIEPD 2026) 正式录用，支持 EI Compendex 与 Scopus 双检索。"
         ]
-      }
+      },
+      "keywords": {
+        "en": [
+          "ChatGPT-5",
+          "Gemini 2.5",
+          "Theory of Mind",
+          "Python",
+          "Pearson",
+          "Bland-Altman"
+        ],
+        "zh": [
+          "ChatGPT-5",
+          "Gemini 2.5",
+          "心理理论",
+          "Python",
+          "Pearson相关",
+          "Bland-Altman"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
-      "id": "proj-3",
+      "id": "smart-sorting-trash-can-based-on-yolo",
       "name": {
         "en": "Smart Sorting Trash Can Based on YOLO",
         "zh": "基于 YOLO 的智能分类垃圾桶"
@@ -238,10 +346,31 @@
           "硬件协作：与机械团队密切合作，共同设计垃圾桶外观，确保外观与功能的完美结合，并建立独立分拣机构。",
           "项目成果：项目荣获北京市大学生工程实践与创新能力大赛特等奖，并被推荐进入中国大学生工程实践与创新能力大赛并获得全国二等奖。"
         ]
-      }
+      },
+      "keywords": {
+        "en": [
+          "YOLOv8",
+          "Arduino",
+          "Electromechanical",
+          "Vision Recognition"
+        ],
+        "zh": [
+          "YOLOv8",
+          "Arduino",
+          "机电控制",
+          "视觉识别"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
-      "id": "proj-4",
+      "id": "smart-eye-controlled-wheelchair-based-on-arduino",
       "name": {
         "en": "Smart Eye-Controlled Wheelchair Based on Arduino",
         "zh": "基于 Arduino 的智能眼控轮椅项目"
@@ -266,7 +395,30 @@
           "信号生成：独立设计控制系统，在 Matlab 中实现依据眼球位置生成轮椅运动控制指令的功能，通过蓝牙通信将运动指令实时传送至 Arduino，实现姿态控制指令自定义化和动作标准化。",
           "项目成果：设计并实现智能眼控轮椅，通过眼球运动来控制轮椅的行驶方向，系统响应灵敏、运行稳定；项目获得导师高度评价和推荐信。"
         ]
-      }
+      },
+      "keywords": {
+        "en": [
+          "Matlab",
+          "Viola-Jones",
+          "Hough Transform",
+          "Bluetooth",
+          "Arduino"
+        ],
+        "zh": [
+          "Matlab",
+          "Viola-Jones",
+          "Hough变换",
+          "蓝牙通信",
+          "Arduino"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -289,7 +441,27 @@
         "zh": [
           "绘制赤道仪模型的零件图，工程图"
         ]
-      }
+      },
+      "id": "equatorial-mount-model-design",
+      "keywords": {
+        "en": [
+          "3D Modeling",
+          "Engineering Drawing",
+          "Parts Design"
+        ],
+        "zh": [
+          "3D建模",
+          "工程制图",
+          "零件设计"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -314,7 +486,29 @@
           "制作问卷调查人群滑雪的习惯和消费趋势",
           "通过爬虫技术爬取主流社交媒体对于滑雪的评论，绘制词云"
         ]
-      }
+      },
+      "id": "ski-industry-demographic-profile-and-consumption-habits",
+      "keywords": {
+        "en": [
+          "Web Scraping",
+          "Word Cloud",
+          "Data Analysis",
+          "Questionnaire"
+        ],
+        "zh": [
+          "网络爬虫",
+          "词云图",
+          "数据分析",
+          "问卷调查"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -340,10 +534,34 @@
         "zh": [
           "美国数学建模竞赛题目",
           "数据清洗及分类",
-          "通过python编程构建基于时间序列，线性回归和层次分析的奥运奖牌预测模型",
+          "通过python编��构建基于时间序列，线性回归和层次分析的奥运奖牌预测模型",
           "和图像的绘制，以及后期论文的撰写"
         ]
-      }
+      },
+      "id": "olympic-medal-prediction-model-construction",
+      "keywords": {
+        "en": [
+          "Time Series",
+          "Linear Regression",
+          "AHP",
+          "Python",
+          "Modeling"
+        ],
+        "zh": [
+          "时间序列",
+          "线性回归",
+          "层次分析法",
+          "Python",
+          "数学建模"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -372,7 +590,33 @@
           "使用sqlite数据库建立后端数据库",
           "使用本地模拟器对软件进行模拟仿真"
         ]
-      }
+      },
+      "id": "harmonyos-based-personal-blog-software",
+      "keywords": {
+        "en": [
+          "DevEco Studio",
+          "Java",
+          "SQLite",
+          "HarmonyOS",
+          "Frontend",
+          "Backend"
+        ],
+        "zh": [
+          "DevEco Studio",
+          "Java",
+          "SQLite",
+          "HarmonyOS",
+          "前端开发",
+          "后端开发"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -401,7 +645,33 @@
           "使用Mysql数据库建立后端数据库",
           "使用本地模拟器对软件进行模拟仿真"
         ]
-      }
+      },
+      "id": "harmonyos-based-food-delivery-software",
+      "keywords": {
+        "en": [
+          "DevEco Studio",
+          "Java",
+          "MySQL",
+          "HarmonyOS",
+          "Frontend",
+          "Backend"
+        ],
+        "zh": [
+          "DevEco Studio",
+          "Java",
+          "MySQL",
+          "HarmonyOS",
+          "前端开发",
+          "后端开发"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -427,7 +697,27 @@
           "大一下独立参赛，但由于知识量过少，以及项目体系过大难以实现",
           "只停留在软件构思层面，没有实物产出"
         ]
-      }
+      },
+      "id": "intelligent-badminton-robot",
+      "keywords": {
+        "en": [
+          "3D Modeling",
+          "Hardware Selection",
+          "Mechanism Design"
+        ],
+        "zh": [
+          "3D建模",
+          "硬件选型",
+          "机构设计"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -453,7 +743,29 @@
           "实现循迹和避障功能",
           "以及遥控功能"
         ]
-      }
+      },
+      "id": "arduino-based-smart-car",
+      "keywords": {
+        "en": [
+          "Arduino",
+          "Line-tracking",
+          "Obstacle Avoidance",
+          "Remote Control"
+        ],
+        "zh": [
+          "Arduino",
+          "循迹",
+          "避障",
+          "遥控"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     }
   ],
   "skills": [
@@ -552,6 +864,80 @@
       }
     }
   ],
+  "exchanges": [
+    {
+      "id": "international-summer-school-in-engineering-and-robotics",
+      "name": {
+        "en": "International Summer School in Engineering and Robotics",
+        "zh": "工程与机器人国际夏校"
+      },
+      "role": {
+        "en": "Participant",
+        "zh": "参与者"
+      },
+      "period": "2024.07.15 - 2024.07.31",
+      "location": {
+        "en": "Brunel University London, UK",
+        "zh": "英国伦敦布鲁内尔大学"
+      },
+      "details": {
+        "en": [
+          "Hardcore Engineering Practice: Participated in Arduino-based Robotics Challenge and 'Eye Controlled Wheelchair' core team project, ultimately completing project roadshow and demonstration.",
+          "Frontier Academic Exploration: Attended scientific lectures by professors from Electrical & Electronic Engineering, Mechanical & Aerospace, and Civil & Environmental Engineering departments, covering cutting-edge fields like 'Future Power Systems', 'Micro-Robotics', and 'Additive Manufacturing in Biomedical Engineering'.",
+          "Academic Skills Enhancement: Received systematic training from the ASK (Academic Skills) team, including critical thinking, paper structure, academic report writing, anti-plagiarism, and presentation skills.",
+          "Industry & Cultural Visit: Visited UK robotics enterprises; toured Oxford University, Cambridge University, Bath, Windsor Castle, and the London Science Museum for deep cultural immersion."
+        ],
+        "zh": [
+          "硬核工程实践：参与了基于 Arduino 的机器人挑战 (Robotics Challenge) 以及“眼控轮椅 (Eye Controlled Wheelchair)”的小组核心项目研发 ，并最终完成了项目路演与演示 。",
+          "前沿学术探索：参加了由大学电气与电子工程、机械与航空航天、土木与环境工程等学系教授主讲的科研讲座，涵盖“未来电力系统”、“微型机器人”和“生物医学工程中的增材制造”等前沿领域 。",
+          "学术技能提升：接受了 ASK (Academic Skills) 团队的系统培训，包括批判性思维、论文结构、学术报告撰写、防抄袭以及演讲技巧 。",
+          "行业与文化探访：实地参访了英国机器人相关企业 ；游历了牛津大学、剑桥大学、巴斯、温莎城堡及伦敦科学博物馆，进行了深度的文化沉浸 。"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
+    },
+    {
+      "id": "youth-cultural-exchange-program",
+      "name": {
+        "en": "Youth Cultural Exchange Program",
+        "zh": "青年使者赴美交流项目"
+      },
+      "role": {
+        "en": "Youth Ambassador",
+        "zh": "青年使者"
+      },
+      "period": "2026.08",
+      "location": {
+        "en": "United States (California / East Coast & Local Communities)",
+        "zh": "美国（涵盖加州/美东及当地社区）"
+      },
+      "details": {
+        "en": [
+          "Cross-cultural Immersion: Stayed with local American families throughout the program, deeply participated in their weekend life, and explored differences in family structures and cultures between China and the US.",
+          "Sino-US Education & Social Research: Visited top US universities including UCLA, Princeton, and UPenn (Wharton) to understand differences in higher education systems; visited local fire departments, police stations, and NGOs (e.g., Food Bank) to study public service, volunteerism, and public safety mechanisms.",
+          "Chinese Culture Output: Acted as a cultural ambassador, demonstrating traditional Chinese culture like Hanfu, paper cutting, and calligraphy to foreign friends and host families, and invited American families to visit China, promoting people-to-people cross-cultural exchange."
+        ],
+        "zh": [
+          "跨文化沉浸：全程入住当地美国家庭，深度参与美式家庭周末生活，探讨中美家庭结构与文化差异 。",
+          "中美教育与社会调研：参访了包括UCLA、普林斯顿大学、宾夕法尼亚大学（沃顿商学院）等美国顶尖高校，了解中美高等教育体系差异 ；深入当地消防局、警察局及非营利组织（如“食物银行”），研讨美国的公共服务、志愿服务及公共安全机制 。",
+          "中国文化输出：作为文化传播使者，向外国友人及寄宿家庭展示汉服、手工剪纸、毛笔字等中国传统特色文化，并邀请美国家庭来华，促进民间跨文化交流 。"
+        ]
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
+    }
+  ],
   "volunteers": [
     {
       "name": {
@@ -574,7 +960,15 @@
         "zh": [
           "垃圾桶前站岗，垃圾分类宣传与引导"
         ]
-      }
+      },
+      "id": "community-garbage-classification-volunteer",
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -597,7 +991,15 @@
         "zh": [
           "绘制世界地球日相关的宣传帆布包"
         ]
-      }
+      },
+      "id": "earth-day-volunteer-activity",
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -620,7 +1022,15 @@
         "zh": [
           "维持现场秩序，服务参赛选手"
         ]
-      }
+      },
+      "id": "beijing-marathon-volunteer",
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     }
   ]
 }

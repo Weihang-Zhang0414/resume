@@ -55,7 +55,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('./data/portfolio.json');
+        const response = await fetch(`${import.meta.env.BASE_URL}data/portfolio.json`);
         const json = await response.json();
         setData(json);
         i18n.changeLanguage(json.defaultLanguage || 'en');

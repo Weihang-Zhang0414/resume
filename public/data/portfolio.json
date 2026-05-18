@@ -95,7 +95,7 @@
   ],
   "internships": [
     {
-      "id": "int-1",
+      "id": "beijing-ascend-artificial-intelligence-technology-co-ltd",
       "company": {
         "en": "Beijing Ascend Artificial Intelligence Technology Co., Ltd.",
         "zh": "北京昇腾人工智能科技有限公司"
@@ -144,10 +144,17 @@
           "模型集成与后端开发：使用 Spring Boot 与 FastAPI 集成蒸馏大语言模型 (DeepSeek, 蒸馏自 Qwen-1.5B)，完成统一 API 封装。",
           "AI 全栈应用开发：参与前端 (Java) 与后端协同开发，完成可本地部署运行的原型系统。"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
-      "id": "int-2",
+      "id": "beijing-trs-information-technology-co-ltd",
       "company": {
         "en": "Beijing TRS Information Technology Co., Ltd.",
         "zh": "北京拓尔思信息技术股份有限公司"
@@ -194,12 +201,19 @@
           "项目实战与评估：完成住宿价格预测、信用卡交易欺诈检测等项目。",
           "业务理解与报告输出：结合业务场景解释模型结果，输出结构化分析报告与可视化结论。"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     }
   ],
   "projects": [
     {
-      "id": "proj-1",
+      "id": "senvix-ai-edge-cloud-synergetic-multi-modal-smart-mobility-system",
       "name": {
         "en": "SenviX: AI Edge-Cloud Synergetic Multi-Modal Smart Mobility System",
         "zh": "基于 AI 边云协同与多模态感知的 “SenviX” 泛场景智能助行系统"
@@ -242,10 +256,19 @@
           "边云协同",
           "敏捷开发"
         ]
-      }
+      },
+      "photos": [
+        "2025-08-10 163256.jpg",
+        "2025-08-10 163257.jpg",
+        "2025-08-10 165142.jpg"
+      ],
+      "certificates": [
+        "2025-08-10 150346.jpg"
+      ],
+      "hasMarkdown": true
     },
     {
-      "id": "proj-2",
+      "id": "multidimensional-psychological-abilities-in-new-generation-llms",
       "name": {
         "en": "Multidimensional Psychological Abilities in New-Generation LLMs",
         "zh": "新一代大模型多维心理学能力研究"
@@ -288,10 +311,17 @@
           "Pearson相关",
           "Bland-Altman"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
-      "id": "proj-3",
+      "id": "smart-sorting-trash-can-based-on-yolo",
       "name": {
         "en": "Smart Sorting Trash Can Based on YOLO",
         "zh": "基于 YOLO 的智能分类垃圾桶"
@@ -330,10 +360,17 @@
           "机电控制",
           "视觉识别"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
-      "id": "proj-4",
+      "id": "smart-eye-controlled-wheelchair-based-on-arduino",
       "name": {
         "en": "Smart Eye-Controlled Wheelchair Based on Arduino",
         "zh": "基于 Arduino 的智能眼控轮椅项目"
@@ -374,7 +411,14 @@
           "蓝牙通信",
           "Arduino"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -398,7 +442,7 @@
           "绘制赤道仪模型的零件图，工程图"
         ]
       },
-      "id": "proj-5",
+      "id": "equatorial-mount-model-design",
       "keywords": {
         "en": [
           "3D Modeling",
@@ -410,7 +454,14 @@
           "工程制图",
           "零件设计"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -436,7 +487,7 @@
           "通过爬虫技术爬取主流社交媒体对于滑雪的评论，绘制词云"
         ]
       },
-      "id": "proj-6",
+      "id": "ski-industry-demographic-profile-and-consumption-habits",
       "keywords": {
         "en": [
           "Web Scraping",
@@ -450,7 +501,14 @@
           "数据分析",
           "问卷调查"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -476,11 +534,11 @@
         "zh": [
           "美国数学建模竞赛题目",
           "数据清洗及分类",
-          "通过python编程构建基于时间序列，线性回归和层次分析的奥运奖牌预测模型",
+          "通过python编��构建基于时间序列，线性回归和层次分析的奥运奖牌预测模型",
           "和图像的绘制，以及后期论文的撰写"
         ]
       },
-      "id": "proj-7",
+      "id": "olympic-medal-prediction-model-construction",
       "keywords": {
         "en": [
           "Time Series",
@@ -496,7 +554,14 @@
           "Python",
           "数学建模"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -526,7 +591,7 @@
           "使用本地模拟器对软件进行模拟仿真"
         ]
       },
-      "id": "proj-8",
+      "id": "harmonyos-based-personal-blog-software",
       "keywords": {
         "en": [
           "DevEco Studio",
@@ -544,7 +609,14 @@
           "前端开发",
           "后端开发"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -574,7 +646,7 @@
           "使用本地模拟器对软件进行模拟仿真"
         ]
       },
-      "id": "proj-9",
+      "id": "harmonyos-based-food-delivery-software",
       "keywords": {
         "en": [
           "DevEco Studio",
@@ -592,7 +664,14 @@
           "前端开发",
           "后端开发"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -619,7 +698,7 @@
           "只停留在软件构思层面，没有实物产出"
         ]
       },
-      "id": "proj-10",
+      "id": "intelligent-badminton-robot",
       "keywords": {
         "en": [
           "3D Modeling",
@@ -631,7 +710,14 @@
           "硬件选型",
           "机构设计"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -658,7 +744,7 @@
           "以及遥控功能"
         ]
       },
-      "id": "proj-11",
+      "id": "arduino-based-smart-car",
       "keywords": {
         "en": [
           "Arduino",
@@ -672,7 +758,14 @@
           "避障",
           "遥控"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     }
   ],
   "skills": [
@@ -773,7 +866,7 @@
   ],
   "exchanges": [
     {
-      "id": "exc-1",
+      "id": "international-summer-school-in-engineering-and-robotics",
       "name": {
         "en": "International Summer School in Engineering and Robotics",
         "zh": "工程与机器人国际夏校"
@@ -800,10 +893,17 @@
           "学术技能提升：接受了 ASK (Academic Skills) 团队的系统培训，包括批判性思维、论文结构、学术报告撰写、防抄袭以及演讲技巧 。",
           "行业与文化探访：实地参访了英国机器人相关企业 ；游历了牛津大学、剑桥大学、巴斯、温莎城堡及伦敦科学博物馆，进行了深度的文化沉浸 。"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
-      "id": "exc-2",
+      "id": "youth-cultural-exchange-program",
       "name": {
         "en": "Youth Cultural Exchange Program",
         "zh": "青年使者赴美交流项目"
@@ -828,7 +928,14 @@
           "中美教育与社会调研：参访了包括UCLA、普林斯顿大学、宾夕法尼亚大学（沃顿商学院）等美国顶尖高校，了解中美高等教育体系差异 ；深入当地消防局、警察局及非营利组织（如“食物银行”），研讨美国的公共服务、志愿服务及公共安全机制 。",
           "中国文化输出：作为文化传播使者，向外国友人及寄宿家庭展示汉服、手工剪纸、毛笔字等中国传统特色文化，并邀请美国家庭来华，促进民间跨文化交流 。"
         ]
-      }
+      },
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     }
   ],
   "volunteers": [
@@ -853,7 +960,15 @@
         "zh": [
           "垃圾桶前站岗，垃圾分类宣传与引导"
         ]
-      }
+      },
+      "id": "community-garbage-classification-volunteer",
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -876,7 +991,15 @@
         "zh": [
           "绘制世界地球日相关的宣传帆布包"
         ]
-      }
+      },
+      "id": "earth-day-volunteer-activity",
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     },
     {
       "name": {
@@ -899,7 +1022,15 @@
         "zh": [
           "维持现场秩序，服务参赛选手"
         ]
-      }
+      },
+      "id": "beijing-marathon-volunteer",
+      "photos": [
+        "mock-preview-01.svg",
+        "mock-preview-02.svg",
+        "mock-preview-03.svg"
+      ],
+      "certificates": [],
+      "hasMarkdown": true
     }
   ]
 }

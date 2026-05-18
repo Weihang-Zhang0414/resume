@@ -84,6 +84,59 @@ const Admin: React.FC = () => {
     );
   };
 
+  const renderExperienceDirectoryBanner = (key: string, item: any, itemPath: (string | number)[]) => {
+    if (!item || !item.id) return null;
+    
+    let folderType = 'projects';
+    if (key === 'internships') folderType = 'internships';
+    if (key === 'exchanges') folderType = 'exchanges';
+    if (key === 'volunteers') folderType = 'volunteers';
+    
+    const relativeFolderPath = `public/experiences/${folderType}/${item.id}`;
+    const photoCount = item.photos?.length || 0;
+    const certCount = item.certificates?.length || 0;
+    
+    return (
+      <div className="mt-6 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">📂 资源目录 / Local Directory</h4>
+            <code className="text-xs text-slate-500 dark:text-slate-400 select-all block mt-1 break-all">
+              {relativeFolderPath}/
+            </code>
+          </div>
+          <div className="flex items-center gap-2">
+            {renderToggle([...itemPath, 'showCerts'], '启用证书模块 / Show Certificates')}
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span className="text-slate-500">🖼️ 项目照片 / Photos:</span>
+            <span className={`font-bold ${photoCount > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
+              {photoCount} 张/pcs (1-9)
+            </span>
+          </div>
+          <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span className="text-slate-500">📜 证书 / Certificates:</span>
+            <span className={`font-bold ${certCount > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
+              {certCount} 张/pcs (1-3)
+            </span>
+          </div>
+          <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span className="text-slate-500">📝 Markdown 详情 / MD:</span>
+            <span className={`font-bold ${item.hasMarkdown ? 'text-green-500' : 'text-red-500 font-extrabold'}`}>
+              {item.hasMarkdown ? '已就绪 / Ready' : '无 / None'}
+            </span>
+          </div>
+        </div>
+        <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-normal">
+          * 请在本地将经历照片放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/photos/</code> 目录，证书放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/certificates/</code> 目录，并在 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">details.md</code> 中编写 Markdown 详情。保存后前台会自动加载！
+        </p>
+      </div>
+    );
+  };
+
   const renderTextField = (path: (string | number)[], label: string, isTextarea = false) => {
     let value = formData;
     for (const p of path) {
@@ -449,56 +502,140 @@ const Admin: React.FC = () => {
         {renderArraySection(
           'internships', 
           'Internship Experience 实习经历',
-          { id: `int-${Date.now()}`, company: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
-          (path) => (
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
-                {renderTextField([...path, 'company', 'en'], 'Company')}
-                {renderTextField([...path, 'role', 'en'], 'Role')}
-                {renderTextField([...path, 'location', 'en'], 'Location')}
-                {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
+          { id: `int-${Date.now()}`, company: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] }, keywords: { en: [], zh: [] } },
+          (path, index) => {
+            const item = formData.internships[index];
+            return (
+              <div className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
+                    {renderTextField([...path, 'company', 'en'], 'Company')}
+                    {renderTextField([...path, 'role', 'en'], 'Role')}
+                    {renderTextField([...path, 'location', 'en'], 'Location')}
+                    {renderStringArrayField([...path, 'keywords', 'en'], 'Keywords')}
+                    {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
+                    {renderTextField([...path, 'company', 'zh'], '公司名称')}
+                    {renderTextField([...path, 'role', 'zh'], '职位')}
+                    {renderTextField([...path, 'location', 'zh'], '地点')}
+                    {renderStringArrayField([...path, 'keywords', 'zh'], '关键字')}
+                    {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                  {renderTextField([...path, 'period'], 'Period (e.g. 2025.07 - 2025.08)')}
+                </div>
+                {renderExperienceDirectoryBanner('internships', item, path)}
               </div>
-              <div className="space-y-4">
-                <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
-                {renderTextField([...path, 'company', 'zh'], '公司名称')}
-                {renderTextField([...path, 'role', 'zh'], '职位')}
-                {renderTextField([...path, 'location', 'zh'], '地点')}
-                {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
-              </div>
-              <div className="md:col-span-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                {renderTextField([...path, 'period'], 'Period (e.g. 2025.07 - 2025.08)')}
-              </div>
-            </div>
-          )
+            );
+          }
         )}
 
         {/* Projects */}
         {renderArraySection(
           'projects', 
           'Research & Projects 科研经历',
-          { id: `proj-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
-          (path) => (
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
-                {renderTextField([...path, 'name', 'en'], 'Project Name')}
-                {renderTextField([...path, 'role', 'en'], 'Role/Title')}
-                {renderTextField([...path, 'location', 'en'], 'Location')}
-                {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
+          { id: `proj-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] }, keywords: { en: [], zh: [] } },
+          (path, index) => {
+            const item = formData.projects[index];
+            return (
+              <div className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
+                    {renderTextField([...path, 'name', 'en'], 'Project Name')}
+                    {renderTextField([...path, 'role', 'en'], 'Role/Title')}
+                    {renderTextField([...path, 'location', 'en'], 'Location')}
+                    {renderStringArrayField([...path, 'keywords', 'en'], 'Keywords')}
+                    {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
+                    {renderTextField([...path, 'name', 'zh'], '项目名称')}
+                    {renderTextField([...path, 'role', 'zh'], '角色')}
+                    {renderTextField([...path, 'location', 'zh'], '地点')}
+                    {renderStringArrayField([...path, 'keywords', 'zh'], '关键字')}
+                    {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                  {renderTextField([...path, 'period'], 'Period')}
+                </div>
+                {renderExperienceDirectoryBanner('projects', item, path)}
               </div>
-              <div className="space-y-4">
-                <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
-                {renderTextField([...path, 'name', 'zh'], '项目名称')}
-                {renderTextField([...path, 'role', 'zh'], '角色')}
-                {renderTextField([...path, 'location', 'zh'], '地点')}
-                {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
+            );
+          }
+        )}
+
+        {/* Exchanges */}
+        {renderArraySection(
+          'exchanges', 
+          'Exchange Experience 海外交流经历',
+          { id: `exc-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
+          (path, index) => {
+            const item = formData.exchanges[index];
+            return (
+              <div className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
+                    {renderTextField([...path, 'name', 'en'], 'Program Name')}
+                    {renderTextField([...path, 'role', 'en'], 'Role')}
+                    {renderTextField([...path, 'location', 'en'], 'Location')}
+                    {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
+                    {renderTextField([...path, 'name', 'zh'], '项目名称')}
+                    {renderTextField([...path, 'role', 'zh'], '角色')}
+                    {renderTextField([...path, 'location', 'zh'], '地点')}
+                    {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                  {renderTextField([...path, 'period'], 'Period')}
+                </div>
+                {renderExperienceDirectoryBanner('exchanges', item, path)}
               </div>
-              <div className="md:col-span-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                {renderTextField([...path, 'period'], 'Period')}
+            );
+          }
+        )}
+
+        {/* Volunteers */}
+        {renderArraySection(
+          'volunteers', 
+          'Volunteer Experience 志愿服务经历',
+          { id: `vol-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
+          (path, index) => {
+            const item = formData.volunteers[index];
+            return (
+              <div className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
+                    {renderTextField([...path, 'name', 'en'], 'Activity Name')}
+                    {renderTextField([...path, 'role', 'en'], 'Role')}
+                    {renderTextField([...path, 'location', 'en'], 'Location')}
+                    {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
+                    {renderTextField([...path, 'name', 'zh'], '活动名称')}
+                    {renderTextField([...path, 'role', 'zh'], '角色/职责')}
+                    {renderTextField([...path, 'location', 'zh'], '地点')}
+                    {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                  {renderTextField([...path, 'period'], 'Period')}
+                </div>
+                {renderExperienceDirectoryBanner('volunteers', item, path)}
               </div>
-            </div>
-          )
+            );
+          }
         )}
 
         {/* Skills */}
