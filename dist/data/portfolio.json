@@ -31,7 +31,7 @@
   },
   "education": [
     {
-      "id": "edu-1",
+      "id": "northern-china-university-of-technology-brunel-university-london",
       "institution": {
         "en": "Northern China University of Technology & Brunel University London",
         "zh": "北方工业大学 & 布鲁内尔大学 (中外合办)"
@@ -86,11 +86,21 @@
           "全国大学生市场调查与分析大赛北京分赛区选拔赛 — 第三等级（团体）(2025/04)",
           "北方工业大学市场调查与分析大赛 — 次高等级（团体）(2025/03)",
           "北京市大学生数学竞赛 — 第三等级（个人）(2024/11)",
-          "大唐杯全国大学生移动通信大赛 — 参与奖（团体）(2024/04)",
           "西门子杯校赛 — 二等奖（团体）(2024/04)",
+          "大唐杯全国大学生移动通信大赛 — 参与奖（团体）(2024/04)",
           "北方工业大学伦敦布鲁内尔学院职业规划大赛 — 三等奖（团体）(2023/12)"
         ]
-      }
+      },
+      "transcriptImage": "transcript.png",
+      "scholarshipCertificates": [
+        "25.png",
+        "24.png"
+      ],
+      "awardCertificates": [
+        "GC.png",
+        "GC-G.jpg",
+        "award_mcm.png"
+      ]
     }
   ],
   "internships": [

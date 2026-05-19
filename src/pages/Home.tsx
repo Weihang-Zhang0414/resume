@@ -1299,10 +1299,10 @@ const Home: React.FC = () => {
                                   whileHover={{ y: -3, scale: 1.02 }}
                                 >
                                   <img src={certSrc} alt={`Certificate ${idx + 1}`} className="w-full h-full object-cover" />
-                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
-                                    <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md">
-                                      🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
-                                    </span>
+                                  <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.603 10.603z" />
+                                    </svg>
                                   </div>
                                 </motion.div>
                               );
@@ -1604,10 +1604,10 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string, onPho
               transform: 'translate3d(0,0,0)',
             }}
           />
-          <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
-            <span className="px-3.5 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform duration-300">
-              🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
-            </span>
+          <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.603 10.603z" />
+            </svg>
           </div>
         </div>
       </div>
@@ -1637,10 +1637,10 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string, onPho
                     transform: 'translate3d(0,0,0)',
                   }}
                 />
-                <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
-                  <span className="px-3 py-1 rounded-full bg-white/20 border border-white/20 text-white text-[10px] sm:text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform duration-300">
-                    🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
-                  </span>
+                 <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.603 10.603z" />
+                  </svg>
                 </div>
               </div>
             );
@@ -1806,10 +1806,10 @@ const Research3DCarousel: React.FC<{ photos: string[], folderPath: string, onPho
                   />
                 )}
                 {isActiveCard && opacity > 0.5 && (
-                  <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
-                    <span className="px-3.5 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform duration-300">
-                      🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
-                    </span>
+                  <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.603 10.603z" />
+                    </svg>
                   </div>
                 )}
               </div>
@@ -1894,10 +1894,10 @@ const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string, o
             >
               <div className="relative w-full aspect-square rounded overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200/30 dark:border-slate-800/80">
                 <img src={src} alt={`Polaroid Detail ${i}`} className="w-full h-full object-cover select-none" />
-                <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
-                  <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-[10px] sm:text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform">
-                    🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
-                  </span>
+                <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.603 10.603z" />
+                  </svg>
                 </div>
               </div>
               <div className="text-[7px] sm:text-[9px] font-bold font-mono tracking-wider mt-1 sm:mt-2 text-slate-400 dark:text-slate-500 select-none uppercase">
@@ -1996,10 +1996,10 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string, onPhotoC
             >
               <img src={src} alt={`Cover Flow Detail ${i}`} className="w-full h-full object-cover select-none" />
               {isActive && (
-                <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[1px]">
-                  <span className="px-3 py-1.5 rounded-full bg-white/20 border border-white/20 text-white text-[10px] sm:text-xs font-semibold backdrop-blur-md shadow-md transform scale-90 sm:scale-100 transition-transform">
-                    🔍 {lang === 'zh' ? '点击放大' : 'Zoom'}
-                  </span>
+                <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.603 10.603z" />
+                  </svg>
                 </div>
               )}
             </motion.div>
