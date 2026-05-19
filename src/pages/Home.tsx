@@ -378,7 +378,7 @@ const Home: React.FC = () => {
           isPortrait ? (
             /* Portrait Top 1/3 layout (shifted up, enlarged photo and text details) */
             <div className="absolute top-[calc(1.75rem+env(safe-area-inset-top))] inset-x-4 h-[20vh] max-h-[170px] z-40 flex items-center justify-center pointer-events-auto">
-              <div className="glass-card w-full max-w-[480px] h-full rounded-2xl p-4 flex items-center gap-4.5 border border-white/20 dark:border-slate-800/80 shadow-lg">
+              <div className="glass-card w-full max-w-[480px] h-full rounded-2xl p-4 flex items-center gap-6 border border-white/20 dark:border-slate-800/80 shadow-lg">
                 {/* Avatar on the Left (enlarged to 96px) */}
                 <motion.div
                   layoutId="hero-avatar"
