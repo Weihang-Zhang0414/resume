@@ -253,14 +253,40 @@ const Home: React.FC = () => {
     };
   }, [items.length, activeIndex, showEndScreen, showWelcome, isPortrait]);
 
-  // Lock body scroll when modal opens
+  // Dynamic status bar and body background color syncing for notch devices
   useEffect(() => {
-    if (detailItem || passwordModalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+    let themeColor = theme === 'dark' ? '#020617' : '#f8fafc';
+    
+    if (theme === 'light' && !showWelcome && !showEndScreen) {
+      const type = items[activeIndex]?.type;
+      if (type === 'education') themeColor = '#e0f2fe';
+      else if (type === 'internship') themeColor = '#e0e7ff';
+      else if (type === 'project') themeColor = '#f3e8ff';
+      else if (type === 'exchange') themeColor = '#ffe4e6';
+      else if (type === 'volunteer') themeColor = '#fef3c7';
+      else themeColor = '#e0f2fe';
     }
-  }, [detailItem, passwordModalOpen]);
+
+    // Update iOS Safari / Chrome top status bar theme-color
+    try {
+      let meta = document.querySelector('meta[name="theme-color"]');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', themeColor);
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Set body inline styling background color to prevent margins or notches showing white
+    document.body.style.backgroundColor = themeColor;
+
+    return () => {
+      document.body.style.backgroundColor = '';
+    };
+  }, [theme, activeIndex, items, showWelcome, showEndScreen]);
 
   if (loading || !data || items.length === 0) return <div className="flex justify-center items-center h-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div></div>;
 
