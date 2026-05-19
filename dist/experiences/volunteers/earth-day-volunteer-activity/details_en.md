@@ -1,8 +1,16 @@
 # Earth Day Volunteer Activity
 
-Edit the detailed English introduction of this experience here. It supports Markdown formatting and will be automatically rendered in the frontend details page.
+**Member** | April 2025 - April 2025
 
-## Key Learnings & Growth
-- **Innovative Practice**: Deeply applied learned technology to solve real-world problems.
-- **Teamwork**: Collaborated with multiple resources to efficiently promote project landing.
-- **Personal Growth**: Enhanced professional technical skills and the ability to solve complex engineering problems.
+**TL;DR:** Volunteered during the campus "Earth Day" environmental campaign, designing and hand-painting eco-themed reusable canvas bags to advocate for plastic-free, low-carbon living.
+
+## 🎯 Objectives
+To raise environmental awareness among university students and faculty on Earth Day, encouraging sustainable, low-carbon lifestyles and reducing single-use plastic consumption through artistic outreach.
+
+## 🛠️ Key Contributions
+* **Eco-Themed Canvas Painting:** Conceptualized and hand-painted graphic slogans on reusable canvas bags to visually represent ecological preservation and climate action.
+* **Low-Carbon Advocacy:** Staffed the campus awareness booth, speaking to visitors about simple daily actions (e.g., swapping plastic bags for reusable ones, conserving power) to reduce individual footprints.
+
+## 🏆 Results & Social Impact
+* Handcrafted and distributed environmental canvas bags to local students, engaging over 100 participants in conservation pledges.
+* Blended art with community volunteering, successfully delivering creative environmental education on campus.

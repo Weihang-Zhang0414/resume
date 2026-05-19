@@ -20,8 +20,8 @@
       "zh": "对人工智能、大语言模型和全栈开发充满热情。在构建智能系统、数据挖掘和机器学习模型方面拥有丰富经验。"
     },
     "avatarUrl": "me.jpg",
-    "wechat": "YourWeChatID",
-    "instagram": "@YourInsta",
+    "wechat": "Allan_Zhang0414",
+    "instagram": "Allan_Zhang0414",
     "visibility": {
       "email": true,
       "phone": true,
@@ -805,6 +805,7 @@
   ],
   "skills": [
     {
+      "id": "skill-0-euxw1kz",
       "category": {
         "en": "Languages",
         "zh": "语言技能"
@@ -821,6 +822,7 @@
       }
     },
     {
+      "id": "skill-1-38srsl9",
       "category": {
         "en": "Office & Media",
         "zh": "办公与媒体工具"
@@ -847,6 +849,7 @@
       }
     },
     {
+      "id": "skill-2-v1u4zia",
       "category": {
         "en": "Programming",
         "zh": "编程语言"
@@ -871,6 +874,7 @@
       }
     },
     {
+      "id": "skill-3-b8prv82",
       "category": {
         "en": "AI & Software Dev",
         "zh": "人工智能与软件开发"

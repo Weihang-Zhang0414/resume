@@ -1,8 +1,16 @@
 # Community Garbage Classification Volunteer
 
-Edit the detailed English introduction of this experience here. It supports Markdown formatting and will be automatically rendered in the frontend details page.
+**Member** | May 2025 - May 2025
 
-## Key Learnings & Growth
-- **Innovative Practice**: Deeply applied learned technology to solve real-world problems.
-- **Teamwork**: Collaborated with multiple resources to efficiently promote project landing.
-- **Personal Growth**: Enhanced professional technical skills and the ability to solve complex engineering problems.
+**TL;DR:** Volunteered at the university community recycling hubs, guiding residents on refuse sorting, raising environmental awareness, and promoting clean neighborhoods.
+
+## 🎯 Objectives
+To assist community residents in establishing garbage sorting habits, raising waste recycling accuracy, and promoting environmental sustainability through direct coaching.
+
+## 🛠️ Key Contributions
+* **Waste Sorting Guidance:** Supervised designated waste disposal stations during peak hours, ensuring residents classified household waste, recyclables, hazardous waste, and dry refuse correctly.
+* **Environmental Literacy Campaigning:** Distributed pamphlets on municipal waste codes and answered residential queries on sorting standards to encourage eco-friendly habits.
+
+## 🏆 Results & Social Impact
+* Enhanced local waste sorting accuracy and increased residential engagement during the service period.
+* Promoted municipal ecological goals by showcasing youth volunteer leadership in public service.

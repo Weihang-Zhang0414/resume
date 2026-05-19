@@ -1,27 +1,597 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Plus, Trash2, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
+import {
+  Plus, Trash2, ChevronDown, ChevronUp, GripVertical, Save, Home,
+  Upload, Eye, Edit3, Trash, Check, AlertCircle, FileText, Globe,
+  Volume2, X, Image as ImageIcon, Award, ShieldAlert, Sparkles
+} from 'lucide-react';
 
+// ==========================================
+// 1. REORDERABLE ITEM WRAPPER
+// ==========================================
+interface ReorderableItemProps {
+  item: any;
+  index: number;
+  onDelete: () => void;
+  children: React.ReactNode;
+}
+
+const ReorderableItem: React.FC<ReorderableItemProps> = ({ item, index, onDelete, children }) => {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item
+      value={item}
+      dragListener={false}
+      dragControls={controls}
+      className="relative p-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-md shadow-sm hover:shadow-md transition-shadow duration-300"
+    >
+      <div className="absolute top-4 right-4 flex items-center gap-1 z-10">
+        <div
+          onPointerDown={(e) => controls.start(e)}
+          className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-250 cursor-grab active:cursor-grabbing rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="按住拖拽排序 / Drag to reorder"
+        >
+          <GripVertical className="w-5 h-5" />
+        </div>
+        <button
+          onClick={onDelete}
+          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
+          title="删除 / Delete Entry"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
+      </div>
+      <div className="pr-12 md:pr-16">
+        {children}
+      </div>
+    </Reorder.Item>
+  );
+};
+
+// ==========================================
+// 2. DRAG & DROP STRING ARRAY MANAGER
+// ==========================================
+interface StringArrayItemProps {
+  item: { id: string; value: string };
+  index: number;
+  handleTextChange: (index: number, val: string) => void;
+  handleDelete: (index: number) => void;
+}
+
+const StringArrayItem: React.FC<StringArrayItemProps> = ({ item, index, handleTextChange, handleDelete }) => {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item
+      value={item}
+      dragListener={false}
+      dragControls={controls}
+      className="flex gap-2 items-center bg-white dark:bg-slate-950 p-2 rounded-lg border border-slate-250 dark:border-slate-850 shadow-sm"
+    >
+      <div
+        onPointerDown={(e) => controls.start(e)}
+        className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1"
+      >
+        <GripVertical className="w-4 h-4" />
+      </div>
+      <textarea
+        className="flex-1 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 resize-none font-sans"
+        value={item.value}
+        rows={2}
+        onChange={e => handleTextChange(index, e.target.value)}
+        placeholder="输入内容... / Enter content..."
+      />
+      <button
+        onClick={() => handleDelete(index)}
+        className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </Reorder.Item>
+  );
+};
+
+interface StringArrayManagerProps {
+  path: (string | number)[];
+  label: string;
+  formData: any;
+  updateField: (path: (string | number)[], value: any) => void;
+}
+
+const StringArrayManager: React.FC<StringArrayManagerProps> = ({ path, label, formData, updateField }) => {
+  let array: string[] = formData;
+  for (const p of path) {
+    if (array === undefined) return null;
+    array = (array as any)[p];
+  }
+  if (!array || !Array.isArray(array)) array = [];
+
+  const [items, setItems] = useState<{ id: string; value: string }[]>([]);
+
+  useEffect(() => {
+    setItems(prev => {
+      return array.map((str, idx) => {
+        const existing = prev[idx];
+        if (existing && existing.value === str) {
+          return existing;
+        }
+        return {
+          id: existing?.id || `str-${idx}-${Math.random().toString(36).substring(2, 9)}`,
+          value: str
+        };
+      });
+    });
+  }, [JSON.stringify(array)]);
+
+  const handleReorder = (newItems: typeof items) => {
+    setItems(newItems);
+    updateField(path, newItems.map(item => item.value));
+  };
+
+  const handleTextChange = (index: number, val: string) => {
+    const updated = [...items];
+    updated[index].value = val;
+    setItems(updated);
+    updateField(path, updated.map(item => item.value));
+  };
+
+  const handleAdd = () => {
+    updateField(path, [...array, ""]);
+  };
+
+  const handleDelete = (index: number) => {
+    updateField(path, array.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="mb-4 p-4 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/20 backdrop-blur-sm">
+      <label className="block text-sm font-bold text-slate-700 dark:text-slate-350 mb-3">{label}</label>
+      
+      {items.length === 0 ? (
+        <p className="text-xs text-slate-400 dark:text-slate-500 italic mb-2">暂无项 / No items</p>
+      ) : (
+        <Reorder.Group axis="y" values={items} onReorder={handleReorder} className="space-y-2">
+          {items.map((item, index) => (
+            <StringArrayItem
+              key={item.id}
+              item={item}
+              index={index}
+              handleTextChange={handleTextChange}
+              handleDelete={handleDelete}
+            />
+          ))}
+        </Reorder.Group>
+      )}
+      
+      <button
+        onClick={handleAdd}
+        className="mt-3 flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-bold transition-colors"
+      >
+        <Plus className="w-4 h-4" /> 添加项 / Add Item
+      </button>
+    </div>
+  );
+};
+
+// ==========================================
+// 3. INTERACTIVE MEDIA UPLOAD MANAGER
+// ==========================================
+interface MediaUploadManagerProps {
+  type: string;
+  id: string;
+  category: 'photos' | 'certificates' | 'transcript' | 'scholarships' | 'awards';
+  files: string[];
+  isSingle?: boolean;
+  onSync: (newData: any) => void;
+  label: string;
+}
+
+const MediaUploadManager: React.FC<MediaUploadManagerProps> = ({
+  type, id, category, files, isSingle = false, onSync, label
+}) => {
+  const [dragOver, setDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  const getFileUrl = (filename: string) => {
+    const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+    return `${base}experiences/${type}/${id}/${category}/${filename}`;
+  };
+
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    setError('');
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64 = (reader.result as string).split(',')[1];
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type,
+              id,
+              category,
+              filename: file.name,
+              fileData: base64
+            })
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (json.success) {
+              onSync(json.data);
+            } else {
+              setError(json.error || '上传失败');
+            }
+          } else {
+            setError('上传接口错误');
+          }
+        } catch (err: any) {
+          setError(err.message);
+        } finally {
+          setUploading(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err: any) {
+      setError(err.message);
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (filename: string) => {
+    if (!confirm(`确定要删除媒体文件 "${filename}" 吗？`)) return;
+    try {
+      const res = await fetch('/api/delete-media', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, id, category, filename })
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          onSync(json.data);
+        }
+      }
+    } catch (err) {
+      console.error('Delete failed', err);
+    }
+  };
+
+  const fileList = isSingle ? (files[0] ? [files[0]] : []) : files;
+
+  return (
+    <div className="mb-4 p-4 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/10 backdrop-blur-sm">
+      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{label}</label>
+      
+      {/* File Preview Grid */}
+      {fileList.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+          {fileList.map((file, idx) => {
+            const url = getFileUrl(file);
+            const isImage = /\.(png|jpe?g|webp|gif|svg|bmp)$/i.test(file);
+            return (
+              <div key={idx} className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 aspect-video flex flex-col justify-center items-center">
+                {isImage ? (
+                  <img src={url} alt={file} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center p-2 text-center text-slate-400">
+                    <FileText className="w-8 h-8 mb-1" />
+                    <span className="text-[10px] truncate max-w-full font-mono">{file}</span>
+                  </div>
+                )}
+                {/* Delete Hover Overlay */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200 gap-2">
+                  <a href={url} target="_blank" rel="noreferrer" className="p-1.5 bg-white/20 hover:bg-white/40 text-white rounded-lg text-xs font-semibold">
+                    预览
+                  </a>
+                  <button
+                    onClick={() => handleDelete(file)}
+                    className="p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Upload Box */}
+      {(!isSingle || fileList.length === 0) && (
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+              handleUpload(e.dataTransfer.files[0]);
+            }
+          }}
+          className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center transition-all ${
+            dragOver ? 'border-blue-500 bg-blue-50/20 dark:bg-blue-900/10' : 'border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30'
+          }`}
+        >
+          <Upload className="w-8 h-8 text-slate-400 mb-1" />
+          <p className="text-xs text-slate-500 text-center font-medium">
+            {uploading ? '上传中/Uploading...' : '拖拽文件至此 或 点击浏览 / Drag files or click to browse'}
+          </p>
+          <input
+            type="file"
+            className="hidden"
+            id={`file-input-${category}-${id}`}
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                handleUpload(e.target.files[0]);
+              }
+            }}
+          />
+          <label
+            htmlFor={`file-input-${category}-${id}`}
+            className="mt-2 text-xs font-extrabold text-blue-600 dark:text-blue-400 cursor-pointer hover:underline"
+          >
+            选择文件 / Choose File
+          </label>
+          {error && <p className="text-[10px] text-red-500 mt-1 font-bold">⚠️ {error}</p>}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==========================================
+// 4. BILINGUAL MARKDOWN EDITOR MODAL
+// ==========================================
+interface MarkdownEditorModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  type: string;
+  id: string;
+  title: string;
+  onSync: (newData: any) => void;
+}
+
+const MarkdownEditorModal: React.FC<MarkdownEditorModalProps> = ({
+  isOpen, onClose, type, id, title, onSync
+}) => {
+  const [contentZh, setContentZh] = useState('');
+  const [contentEn, setContentEn] = useState('');
+  const [activeLang, setActiveLang] = useState<'zh' | 'en'>('zh');
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && id && type) {
+      setLoading(true);
+      Promise.all([
+        fetch(`/api/markdown?type=${type}&id=${id}&lang=zh`).then(r => r.json()),
+        fetch(`/api/markdown?type=${type}&id=${id}&lang=en`).then(r => r.json())
+      ]).then(([zhData, enData]) => {
+        setContentZh(zhData.content || '');
+        setContentEn(enData.content || '');
+      }).catch(err => {
+        console.error('Error loading markdown', err);
+      }).finally(() => {
+        setLoading(false);
+      });
+    }
+  }, [isOpen, id, type]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const resZh = await fetch('/api/markdown', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, id, lang: 'zh', content: contentZh })
+      });
+      const resEn = await fetch('/api/markdown', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, id, lang: 'en', content: contentEn })
+      });
+      if (resZh.ok && resEn.ok) {
+        const json = await resZh.json();
+        if (json.success) {
+          onSync(json.data);
+        }
+        onClose();
+      }
+    } catch (err) {
+      console.error('Error saving markdown', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Quick Markdown Parser for HTML Live Preview
+  const parseMarkdown = (md: string) => {
+    if (!md) return '<p class="text-slate-400 italic">在此处开始编辑 Markdown 内容...</p>';
+    let html = md
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    
+    // Headings
+    html = html.replace(/^### (.*$)/gim, '<h3 class="text-md font-bold my-2 text-slate-800 dark:text-slate-200">$1</h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2 class="text-lg font-extrabold my-3 text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-1">$1</h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1 class="text-xl font-black my-4 text-slate-900 dark:text-white">$1</h1>');
+    
+    // Bold
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900 dark:text-white">$1</strong>');
+    
+    // Bullet lists
+    html = html.replace(/^\s*-\s+(.*$)/gim, '<li class="ml-4 list-disc text-slate-650 dark:text-slate-300 my-0.5">$1</li>');
+    
+    // Inline code
+    html = html.replace(/`(.*?)`/g, '<code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-sm text-red-500 font-mono font-bold">$1</code>');
+    
+    // Paragraph breaks
+    html = html.replace(/\n\s*\n/g, '<p class="my-2"></p>');
+    
+    // Line breaks
+    html = html.replace(/\n/g, '<br />');
+    
+    return html;
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fadeIn">
+      <div className="bg-slate-50 dark:bg-slate-900 w-full max-w-6xl h-[85vh] rounded-2xl overflow-hidden flex flex-col shadow-2xl border border-slate-250 dark:border-slate-850">
+        
+        {/* Modal Header */}
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-600" />
+            <h3 className="font-extrabold text-slate-800 dark:text-white">
+              编辑详情 Markdown / Edit details.md: <span className="text-blue-500 font-mono">{title}</span>
+            </h3>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Language Selection Tabs */}
+        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/60 p-1 gap-1">
+          <button
+            onClick={() => setActiveLang('zh')}
+            className={`flex-1 sm:flex-initial px-6 py-2 text-xs font-bold rounded-lg transition-all ${
+              activeLang === 'zh' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 hover:bg-white/40 dark:hover:bg-slate-900/30'
+            }`}
+          >
+            🇨🇳 中文详情 (details_zh.md)
+          </button>
+          <button
+            onClick={() => setActiveLang('en')}
+            className={`flex-1 sm:flex-initial px-6 py-2 text-xs font-bold rounded-lg transition-all ${
+              activeLang === 'en' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 hover:bg-white/40 dark:hover:bg-slate-900/30'
+            }`}
+          >
+            🇬🇧 English Details (details_en.md)
+          </button>
+        </div>
+
+        {/* Editor Main Content Pane */}
+        {loading ? (
+          <div className="flex-1 flex justify-center items-center bg-white dark:bg-slate-900">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800 overflow-hidden bg-white dark:bg-slate-900">
+            
+            {/* Left Column: Input Textarea */}
+            <div className="flex-1 flex flex-col h-1/2 md:h-full p-4">
+              <div className="flex justify-between items-center mb-1 text-[11px] font-bold text-slate-400 uppercase select-none">
+                <span>Markdown 编辑器 / Editor</span>
+                <span>支持常规格式</span>
+              </div>
+              <textarea
+                className="flex-1 w-full p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-sm leading-relaxed text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+                value={activeLang === 'zh' ? contentZh : contentEn}
+                onChange={e => {
+                  if (activeLang === 'zh') setContentZh(e.target.value);
+                  else setContentEn(e.target.value);
+                }}
+                placeholder="# 标题 / Title&#10;&#10;关于此经历的详细描述... / Detailed descriptions..."
+              />
+            </div>
+
+            {/* Right Column: Live Render HTML Preview */}
+            <div className="flex-1 flex flex-col h-1/2 md:h-full p-4 bg-slate-50/50 dark:bg-slate-950/20 overflow-y-auto">
+              <div className="mb-1 text-[11px] font-bold text-slate-400 uppercase select-none">
+                实时效果预览 / Live Preview
+              </div>
+              <div
+                className="flex-1 w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl overflow-y-auto text-sm leading-relaxed text-slate-800 dark:text-slate-300 font-sans"
+                dangerouslySetInnerHTML={{ __html: parseMarkdown(activeLang === 'zh' ? contentZh : contentEn) }}
+              />
+            </div>
+            
+          </div>
+        )}
+
+        {/* Modal Footer */}
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-5 py-2 text-sm font-bold border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl transition-colors text-slate-750 dark:text-slate-250"
+          >
+            取消 / Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-6 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-xl transition-colors flex items-center gap-1.5"
+          >
+            {saving ? '保存中...' : <><Save className="w-4 h-4" /> 保存 / Save Changes</>}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
+// 5. MAIN ADMIN PORTAL COMPONENT
+// ==========================================
 const Admin: React.FC = () => {
   const { data, loading, saveData } = usePortfolio();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  
+  const lang = i18n.language as 'en' | 'zh';
+
   const [formData, setFormData] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
-  const [expandedSection, setExpandedSection] = useState<string | null>('hero');
+  const [activeTab, setActiveTab] = useState<string>('settings');
+
+  // Markdown Editor modal state
+  const [mdModal, setMdModal] = useState<{
+    isOpen: boolean;
+    type: string;
+    id: string;
+    title: string;
+  }>({
+    isOpen: false,
+    type: '',
+    id: '',
+    title: ''
+  });
 
   useEffect(() => {
     if (data) {
-      setFormData(JSON.parse(JSON.stringify(data)));
+      const clone = JSON.parse(JSON.stringify(data));
+      // Ensure all arrays exist
+      const arrayKeys = ['education', 'internships', 'projects', 'exchanges', 'volunteers', 'skills'];
+      arrayKeys.forEach(k => {
+        if (!clone[k]) clone[k] = [];
+      });
+
+      // Ensure stable IDs for skills for Reorder
+      clone.skills = clone.skills.map((s: any, idx: number) => ({
+        id: s.id || `skill-${idx}-${Math.random().toString(36).substring(2, 9)}`,
+        ...s
+      }));
+      setFormData(clone);
     }
   }, [data]);
 
-  if (loading || !formData) return <div className="flex justify-center items-center h-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div></div>;
+  if (loading || !formData) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   const handleSave = async () => {
     setSaving(true);
@@ -46,19 +616,20 @@ const Admin: React.FC = () => {
     setFormData(newData);
   };
 
-  const moveItem = (key: string, index: number, direction: 'up' | 'down') => {
-    if (direction === 'up' && index === 0) return;
-    if (direction === 'down' && index === formData[key].length - 1) return;
-    
-    const newArray = [...formData[key]];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    const temp = newArray[index];
-    newArray[index] = newArray[targetIndex];
-    newArray[targetIndex] = temp;
-    
-    updateField([key], newArray);
+  // Re-sync after file upload/delete re-scans folders
+  const handleDataSync = (updatedData: any) => {
+    const clone = JSON.parse(JSON.stringify(updatedData));
+    // Re-inject IDs for skills if they got overwritten on file scan save
+    clone.skills = clone.skills.map((s: any, idx: number) => ({
+      id: s.id || `skill-${idx}-${Math.random().toString(36).substring(2, 9)}`,
+      ...s
+    }));
+    setFormData(clone);
   };
 
+  // ==========================================
+  // INPUT FIELDS RENDERING UTILS
+  // ==========================================
   const renderToggle = (path: (string | number)[], label: string) => {
     let value: any = formData;
     for (const p of path) {
@@ -68,106 +639,20 @@ const Admin: React.FC = () => {
     if (value === undefined) value = true;
 
     return (
-      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-800">
+        <span className="text-xs font-bold text-slate-700 dark:text-slate-350">{label}</span>
         <button
           onClick={() => updateField(path, !value)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${value ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'
-            }`}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+            value ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-700'
+          }`}
         >
           <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${value ? 'translate-x-6' : 'translate-x-1'
-              }`}
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              value ? 'translate-x-6' : 'translate-x-1'
+            }`}
           />
         </button>
-      </div>
-    );
-  };
-
-  const renderExperienceDirectoryBanner = (key: string, item: any, itemPath: (string | number)[]) => {
-    if (!item || !item.id) return null;
-    
-    let folderType = 'projects';
-    if (key === 'internships') folderType = 'internships';
-    if (key === 'exchanges') folderType = 'exchanges';
-    if (key === 'volunteers') folderType = 'volunteers';
-    if (key === 'education') folderType = 'education';
-    
-    const relativeFolderPath = `public/experiences/${folderType}/${item.id}`;
-    const isEducation = key === 'education';
-    const photoCount = item.photos?.length || 0;
-    const certCount = item.certificates?.length || 0;
-    
-    return (
-      <div className="mt-6 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">📂 资源目录 / Local Directory</h4>
-            <code className="text-xs text-slate-500 dark:text-slate-400 select-all block mt-1 break-all">
-              {relativeFolderPath}/
-            </code>
-          </div>
-          {!isEducation && (
-            <div className="flex items-center gap-2">
-              {renderToggle([...itemPath, 'showCerts'], '启用证书模块 / Show Certificates')}
-            </div>
-          )}
-        </div>
-        
-        {isEducation ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-slate-500">📊 成绩单 / Transcript:</span>
-              <span className={`font-bold ${item.transcriptImage ? 'text-green-500' : 'text-slate-400'}`}>
-                {item.transcriptImage ? '已指定 / Set' : '无 / None'}
-              </span>
-            </div>
-            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-slate-500">🏅 奖学金证书 / Scholarships:</span>
-              <span className={`font-bold ${item.scholarshipCertificates?.length > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
-                {item.scholarshipCertificates?.length || 0} 张/pcs
-              </span>
-            </div>
-            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-slate-500">🏆 竞赛证书 / Awards:</span>
-              <span className={`font-bold ${item.awardCertificates?.length > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
-                {item.awardCertificates?.length || 0} 张/pcs
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-slate-500">🖼️ 项目照片 / Photos:</span>
-              <span className={`font-bold ${photoCount > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
-                {photoCount} 张/pcs (1-9)
-              </span>
-            </div>
-            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-slate-500">📜 证书 / Certificates:</span>
-              <span className={`font-bold ${certCount > 0 ? 'text-green-500 font-extrabold' : 'text-slate-400'}`}>
-                {certCount} 张/pcs (1-3)
-              </span>
-            </div>
-            <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-slate-500">📝 Markdown 详情 / MD:</span>
-              <span className={`font-bold ${item.hasMarkdown ? 'text-green-500' : 'text-red-500 font-extrabold'}`}>
-                {item.hasMarkdown ? '已就绪 / Ready' : '无 / None'}
-              </span>
-            </div>
-          </div>
-        )}
-        <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-normal">
-          {isEducation ? (
-            <span>
-              * 请在本地将成绩单图片放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/transcript/</code> 目录，奖学金证书放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/scholarships/</code> 目录，竞赛证书放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/awards/</code> 目录。并在下方指定对应文件名！
-            </span>
-          ) : (
-            <span>
-              * 请在本地将经历照片放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/photos/</code> 目录，证书放入 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{relativeFolderPath}/certificates/</code> 目录，并在 <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">details.md</code> 中编写 Markdown 详情。保存后前台会自动加载！
-            </span>
-          )}
-        </p>
       </div>
     );
   };
@@ -178,21 +663,22 @@ const Admin: React.FC = () => {
       if (value === undefined) return null;
       value = value[p];
     }
-    
+    if (value === undefined) value = '';
+
     return (
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-slate-600 dark:text-slate-400">{label}</label>
+        <label className="block text-xs font-bold text-slate-650 dark:text-slate-350 mb-1">{label}</label>
         {isTextarea ? (
-          <textarea 
-            className="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <textarea
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-250 dark:border-slate-850 focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 text-sm leading-relaxed"
             value={value}
             rows={3}
             onChange={e => updateField(path, e.target.value)}
           />
         ) : (
-          <input 
+          <input
             type="text"
-            className="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-250 dark:border-slate-850 focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 text-sm"
             value={value}
             onChange={e => updateField(path, e.target.value)}
           />
@@ -201,519 +687,614 @@ const Admin: React.FC = () => {
     );
   };
 
-  const renderSelectField = (path: (string | number)[], label: string, options: {value: string, label: string}[]) => {
+  const renderSelectField = (path: (string | number)[], label: string, options: { value: string; label: string }[]) => {
     let value = formData;
     for (const p of path) {
       if (value === undefined) return null;
       value = value[p];
     }
-    
+    if (value === undefined) value = '';
+
     return (
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-slate-600 dark:text-slate-400">{label}</label>
-        <select 
-          className="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <label className="block text-xs font-bold text-slate-650 dark:text-slate-350 mb-1">{label}</label>
+        <select
+          className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-250 dark:border-slate-850 focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 dark:text-slate-200 text-sm"
           value={value}
           onChange={e => updateField(path, e.target.value)}
         >
-          {options.map(opt => <option key={opt.value} value={opt.value} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">{opt.label}</option>)}
+          {options.map(opt => (
+            <option key={opt.value} value={opt.value} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+              {opt.label}
+            </option>
+          ))}
         </select>
       </div>
     );
   };
 
-  const renderStringArrayField = (path: (string | number)[], label: string) => {
-    let array = formData;
-    for (const p of path) array = array[p];
+  // ==========================================
+  // EXPERIENCE SPECIFIC MANAGEMENT BANNER
+  // ==========================================
+  const renderExperienceDirectoryBanner = (key: string, item: any, itemPath: (string | number)[]) => {
+    if (!item || !item.id) return null;
+
+    const isEducation = key === 'education';
+    const photoCount = item.photos?.length || 0;
+    const certCount = item.certificates?.length || 0;
 
     return (
-      <div className="mb-4 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50">
-        <label className="block text-sm font-bold mb-3">{label}</label>
-        {array.map((item: string, index: number) => (
-          <div key={index} className="flex gap-2 mb-2">
-            <textarea
-              className="flex-1 px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-sm"
-              value={item}
-              rows={2}
-              onChange={e => {
-                const newArray = [...array];
-                newArray[index] = e.target.value;
-                updateField(path, newArray);
-              }}
+      <div className="mt-6 p-5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-950/20 space-y-4">
+        
+        {/* Title and Settings row */}
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-3">
+          <div>
+            <h4 className="text-sm font-black text-slate-800 dark:text-white">📂 资源与资产管理 / Resource Directory</h4>
+            <code className="text-xs text-slate-400 dark:text-slate-500 select-all block mt-0.5 font-mono">
+              public/experiences/{key}/{item.id}/
+            </code>
+          </div>
+          <div className="flex items-center gap-2">
+            {!isEducation && renderToggle([...itemPath, 'showCerts'], '启用证书模块 / Show Certificates')}
+          </div>
+        </div>
+
+        {/* Media uploads */}
+        {isEducation ? (
+          <div className="space-y-4">
+            {/* Transcript Image (Single Upload) */}
+            <MediaUploadManager
+              type="education"
+              id={item.id}
+              category="transcript"
+              files={item.transcriptImage ? [item.transcriptImage] : []}
+              isSingle={true}
+              onSync={handleDataSync}
+              label="📊 成绩单图片上传 / Transcript Image"
             />
-            <div className="flex flex-col gap-1">
+            {/* Scholarship Certificates (Array) */}
+            <MediaUploadManager
+              type="education"
+              id={item.id}
+              category="scholarships"
+              files={item.scholarshipCertificates || []}
+              onSync={handleDataSync}
+              label="🏅 奖学金证书列表 / Scholarship Certificates"
+            />
+            {/* Award Certificates (Array) */}
+            <MediaUploadManager
+              type="education"
+              id={item.id}
+              category="awards"
+              files={item.awardCertificates || []}
+              onSync={handleDataSync}
+              label="🏆 竞赛证书列表 / Award Certificates"
+            />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Markdown details link editor */}
+            <div className="p-4 rounded-xl border border-blue-150 dark:border-blue-900 bg-blue-50/20 dark:bg-blue-950/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h5 className="text-xs font-bold text-blue-700 dark:text-blue-400 flex items-center gap-1">
+                  <Sparkles className="w-4 h-4" /> Markdown 详情文档 / Details (details.md)
+                </h5>
+                <p className="text-[10px] text-slate-500 mt-0.5 leading-normal">
+                  前台点击卡片弹出的全屏介绍内容，支持图文排版。
+                </p>
+              </div>
               <button
-                onClick={() => {
-                  if (index === 0) return;
-                  const newArray = [...array];
-                  const temp = newArray[index];
-                  newArray[index] = newArray[index - 1];
-                  newArray[index - 1] = temp;
-                  updateField(path, newArray);
-                }}
-                className={`p-1.5 rounded-lg ${index === 0 ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-                title="Move Up"
+                onClick={() => setMdModal({
+                  isOpen: true,
+                  type: key,
+                  id: item.id,
+                  title: item.name?.[lang] || item.company?.[lang] || 'Markdown Editor'
+                })}
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-sm"
               >
-                <ChevronUp className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
-                  if (index === array.length - 1) return;
-                  const newArray = [...array];
-                  const temp = newArray[index];
-                  newArray[index] = newArray[index + 1];
-                  newArray[index + 1] = temp;
-                  updateField(path, newArray);
-                }}
-                className={`p-1.5 rounded-lg ${index === array.length - 1 ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-                title="Move Down"
-              >
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
-                  const newArray = array.filter((_: any, i: number) => i !== index);
-                  updateField(path, newArray);
-                }}
-                className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg h-fit"
-              >
-                <Trash2 className="w-4 h-4" />
+                <Edit3 className="w-3.5 h-3.5" /> 编辑 Details.md / Edit
               </button>
             </div>
+
+            {/* Photos Upload */}
+            <MediaUploadManager
+              type={key}
+              id={item.id}
+              category="photos"
+              files={item.photos || []}
+              onSync={handleDataSync}
+              label="🖼️ 项目照片库 / Project Photos (建议 1-9 张)"
+            />
+
+            {/* Certificates Upload */}
+            {(item.showCerts !== false) && (
+              <MediaUploadManager
+                type={key}
+                id={item.id}
+                category="certificates"
+                files={item.certificates || []}
+                onSync={handleDataSync}
+                label="📜 证书扫描件 / Certificates"
+              />
+            )}
           </div>
-        ))}
-        <button
-          onClick={() => updateField(path, [...array, ""])}
-          className="mt-2 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
-        >
-          <Plus className="w-4 h-4" /> Add Item
-        </button>
+        )}
       </div>
     );
   };
 
+  // ==========================================
+  // TABS & GROUPS RENDERING
+  // ==========================================
   const renderArraySection = (
-    key: string, 
-    title: string, 
+    key: string,
     emptyTemplate: any,
     renderItem: (itemPath: (string | number)[], index: number) => React.ReactNode
   ) => {
-    const isExpanded = expandedSection === key;
     return (
-      <div className="glass-card rounded-2xl overflow-hidden mb-6">
-        <button 
-          className="w-full p-6 flex justify-between items-center bg-white/40 dark:bg-slate-800/40 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
-          onClick={() => setExpandedSection(isExpanded ? null : key)}
-        >
-          <h2 className="text-xl font-bold">{title}</h2>
-          {isExpanded ? <ChevronUp /> : <ChevronDown />}
-        </button>
-        
-        {isExpanded && (
-          <div className="p-6 pt-0 space-y-6 mt-4">
-            {formData[key].map((_: any, index: number) => (
-              <div key={index} className="relative p-6 border border-slate-200 dark:border-slate-700 rounded-2xl bg-white/20 dark:bg-slate-900/20">
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <button
-                    onClick={() => moveItem(key, index, 'up')}
-                    className={`p-2 rounded-lg ${index === 0 ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                    title="Move Up"
-                  >
-                    <ArrowUp className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => moveItem(key, index, 'down')}
-                    className={`p-2 rounded-lg ${index === formData[key].length - 1 ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                    title="Move Down"
-                  >
-                    <ArrowDown className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      const newArray = formData[key].filter((_: any, i: number) => i !== index);
-                      updateField([key], newArray);
-                    }}
-                    className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                    title="Delete Entry"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-                <div className="pr-32">
-                  {renderItem([key, index], index)}
-                </div>
-              </div>
+      <div className="space-y-6">
+        {formData[key] && (
+          <Reorder.Group
+            axis="y"
+            values={formData[key]}
+            onReorder={(newOrder) => updateField([key], newOrder)}
+            className="space-y-6"
+          >
+            {formData[key].map((item: any, index: number) => (
+              <ReorderableItem
+                key={item.id || `reorder-${index}`}
+                item={item}
+                index={index}
+                onDelete={() => {
+                  if (confirm('确认删除该条目吗？删除将连带清理本地对应的文件夹，不可逆。')) {
+                    const newArray = formData[key].filter((_: any, i: number) => i !== index);
+                    updateField([key], newArray);
+                  }
+                }}
+              >
+                {renderItem([key, index], index)}
+              </ReorderableItem>
             ))}
-            <button
-              onClick={() => updateField([key], [...formData[key], JSON.parse(JSON.stringify(emptyTemplate))])}
-              className="w-full py-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl flex justify-center items-center gap-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-blue-500 transition-colors font-medium"
-            >
-              <Plus /> Add New Entry to {title}
-            </button>
-          </div>
+          </Reorder.Group>
         )}
+
+        <button
+          onClick={() => updateField([key], [...formData[key], JSON.parse(JSON.stringify(emptyTemplate))])}
+          className="w-full py-5 border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-2xl flex justify-center items-center gap-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900/30 hover:text-blue-500 dark:hover:text-blue-400 transition-colors font-bold text-sm"
+        >
+          <Plus className="w-5 h-5" /> 添加新记录 / Add New Entry
+        </button>
       </div>
     );
   };
 
+  const tabs = [
+    { id: 'settings', label: '全局配置', enLabel: 'Settings', icon: '⚙️' },
+    { id: 'hero', label: '个人简介', enLabel: 'Profile', icon: '👤' },
+    { id: 'education', label: '教育背景', enLabel: 'Education', count: formData.education?.length, icon: '🎓' },
+    { id: 'internships', label: '实习经历', enLabel: 'Internships', count: formData.internships?.length, icon: '💼' },
+    { id: 'projects', label: '科研经历', enLabel: 'Projects', count: formData.projects?.length, icon: '🔬' },
+    { id: 'exchanges', label: '海外交流', enLabel: 'Exchanges', count: formData.exchanges?.length, icon: '🌏' },
+    { id: 'volunteers', label: '志愿服务', enLabel: 'Volunteers', count: formData.volunteers?.length, icon: '🤝' },
+    { id: 'skills', label: '技能特长', enLabel: 'Skills', count: formData.skills?.length, icon: '🛠️' },
+  ];
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="pb-20 pt-10 px-4 md:px-0 max-w-4xl mx-auto h-full overflow-y-auto"
-      style={{ WebkitOverflowScrolling: 'touch' }}
-    >
-      <div className="flex justify-between items-center mb-8 border-b border-slate-200 dark:border-slate-700 pb-4 sticky top-0 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md z-50 p-4 rounded-b-2xl">
-        <h1 className="text-3xl font-bold">{t('admin')}</h1>
-        <div className="flex items-center gap-4">
-          {saveMessage && <span className="text-green-500 font-medium">{saveMessage}</span>}
-          <button 
-            onClick={() => navigate('/')}
-            className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            {t('home')}
-          </button>
-          <button 
-            onClick={handleSave}
-            disabled={saving}
-            className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 font-bold"
-          >
-            {saving ? t('saving') : t('save')}
-          </button>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col">
+      
+      {/* Sticky Header */}
+      <div className="sticky top-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-850 z-50 p-4">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-blue-500" />
+            <h1 className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
+              {t('admin')}
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
+            {saveMessage && (
+              <span className="text-xs font-bold text-green-500 bg-green-50 dark:bg-green-950/30 px-3 py-1.5 rounded-lg border border-green-200/50">
+                {saveMessage}
+              </span>
+            )}
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-1 px-4 py-2 text-xs font-extrabold border border-slate-350 dark:border-slate-850 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+            >
+              <Home className="w-3.5 h-3.5" /> {t('home')}
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-1 px-5 py-2 text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-xl transition-colors shadow-md shadow-blue-600/10"
+            >
+              <Check className="w-4 h-4" /> {saving ? t('saving') : t('save')}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Global Settings Section */}
-        <div className="glass-card rounded-2xl overflow-hidden mb-6">
-          <button 
-            className="w-full p-6 flex justify-between items-center bg-white/40 dark:bg-slate-800/40 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
-            onClick={() => setExpandedSection(expandedSection === 'settings' ? null : 'settings')}
-          >
-            <h2 className="text-xl font-bold">Global Settings (全局设置)</h2>
-            {expandedSection === 'settings' ? <ChevronUp /> : <ChevronDown />}
-          </button>
-          {expandedSection === 'settings' && (
-            <div className="p-6 grid md:grid-cols-2 gap-8 mt-4">
-              <div className="space-y-4">
-                <h3 className="font-bold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 pb-2">Sound Effects (音效)</h3>
-                {formData.settings && renderSelectField(['settings', 'cardSound'], 'Card Flip Sound (卡片翻页)', [
-                  { value: 'none', label: '🔇 Mute (静音)' },
-                  { value: 'wood', label: '🪵 Wood (木质)' },
-                  { value: 'clock', label: '⏱️ Clock / Mechanical (机械)' },
-                  { value: 'typewriter', label: '⌨️ Typewriter (打字机)' },
-                  { value: 'paper', label: '📄 Paper (纸张摩擦)' },
-                  { value: 'water', label: '💧 Water (水滴)' },
-                  { value: 'bubble', label: '🫧 Bubble (泡泡)' },
-                  { value: 'click', label: '🖱️ Light Click (轻巧按键)' },
-                  { value: 'scifi', label: '🛸 Sci-Fi (科幻)' },
-                  { value: 'chime', label: '🔔 Chime (轻灵风铃)' }
-                ])}
-                {formData.settings && renderSelectField(['settings', 'sectionSound'], 'Section Transition Sound (板块切换)', [
-                  { value: 'none', label: '🔇 Mute (静音)' },
-                  { value: 'wood', label: '🪵 Wood (木质)' },
-                  { value: 'clock', label: '⏱️ Clock / Mechanical (机械)' },
-                  { value: 'typewriter', label: '⌨️ Typewriter (打字机)' },
-                  { value: 'paper', label: '📄 Paper (纸张摩擦)' },
-                  { value: 'water', label: '💧 Water (水滴)' },
-                  { value: 'bubble', label: '🫧 Bubble (泡泡)' },
-                  { value: 'click', label: '🖱️ Light Click (轻巧按键)' },
-                  { value: 'scifi', label: '🛸 Sci-Fi (科幻)' },
-                  { value: 'chime', label: '🔔 Chime (轻灵风铃)' }
-                ])}
+      {/* Main Grid Workspace */}
+      <div className="flex-1 max-w-6xl w-full mx-auto p-4 md:py-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        {/* Left Navigation Sidebar */}
+        <div className="md:col-span-1 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible pb-3 md:pb-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-850 pr-0 md:pr-4 h-fit sticky top-20 z-40 select-none scrollbar-none">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center justify-between w-full p-3 rounded-xl transition-all text-left text-xs font-extrabold whitespace-nowrap md:whitespace-normal shrink-0 ${
+                activeTab === tab.id
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">{tab.icon}</span>
+                <span>{lang === 'zh' ? tab.label : tab.enLabel}</span>
               </div>
-            </div>
-          )}
+              {tab.count !== undefined && (
+                <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                  activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
+                }`}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
-        {/* Hero Section */}
-        <div className="glass-card rounded-2xl overflow-hidden mb-6">
-          <button 
-            className="w-full p-6 flex justify-between items-center bg-white/40 dark:bg-slate-800/40 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
-            onClick={() => setExpandedSection(expandedSection === 'hero' ? null : 'hero')}
-          >
-            <h2 className="text-xl font-bold">Hero Profile</h2>
-            {expandedSection === 'hero' ? <ChevronUp /> : <ChevronDown />}
-          </button>
-          {expandedSection === 'hero' && (
-            <div className="p-6 grid md:grid-cols-2 gap-8 mt-4">
-              <div className="space-y-4">
-                <h3 className="font-bold text-blue-600 dark:text-blue-400 border-b border-slate-200 dark:border-slate-700 pb-2">English</h3>
-                {renderTextField(['hero', 'name', 'en'], 'Name')}
-                {renderTextField(['hero', 'role', 'en'], 'Role')}
-                {renderTextField(['hero', 'intro', 'en'], 'Intro', true)}
-              </div>
-              <div className="space-y-4">
-                <h3 className="font-bold text-red-600 dark:text-red-400 border-b border-slate-200 dark:border-slate-700 pb-2">Chinese (中文)</h3>
-                {renderTextField(['hero', 'name', 'zh'], '姓名')}
-                {renderTextField(['hero', 'role', 'zh'], '角色')}
-                {renderTextField(['hero', 'intro', 'zh'], '简介', true)}
-              </div>
-              <div className="md:col-span-2 grid md:grid-cols-2 gap-8 pt-4 border-t border-slate-200 dark:border-slate-700">
-                {renderTextField(['hero', 'email'], 'Email')}
-                {renderTextField(['hero', 'phone'], 'Phone')}
-                {renderTextField(['hero', 'wechat'], 'WeChat')}
-                {renderTextField(['hero', 'instagram'], 'Instagram')}
-                {renderTextField(['hero', 'avatarUrl'], 'Avatar URL / Path')}
-                <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-                  {renderToggle(['hero', 'visibility', 'email'], 'Show Email')}
-                  {renderToggle(['hero', 'visibility', 'phone'], 'Show Phone')}
-                  {renderToggle(['hero', 'visibility', 'wechat'], 'Show WeChat')}
-                  {renderToggle(['hero', 'visibility', 'instagram'], 'Show Insta')}
+        {/* Right Form Editor Panel */}
+        <div className="md:col-span-3 min-w-0">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* Tab: Settings */}
+              {activeTab === 'settings' && (
+                <div className="space-y-6">
+                  <div className="p-6 border border-slate-250 dark:border-slate-850 rounded-2xl bg-white dark:bg-slate-900/60 shadow-sm space-y-4">
+                    <h3 className="text-base font-black text-blue-600 dark:text-blue-400 border-b border-slate-200 dark:border-slate-800 pb-2">
+                      ⚙️ 系统与交互配置 (Global Settings)
+                    </h3>
+                    
+                    {renderSelectField(['defaultLanguage'], '默认语言 / Default Language', [
+                      { value: 'zh', label: '🇨🇳 中文 / Chinese' },
+                      { value: 'en', label: '🇬🇧 English' }
+                    ])}
+
+                    <div className="grid md:grid-cols-2 gap-6 pt-2">
+                      <div>
+                        <h4 className="text-xs font-extrabold text-slate-500 mb-3 flex items-center gap-1">
+                          <Volume2 className="w-4 h-4 text-blue-500" /> 卡片翻页音效 / Card Flip Sound
+                        </h4>
+                        {renderSelectField(['settings', 'cardSound'], '音效选择', [
+                          { value: 'none', label: '🔇 Mute (静音)' },
+                          { value: 'wood', label: '🪵 Wood (木质)' },
+                          { value: 'clock', label: '⏱️ Clock (机械)' },
+                          { value: 'typewriter', label: '⌨️ Typewriter (打字机)' },
+                          { value: 'paper', label: '📄 Paper (纸摩擦)' },
+                          { value: 'water', label: '💧 Water (水滴)' },
+                          { value: 'bubble', label: '🫧 Bubble (泡泡)' },
+                          { value: 'click', label: '🖱️ Light Click (微动)' },
+                          { value: 'scifi', label: '🛸 Sci-Fi (科幻)' },
+                          { value: 'chime', label: '🔔 Chime (风铃)' }
+                        ])}
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-extrabold text-slate-500 mb-3 flex items-center gap-1">
+                          <Volume2 className="w-4 h-4 text-blue-500" /> 板块切换音效 / Section Sound
+                        </h4>
+                        {renderSelectField(['settings', 'sectionSound'], '音效选择', [
+                          { value: 'none', label: '🔇 Mute (静音)' },
+                          { value: 'wood', label: '🪵 Wood (木质)' },
+                          { value: 'clock', label: '⏱️ Clock (机械)' },
+                          { value: 'typewriter', label: '⌨️ Typewriter (打字机)' },
+                          { value: 'paper', label: '📄 Paper (纸摩擦)' },
+                          { value: 'water', label: '💧 Water (水滴)' },
+                          { value: 'bubble', label: '🫧 Bubble (泡泡)' },
+                          { value: 'click', label: '🖱️ Light Click (微动)' },
+                          { value: 'scifi', label: '🛸 Sci-Fi (科幻)' },
+                          { value: 'chime', label: '🔔 Chime (风铃)' }
+                        ])}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
+
+              {/* Tab: Hero Profile */}
+              {activeTab === 'hero' && (
+                <div className="space-y-6">
+                  <div className="p-6 border border-slate-250 dark:border-slate-850 rounded-2xl bg-white dark:bg-slate-900/60 shadow-sm space-y-4">
+                    <h3 className="text-base font-black text-blue-600 dark:text-blue-400 border-b border-slate-200 dark:border-slate-800 pb-2">
+                      👤 个人主页配置 (Hero Profile)
+                    </h3>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-black text-blue-500 border-b border-blue-100 dark:border-blue-900/40 pb-1">English Profile</h4>
+                        {renderTextField(['hero', 'name', 'en'], 'Name')}
+                        {renderTextField(['hero', 'role', 'en'], 'Role Title')}
+                        {renderTextField(['hero', 'intro', 'en'], 'Intro Bio', true)}
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-black text-red-500 border-b border-red-100 dark:border-red-900/40 pb-1">中文资料</h4>
+                        {renderTextField(['hero', 'name', 'zh'], '姓名')}
+                        {renderTextField(['hero', 'role', 'zh'], '身份定位')}
+                        {renderTextField(['hero', 'intro', 'zh'], '个人简介', true)}
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                      {renderTextField(['hero', 'email'], 'Email')}
+                      {renderTextField(['hero', 'phone'], 'Phone')}
+                      {renderTextField(['hero', 'wechat'], 'WeChat')}
+                      {renderTextField(['hero', 'instagram'], 'Instagram')}
+                      {renderTextField(['hero', 'avatarUrl'], '头像地址 / Avatar Path')}
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <h4 className="text-xs font-black text-slate-500 mb-3">信息可见性控制 / Visibility Settings</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {renderToggle(['hero', 'visibility', 'email'], '显示 Email')}
+                        {renderToggle(['hero', 'visibility', 'phone'], '显示电话')}
+                        {renderToggle(['hero', 'visibility', 'wechat'], '显示微信')}
+                        {renderToggle(['hero', 'visibility', 'instagram'], '显示 Ins')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab: Education */}
+              {activeTab === 'education' &&
+                renderArraySection(
+                  'education',
+                  { id: `edu-${Date.now()}`, institution: { en: '', zh: '' }, degree: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, gpa: { en: '', zh: '' }, courses: { en: '', zh: '' }, scholarships: { en: [], zh: [] }, awards: { en: [], zh: [] }, transcriptImage: '', scholarshipCertificates: [], awardCertificates: [] },
+                  (path, index) => {
+                    const item = formData.education[index];
+                    return (
+                      <div className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-blue-500">English Info</h4>
+                            {renderTextField([...path, 'institution', 'en'], 'Institution')}
+                            {renderTextField([...path, 'degree', 'en'], 'Degree')}
+                            {renderTextField([...path, 'location', 'en'], 'Location')}
+                          </div>
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-red-500">中文信息</h4>
+                            {renderTextField([...path, 'institution', 'zh'], '学校名称')}
+                            {renderTextField([...path, 'degree', 'zh'], '学位/专业')}
+                            {renderTextField([...path, 'location', 'zh'], '就读地点')}
+                          </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                          {renderTextField([...path, 'period'], '就读时间段 / Period')}
+                          <div className="grid grid-cols-1 gap-2">
+                            {renderTextField([...path, 'gpa', 'zh'], '绩点 GPA (ZH)')}
+                            {renderTextField([...path, 'gpa', 'en'], 'GPA Description (EN)')}
+                          </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                          {renderTextField([...path, 'courses', 'zh'], '核心课程 (ZH)', true)}
+                          {renderTextField([...path, 'courses', 'en'], 'Core Courses (EN)', true)}
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                          <StringArrayManager path={[...path, 'scholarships', 'zh']} label="🏅 奖学金描述 (ZH)" formData={formData} updateField={updateField} />
+                          <StringArrayManager path={[...path, 'scholarships', 'en']} label="🏅 Scholarships (EN)" formData={formData} updateField={updateField} />
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <StringArrayManager path={[...path, 'awards', 'zh']} label="🏆 竞赛获奖 (ZH)" formData={formData} updateField={updateField} />
+                          <StringArrayManager path={[...path, 'awards', 'en']} label="🏆 Awards & Honors (EN)" formData={formData} updateField={updateField} />
+                        </div>
+
+                        {renderExperienceDirectoryBanner('education', item, path)}
+                      </div>
+                    );
+                  }
+                )
+              }
+
+              {/* Tab: Internships */}
+              {activeTab === 'internships' &&
+                renderArraySection(
+                  'internships',
+                  { id: `int-${Date.now()}`, company: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] }, keywords: { en: [], zh: [] } },
+                  (path, index) => {
+                    const item = formData.internships[index];
+                    return (
+                      <div className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-blue-500">English Info</h4>
+                            {renderTextField([...path, 'company', 'en'], 'Company Name')}
+                            {renderTextField([...path, 'role', 'en'], 'Role / Title')}
+                            {renderTextField([...path, 'location', 'en'], 'Location')}
+                            <StringArrayManager path={[...path, 'keywords', 'en']} label="🏷️ Keywords (EN)" formData={formData} updateField={updateField} />
+                            <StringArrayManager path={[...path, 'details', 'en']} label="📝 Bullet Points (EN)" formData={formData} updateField={updateField} />
+                          </div>
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-red-500">中文信息</h4>
+                            {renderTextField([...path, 'company', 'zh'], '公司名称')}
+                            {renderTextField([...path, 'role', 'zh'], '职位 / 职责')}
+                            {renderTextField([...path, 'location', 'zh'], '工作地点')}
+                            <StringArrayManager path={[...path, 'keywords', 'zh']} label="🏷️ 关键词 (ZH)" formData={formData} updateField={updateField} />
+                            <StringArrayManager path={[...path, 'details', 'zh']} label="📝 工作明细 (ZH)" formData={formData} updateField={updateField} />
+                          </div>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                          {renderTextField([...path, 'period'], '实习时间段 / Period')}
+                        </div>
+
+                        {renderExperienceDirectoryBanner('internships', item, path)}
+                      </div>
+                    );
+                  }
+                )
+              }
+
+              {/* Tab: Projects */}
+              {activeTab === 'projects' &&
+                renderArraySection(
+                  'projects',
+                  { id: `proj-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] }, keywords: { en: [], zh: [] } },
+                  (path, index) => {
+                    const item = formData.projects[index];
+                    return (
+                      <div className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-blue-500">English Info</h4>
+                            {renderTextField([...path, 'name', 'en'], 'Project Name')}
+                            {renderTextField([...path, 'role', 'en'], 'Role / Title')}
+                            {renderTextField([...path, 'location', 'en'], 'Location')}
+                            <StringArrayManager path={[...path, 'keywords', 'en']} label="🏷️ Keywords (EN)" formData={formData} updateField={updateField} />
+                            <StringArrayManager path={[...path, 'details', 'en']} label="📝 Key Tasks (EN)" formData={formData} updateField={updateField} />
+                          </div>
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-red-500">中文信息</h4>
+                            {renderTextField([...path, 'name', 'zh'], '项目名称')}
+                            {renderTextField([...path, 'role', 'zh'], '项目分工 / 职责')}
+                            {renderTextField([...path, 'location', 'zh'], '研究地点')}
+                            <StringArrayManager path={[...path, 'keywords', 'zh']} label="🏷️ 关键词 (ZH)" formData={formData} updateField={updateField} />
+                            <StringArrayManager path={[...path, 'details', 'zh']} label="📝 项目明细 (ZH)" formData={formData} updateField={updateField} />
+                          </div>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                          {renderTextField([...path, 'period'], '时间段 / Period')}
+                        </div>
+
+                        {renderExperienceDirectoryBanner('projects', item, path)}
+                      </div>
+                    );
+                  }
+                )
+              }
+
+              {/* Tab: Exchanges */}
+              {activeTab === 'exchanges' &&
+                renderArraySection(
+                  'exchanges',
+                  { id: `exc-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
+                  (path, index) => {
+                    const item = formData.exchanges[index];
+                    return (
+                      <div className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-blue-500">English Info</h4>
+                            {renderTextField([...path, 'name', 'en'], 'Program Name')}
+                            {renderTextField([...path, 'role', 'en'], 'Role / Title')}
+                            {renderTextField([...path, 'location', 'en'], 'Location')}
+                            <StringArrayManager path={[...path, 'details', 'en']} label="📝 Highlights (EN)" formData={formData} updateField={updateField} />
+                          </div>
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-red-500">中文信息</h4>
+                            {renderTextField([...path, 'name', 'zh'], '交流项目名称')}
+                            {renderTextField([...path, 'role', 'zh'], '职责 / 身份')}
+                            {renderTextField([...path, 'location', 'zh'], '交流地点')}
+                            <StringArrayManager path={[...path, 'details', 'zh']} label="📝 收获详情 (ZH)" formData={formData} updateField={updateField} />
+                          </div>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                          {renderTextField([...path, 'period'], '交流时间段 / Period')}
+                        </div>
+
+                        {renderExperienceDirectoryBanner('exchanges', item, path)}
+                      </div>
+                    );
+                  }
+                )
+              }
+
+              {/* Tab: Volunteers */}
+              {activeTab === 'volunteers' &&
+                renderArraySection(
+                  'volunteers',
+                  { id: `vol-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
+                  (path, index) => {
+                    const item = formData.volunteers[index];
+                    return (
+                      <div className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-blue-500">English Info</h4>
+                            {renderTextField([...path, 'name', 'en'], 'Activity Name')}
+                            {renderTextField([...path, 'role', 'en'], 'Role / Duties')}
+                            {renderTextField([...path, 'location', 'en'], 'Location')}
+                            <StringArrayManager path={[...path, 'details', 'en']} label="📝 Contributions (EN)" formData={formData} updateField={updateField} />
+                          </div>
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-red-500">中文信息</h4>
+                            {renderTextField([...path, 'name', 'zh'], '志愿活动名称')}
+                            {renderTextField([...path, 'role', 'zh'], '职责 / 身份')}
+                            {renderTextField([...path, 'location', 'zh'], '志愿地点')}
+                            <StringArrayManager path={[...path, 'details', 'zh']} label="📝 志愿明细 (ZH)" formData={formData} updateField={updateField} />
+                          </div>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                          {renderTextField([...path, 'period'], '活动时间 / Period')}
+                        </div>
+
+                        {renderExperienceDirectoryBanner('volunteers', item, path)}
+                      </div>
+                    );
+                  }
+                )
+              }
+
+              {/* Tab: Skills */}
+              {activeTab === 'skills' &&
+                renderArraySection(
+                  'skills',
+                  { id: `skill-${Date.now()}`, category: { en: '', zh: '' }, items: { en: [], zh: [] } },
+                  (path) => (
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-bold text-blue-500">English Info</h4>
+                        {renderTextField([...path, 'category', 'en'], 'Category Name')}
+                        <StringArrayManager path={[...path, 'items', 'en']} label="🛠️ Skills List (EN)" formData={formData} updateField={updateField} />
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-bold text-red-500">中文信息</h4>
+                        {renderTextField([...path, 'category', 'zh'], '技能分类名称')}
+                        <StringArrayManager path={[...path, 'items', 'zh']} label="🛠️ 技能列表 (ZH)" formData={formData} updateField={updateField} />
+                      </div>
+                    </div>
+                  )
+                )
+              }
+            </motion.div>
+          </AnimatePresence>
         </div>
-
-        {/* Education */}
-        {renderArraySection(
-          'education', 
-          'Education 背景',
-          { id: `edu-${Date.now()}`, institution: { en: '', zh: '' }, degree: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, gpa: { en: '', zh: '' }, courses: { en: '', zh: '' }, scholarships: { en: [], zh: [] }, awards: { en: [], zh: [] }, transcriptImage: '', scholarshipCertificates: [], awardCertificates: [] },
-          (path, index) => {
-            const item = formData.education[index];
-            return (
-              <div className="space-y-6">
-                {/* Basic Info */}
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
-                    {renderTextField([...path, 'institution', 'en'], 'Institution')}
-                    {renderTextField([...path, 'degree', 'en'], 'Degree')}
-                    {renderTextField([...path, 'location', 'en'], 'Location')}
-                  </div>
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
-                    {renderTextField([...path, 'institution', 'zh'], '学校名称')}
-                    {renderTextField([...path, 'degree', 'zh'], '学位/专业')}
-                    {renderTextField([...path, 'location', 'zh'], '地点')}
-                  </div>
-                  <div className="md:col-span-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                    {renderTextField([...path, 'period'], 'Period (e.g. 2023.09 - 2027.06)')}
-                  </div>
-                </div>
-
-                {/* GPA */}
-                <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-900/10">
-                  <h4 className="text-sm font-bold text-blue-700 dark:text-blue-300 mb-3">📊 Academic Performance (GPA)</h4>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {renderTextField([...path, 'gpa', 'en'], 'GPA (EN)', true)}
-                    {renderTextField([...path, 'gpa', 'zh'], '学业绩点 (ZH)', true)}
-                  </div>
-                </div>
-
-                {/* Core Courses */}
-                <div className="p-4 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/30 dark:bg-indigo-900/10">
-                  <h4 className="text-sm font-bold text-indigo-700 dark:text-indigo-300 mb-3">📚 Core Courses & Grades</h4>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {renderTextField([...path, 'courses', 'en'], 'Courses (EN)', true)}
-                    {renderTextField([...path, 'courses', 'zh'], '核心课程 (ZH)', true)}
-                  </div>
-                </div>
-
-                {/* Scholarships */}
-                <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-900/10">
-                  <h4 className="text-sm font-bold text-amber-700 dark:text-amber-300 mb-3">🏅 Scholarships</h4>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {renderStringArrayField([...path, 'scholarships', 'en'], 'Scholarships (EN)')}
-                    {renderStringArrayField([...path, 'scholarships', 'zh'], '奖学金 (ZH)')}
-                  </div>
-                </div>
-
-                {/* Awards */}
-                <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/30 dark:bg-purple-900/10">
-                  <h4 className="text-sm font-bold text-purple-700 dark:text-purple-300 mb-3">🏆 Competitions & Awards</h4>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {renderStringArrayField([...path, 'awards', 'en'], 'Awards (EN)')}
-                    {renderStringArrayField([...path, 'awards', 'zh'], '竞赛获奖 (ZH)')}
-                  </div>
-                </div>
-
-                {/* Associated Certificates & Images */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10 space-y-4">
-                  <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-850 pb-2">🖼️ 关联证书与图片文件名 / Associate Certificates & Images</h4>
-                  
-                  {renderTextField([...path, 'transcriptImage'], '成绩单图片文件名 / Transcript Image Filename (放在 transcript/ 目录，如 transcript.png)')}
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {renderStringArrayField([...path, 'scholarshipCertificates'], '奖学金证书文件名列表 / Scholarship Certificate Filenames (按顺序放在 scholarships/ 目录)')}
-                    {renderStringArrayField([...path, 'awardCertificates'], '竞赛证书文件名列表 / Award Certificate Filenames (按顺序放在 awards/ 目录)')}
-                  </div>
-                </div>
-
-                {/* Local directory instruction banner */}
-                {renderExperienceDirectoryBanner('education', item, path)}
-              </div>
-            );
-          }
-        )}
-
-
-        {/* Internships */}
-        {renderArraySection(
-          'internships', 
-          'Internship Experience 实习经历',
-          { id: `int-${Date.now()}`, company: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] }, keywords: { en: [], zh: [] } },
-          (path, index) => {
-            const item = formData.internships[index];
-            return (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
-                    {renderTextField([...path, 'company', 'en'], 'Company')}
-                    {renderTextField([...path, 'role', 'en'], 'Role')}
-                    {renderTextField([...path, 'location', 'en'], 'Location')}
-                    {renderStringArrayField([...path, 'keywords', 'en'], 'Keywords')}
-                    {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
-                  </div>
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
-                    {renderTextField([...path, 'company', 'zh'], '公司名称')}
-                    {renderTextField([...path, 'role', 'zh'], '职位')}
-                    {renderTextField([...path, 'location', 'zh'], '地点')}
-                    {renderStringArrayField([...path, 'keywords', 'zh'], '关键字')}
-                    {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                  {renderTextField([...path, 'period'], 'Period (e.g. 2025.07 - 2025.08)')}
-                </div>
-                {renderExperienceDirectoryBanner('internships', item, path)}
-              </div>
-            );
-          }
-        )}
-
-        {/* Projects */}
-        {renderArraySection(
-          'projects', 
-          'Research & Projects 科研经历',
-          { id: `proj-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] }, keywords: { en: [], zh: [] } },
-          (path, index) => {
-            const item = formData.projects[index];
-            return (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
-                    {renderTextField([...path, 'name', 'en'], 'Project Name')}
-                    {renderTextField([...path, 'role', 'en'], 'Role/Title')}
-                    {renderTextField([...path, 'location', 'en'], 'Location')}
-                    {renderStringArrayField([...path, 'keywords', 'en'], 'Keywords')}
-                    {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
-                  </div>
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
-                    {renderTextField([...path, 'name', 'zh'], '项目名称')}
-                    {renderTextField([...path, 'role', 'zh'], '角色')}
-                    {renderTextField([...path, 'location', 'zh'], '地点')}
-                    {renderStringArrayField([...path, 'keywords', 'zh'], '关键字')}
-                    {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                  {renderTextField([...path, 'period'], 'Period')}
-                </div>
-                {renderExperienceDirectoryBanner('projects', item, path)}
-              </div>
-            );
-          }
-        )}
-
-        {/* Exchanges */}
-        {renderArraySection(
-          'exchanges', 
-          'Exchange Experience 海外交流经历',
-          { id: `exc-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
-          (path, index) => {
-            const item = formData.exchanges[index];
-            return (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
-                    {renderTextField([...path, 'name', 'en'], 'Program Name')}
-                    {renderTextField([...path, 'role', 'en'], 'Role')}
-                    {renderTextField([...path, 'location', 'en'], 'Location')}
-                    {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
-                  </div>
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
-                    {renderTextField([...path, 'name', 'zh'], '项目名称')}
-                    {renderTextField([...path, 'role', 'zh'], '角色')}
-                    {renderTextField([...path, 'location', 'zh'], '地点')}
-                    {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                  {renderTextField([...path, 'period'], 'Period')}
-                </div>
-                {renderExperienceDirectoryBanner('exchanges', item, path)}
-              </div>
-            );
-          }
-        )}
-
-        {/* Volunteers */}
-        {renderArraySection(
-          'volunteers', 
-          'Volunteer Experience 志愿服务经历',
-          { id: `vol-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
-          (path, index) => {
-            const item = formData.volunteers[index];
-            return (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
-                    {renderTextField([...path, 'name', 'en'], 'Activity Name')}
-                    {renderTextField([...path, 'role', 'en'], 'Role')}
-                    {renderTextField([...path, 'location', 'en'], 'Location')}
-                    {renderStringArrayField([...path, 'details', 'en'], 'Bullet Points')}
-                  </div>
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
-                    {renderTextField([...path, 'name', 'zh'], '活动名称')}
-                    {renderTextField([...path, 'role', 'zh'], '角色/职责')}
-                    {renderTextField([...path, 'location', 'zh'], '地点')}
-                    {renderStringArrayField([...path, 'details', 'zh'], '详细描述')}
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                  {renderTextField([...path, 'period'], 'Period')}
-                </div>
-                {renderExperienceDirectoryBanner('volunteers', item, path)}
-              </div>
-            );
-          }
-        )}
-
-        {/* Skills */}
-        {renderArraySection(
-          'skills', 
-          'Skills 技能',
-          { category: { en: '', zh: '' }, items: { en: [], zh: [] } },
-          (path) => (
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-4">English</h3>
-                {renderTextField([...path, 'category', 'en'], 'Category Name')}
-                {renderStringArrayField([...path, 'items', 'en'], 'Skills List')}
-              </div>
-              <div className="space-y-4">
-                <h3 className="font-bold text-red-600 dark:text-red-400 mb-4">Chinese (中文)</h3>
-                {renderTextField([...path, 'category', 'zh'], '分类名称')}
-                {renderStringArrayField([...path, 'items', 'zh'], '技能列表')}
-              </div>
-            </div>
-          )
-        )}
 
       </div>
-    </motion.div>
+
+      {/* Markdown Editor Modal Dialog */}
+      <MarkdownEditorModal
+        isOpen={mdModal.isOpen}
+        onClose={() => setMdModal(prev => ({ ...prev, isOpen: false }))}
+        type={mdModal.type}
+        id={mdModal.id}
+        title={mdModal.title}
+        onSync={handleDataSync}
+      />
+
+    </div>
   );
 };
 

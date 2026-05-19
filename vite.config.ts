@@ -208,7 +208,10 @@ const portfolioApiPlugin = () => {
     name: 'portfolio-api',
     configureServer(server: ViteDevServer) {
       server.middlewares.use(async (req: any, res: any, next: any) => {
-        const isGetPortfolio = (req.url === '/api/portfolio' || req.url.endsWith('/data/portfolio.json')) && req.method === 'GET';
+        const urlObj = new URL(req.url, 'http://localhost');
+        const pathname = urlObj.pathname;
+
+        const isGetPortfolio = (pathname === '/api/portfolio' || pathname.endsWith('/data/portfolio.json')) && req.method === 'GET';
         
         if (isGetPortfolio) {
           try {
@@ -228,7 +231,7 @@ const portfolioApiPlugin = () => {
             res.statusCode = 500;
             res.end(JSON.stringify({ error: 'Failed to read data' }));
           }
-        } else if (req.url === '/api/portfolio' && req.method === 'POST') {
+        } else if (pathname === '/api/portfolio' && req.method === 'POST') {
           let body = '';
           req.on('data', (chunk: any) => {
             body += chunk.toString();
@@ -251,6 +254,126 @@ const portfolioApiPlugin = () => {
             } catch (e) {
               res.statusCode = 500;
               res.end(JSON.stringify({ error: 'Failed to save data' }));
+            }
+          });
+        } else if (pathname === '/api/markdown' && req.method === 'GET') {
+          try {
+            const type = urlObj.searchParams.get('type');
+            const id = urlObj.searchParams.get('id');
+            const lang = urlObj.searchParams.get('lang');
+            if (!type || !id) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Missing type or id' }));
+              return;
+            }
+            const folderPath = path.resolve('public', 'experiences', type, id);
+            const filename = lang === 'zh' ? 'details_zh.md' : (lang === 'en' ? 'details_en.md' : 'details.md');
+            const filePath = path.join(folderPath, filename);
+            let content = '';
+            if (fs.existsSync(filePath)) {
+              content = fs.readFileSync(filePath, 'utf-8');
+            } else {
+              const fallbackPath = path.join(folderPath, 'details.md');
+              if (fs.existsSync(fallbackPath)) {
+                content = fs.readFileSync(fallbackPath, 'utf-8');
+              }
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ content }));
+          } catch (err: any) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: err.message }));
+          }
+        } else if (pathname === '/api/markdown' && req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk: any) => { body += chunk.toString(); });
+          req.on('end', () => {
+            try {
+              const { type, id, lang, content } = JSON.parse(body);
+              if (!type || !id || content === undefined) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: 'Missing type, id, or content' }));
+                return;
+              }
+              const folderPath = path.resolve('public', 'experiences', type, id);
+              if (!fs.existsSync(folderPath)) {
+                fs.mkdirSync(folderPath, { recursive: true });
+              }
+              const filename = lang === 'zh' ? 'details_zh.md' : (lang === 'en' ? 'details_en.md' : 'details.md');
+              const filePath = path.join(folderPath, filename);
+              fs.writeFileSync(filePath, content, 'utf-8');
+              
+              const dataPath = path.resolve('public/data/portfolio.json');
+              const jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+              syncExperienceFolders(jsonData);
+              fs.writeFileSync(dataPath, JSON.stringify(jsonData, null, 2), 'utf-8');
+              
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true, data: jsonData }));
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: err.message }));
+            }
+          });
+        } else if (pathname === '/api/upload' && req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk: any) => { body += chunk.toString(); });
+          req.on('end', () => {
+            try {
+              const { type, id, category, filename, fileData } = JSON.parse(body);
+              if (!type || !id || !category || !filename || !fileData) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: 'Missing required upload parameters' }));
+                return;
+              }
+              const folderPath = path.resolve('public', 'experiences', type, id, category);
+              if (!fs.existsSync(folderPath)) {
+                fs.mkdirSync(folderPath, { recursive: true });
+              }
+              const cleanFilename = path.basename(filename).replace(/\s+/g, '_');
+              const filePath = path.join(folderPath, cleanFilename);
+              
+              const buffer = Buffer.from(fileData, 'base64');
+              fs.writeFileSync(filePath, buffer);
+              
+              const dataPath = path.resolve('public/data/portfolio.json');
+              const jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+              syncExperienceFolders(jsonData);
+              fs.writeFileSync(dataPath, JSON.stringify(jsonData, null, 2), 'utf-8');
+              
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true, data: jsonData, filename: cleanFilename }));
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: err.message }));
+            }
+          });
+        } else if (pathname === '/api/delete-media' && req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk: any) => { body += chunk.toString(); });
+          req.on('end', () => {
+            try {
+              const { type, id, category, filename } = JSON.parse(body);
+              if (!type || !id || !category || !filename) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: 'Missing type, id, category, or filename' }));
+                return;
+              }
+              const filePath = path.resolve('public', 'experiences', type, id, category, path.basename(filename));
+              if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+              }
+              
+              const dataPath = path.resolve('public/data/portfolio.json');
+              const jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+              syncExperienceFolders(jsonData);
+              fs.writeFileSync(dataPath, JSON.stringify(jsonData, null, 2), 'utf-8');
+              
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true, data: jsonData }));
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: err.message }));
             }
           });
         } else {
