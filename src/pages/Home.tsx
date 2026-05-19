@@ -101,6 +101,19 @@ const Home: React.FC = () => {
   const playTickSound = useTickSound();
   const prevIndex = useRef(activeIndex);
 
+  // Lock body scroll when any modal or lightbox is open to prevent background navigation and allow modal scroll
+  useEffect(() => {
+    const isLocked = !!detailItem || !!lightboxImage || passwordModalOpen;
+    if (isLocked) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [detailItem, lightboxImage, passwordModalOpen]);
+
   useEffect(() => {
     if (prevIndex.current !== activeIndex && items.length > 0) {
       const prevItem = items[prevIndex.current];
@@ -1095,98 +1108,159 @@ const Home: React.FC = () => {
 
               {/* Scrollable Columns Wrapper */}
               <div className={`flex-1 overflow-y-auto grid grid-cols-1 gap-8 md:gap-10 pr-2 scrollbar-thin w-full ${
-                detailItem.type === 'education' ? 'lg:grid-cols-[1fr_2fr]' : 'lg:grid-cols-[1fr_1.25fr]'
+                detailItem.type === 'education' ? 'lg:grid-cols-[1fr_2fr]' : 'lg:grid-cols-[1fr_1.3fr]'
               }`}>
-                
-                {/* Left Column: Summary and Markdown Detail */}
-                <div className="space-y-6 flex flex-col">
-                  {/* Keywords if present */}
-                  {detailItem.data.keywords?.[lang] && (
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {detailItem.data.keywords[lang].map((kw: string, i: number) => (
-                        <span key={i} className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800/80">
-                          #{kw}
-                        </span>
-                      ))}
+                {detailItem.type === 'education' ? (
+                  <>
+                    {/* Left Column: Summary and Markdown Detail */}
+                    <div className="space-y-6 flex flex-col">
+                      {/* Keywords if present */}
+                      {detailItem.data.keywords?.[lang] && (
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {detailItem.data.keywords[lang].map((kw: string, i: number) => (
+                            <span key={i} className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800/80">
+                              #{kw}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Education Left Column: GPA, Courses, Scholarships stacked vertically */}
+                      <div className="flex flex-col gap-6 flex-1">
+                        {detailItem.data.gpa && (
+                          <div 
+                            className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/40 dark:border-blue-900/30 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
+                          >
+                            <div>
+                              <h4 className="text-base font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
+                                <span>📊</span>
+                                <span>学业绩点 / GPA</span>
+                              </h4>
+                              <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.gpa[lang]}</p>
+                            </div>
+                            
+                            {detailItem.data.transcriptImage && (
+                              <button
+                                onClick={() => {
+                                  const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/transcript/${detailItem.data.transcriptImage}`;
+                                  setLightboxImage(src);
+                                }}
+                                className="w-fit px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-950/40 hover:bg-blue-200/70 dark:hover:bg-blue-900/60 border border-blue-200/40 dark:border-blue-800/50 rounded-lg shadow-sm hover:shadow hover:scale-[1.02] transition-all flex items-center gap-1.5 group/btn"
+                              >
+                                <span className="text-xs group-hover/btn:scale-110 transition-transform">🔍</span>
+                                <span>{lang === 'zh' ? '点击查看官方成绩单' : 'View Transcript'}</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
+                        
+                        {detailItem.data.courses && (
+                          <div 
+                            className="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/40 dark:border-indigo-900/30 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
+                          >
+                            <div>
+                              <h4 className="text-base font-bold text-indigo-800 dark:text-indigo-300 mb-2 flex items-center gap-2">
+                                <span>📚</span>
+                                <span>核心课程 / Courses</span>
+                              </h4>
+                              <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.courses[lang]}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {detailItem.data.scholarships && (
+                          <div className="p-5 rounded-2xl bg-amber-50/50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-900/30 shadow-sm flex-1 flex flex-col justify-between">
+                            <div>
+                              <h4 className="text-base font-bold text-amber-800 dark:text-amber-300 mb-3 flex items-center gap-2">
+                                <span>🏅</span>
+                                <span>奖学金 / Scholarships</span>
+                              </h4>
+                              <ul className="space-y-3">
+                                {detailItem.data.scholarships[lang].map((s: string, i: number) => {
+                                  const cert = detailItem.data.scholarshipCertificates?.[i];
+                                  return (
+                                    <li 
+                                      key={i} 
+                                      className="flex flex-col gap-2.5 p-3 rounded-xl border border-slate-200/10 dark:border-slate-800/10 bg-white/10 dark:bg-slate-950/10 hover:bg-amber-100/20 dark:hover:bg-amber-950/20 hover:border-amber-200/20 dark:hover:border-amber-800/15 transition-all"
+                                    >
+                                      <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed min-w-0 flex-1">
+                                        <span className="text-amber-500 mt-0.5 shrink-0">•</span>
+                                        <span className="font-semibold text-xs md:text-sm">{s}</span>
+                                      </div>
+                                      {cert && (
+                                        <button 
+                                          onClick={() => {
+                                            const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/scholarships/${cert}`;
+                                            setLightboxImage(src);
+                                          }}
+                                          className="w-fit px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-100/60 dark:bg-amber-950/40 hover:bg-amber-200/70 dark:hover:bg-amber-900/60 border border-amber-200/40 dark:border-amber-800/40 rounded-lg shadow-sm hover:shadow hover:scale-[1.01] transition-all flex items-center gap-1 shrink-0 group/btn"
+                                        >
+                                          <span className="group-hover/btn:translate-x-0.5 transition-transform">🔍</span>
+                                          <span>{lang === 'zh' ? '点击查看证书' : 'View Cert'}</span>
+                                        </button>
+                                      )}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
 
-                  {/* Bullet points Summary */}
-                  {detailItem.type === 'education' ? (
-                    /* Education Left Column: GPA, Courses, Scholarships stacked vertically */
-                    <div className="flex flex-col gap-6 flex-1">
-                      {detailItem.data.gpa && (
-                        <div 
-                          className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/40 dark:border-blue-900/30 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
-                        >
+                    {/* Right Column: Media Showcases / Education Awards */}
+                    <div className="space-y-8">
+                      {/* Education Right Column: Awards list */}
+                      {detailItem.data.awards && (
+                        <div className="p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/40 dark:border-purple-900/30 backdrop-blur-md flex flex-col justify-between h-full">
                           <div>
-                            <h4 className="text-base font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
-                              <span>📊</span>
-                              <span>学业绩点 / GPA</span>
-                            </h4>
-                            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.gpa[lang]}</p>
-                          </div>
-                          
-                          {detailItem.data.transcriptImage && (
-                            <button
-                              onClick={() => {
-                                const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/transcript/${detailItem.data.transcriptImage}`;
-                                setLightboxImage(src);
-                              }}
-                              className="w-fit px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-950/40 hover:bg-blue-200/70 dark:hover:bg-blue-900/60 border border-blue-200/40 dark:border-blue-800/50 rounded-lg shadow-sm hover:shadow hover:scale-[1.02] transition-all flex items-center gap-1.5 group/btn"
-                            >
-                              <span className="text-xs group-hover/btn:scale-110 transition-transform">🔍</span>
-                              <span>{lang === 'zh' ? '点击查看官方成绩单' : 'View Transcript'}</span>
-                            </button>
-                          )}
-                        </div>
-                      )}
-                      
-                      {detailItem.data.courses && (
-                        <div 
-                          className="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/40 dark:border-indigo-900/30 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
-                        >
-                          <div>
-                            <h4 className="text-base font-bold text-indigo-800 dark:text-indigo-300 mb-2 flex items-center gap-2">
-                              <span>📚</span>
-                              <span>核心课程 / Courses</span>
-                            </h4>
-                            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.courses[lang]}</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {detailItem.data.scholarships && (
-                        <div className="p-5 rounded-2xl bg-amber-50/50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-900/30 shadow-sm flex-1 flex flex-col justify-between">
-                          <div>
-                            <h4 className="text-base font-bold text-amber-800 dark:text-amber-300 mb-3 flex items-center gap-2">
-                              <span>🏅</span>
-                              <span>奖学金 / Scholarships</span>
+                            <h4 className="text-base font-bold text-purple-800 dark:text-purple-300 mb-4 flex items-center gap-2">
+                              <span>🏆</span>
+                              <span>{lang === 'zh' ? '竞赛获奖 / Awards' : 'Awards & Competitions'}</span>
                             </h4>
                             <ul className="space-y-3">
-                              {detailItem.data.scholarships[lang].map((s: string, i: number) => {
-                                const cert = detailItem.data.scholarshipCertificates?.[i];
+                              {detailItem.data.awards[lang].map((a: string, i: number) => {
+                                const cert = detailItem.data.awardCertificates?.[i];
                                 return (
                                   <li 
                                     key={i} 
-                                    className="flex flex-col gap-2.5 p-3 rounded-xl border border-slate-200/10 dark:border-slate-800/10 bg-white/10 dark:bg-slate-950/10 hover:bg-amber-100/20 dark:hover:bg-amber-950/20 hover:border-amber-200/20 dark:hover:border-amber-800/15 transition-all"
+                                    onClick={() => {
+                                      if (cert) {
+                                        const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/awards/${cert}`;
+                                        setLightboxImage(src);
+                                      } else {
+                                        setToast({
+                                          message: lang === 'zh' 
+                                            ? `【${a}】暂未关联本地证书文件。请在后台管理系统中指定对应的文件名！`
+                                            : `"${a}" is not linked to a certificate file yet. Please specify it in the admin panel!`,
+                                          type: 'info'
+                                        });
+                                      }
+                                    }}
+                                    className="group/item flex items-center justify-between gap-3 text-xs md:text-sm text-slate-700 dark:text-slate-300 border-b border-slate-200/20 dark:border-slate-800/40 py-2.5 last:border-0 last:pb-0 cursor-pointer hover:bg-purple-100/20 dark:hover:bg-purple-950/20 px-2 rounded-lg -mx-2 transition-all"
                                   >
-                                    <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed min-w-0 flex-1">
-                                      <span className="text-amber-500 mt-0.5 shrink-0">•</span>
-                                      <span className="font-semibold text-xs md:text-sm">{s}</span>
+                                    <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                                      <span className="text-purple-500 shrink-0 text-xs mt-0.5 group-hover/item:scale-110 transition-transform">★</span>
+                                      {/* Text-wrap enabled naturally as requested */}
+                                      <span className="font-semibold text-slate-700 dark:text-slate-300 leading-normal break-words" title={a}>{a}</span>
                                     </div>
-                                    {cert && (
-                                      <button 
-                                        onClick={() => {
-                                          const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/scholarships/${cert}`;
-                                          setLightboxImage(src);
-                                        }}
-                                        className="w-fit px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-100/60 dark:bg-amber-950/40 hover:bg-amber-200/70 dark:hover:bg-amber-900/60 border border-amber-200/40 dark:border-amber-800/40 rounded-lg shadow-sm hover:shadow hover:scale-[1.01] transition-all flex items-center gap-1 shrink-0 group/btn"
-                                      >
-                                        <span className="group-hover/btn:translate-x-0.5 transition-transform">🔍</span>
-                                        <span>{lang === 'zh' ? '点击查看证书' : 'View Cert'}</span>
-                                      </button>
-                                    )}
+                                    
+                                    <button
+                                      className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg shadow-sm border transition-all shrink-0 flex items-center gap-1 group/btn ${
+                                        cert 
+                                          ? 'text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-950/40 hover:bg-purple-200/70 dark:hover:bg-purple-900/60 border-purple-200/40 dark:border-purple-800/50'
+                                          : 'text-slate-500 dark:text-slate-400 bg-slate-100/40 dark:bg-slate-950/20 hover:bg-slate-200/50 dark:hover:bg-slate-900/40 border-slate-200/30 dark:border-slate-800/40 opacity-60 hover:opacity-100'
+                                      }`}
+                                      title={cert ? (lang === 'zh' ? '点击查看证书' : 'Click to view certificate') : (lang === 'zh' ? '暂无关联文件' : 'No file linked')}
+                                    >
+                                      <span>🔍</span>
+                                      <span>
+                                        {cert 
+                                          ? (lang === 'zh' ? '查看证书' : 'View Cert') 
+                                          : (lang === 'zh' ? '暂无证书' : 'No Cert')}
+                                      </span>
+                                    </button>
                                   </li>
                                 );
                               })}
@@ -1195,109 +1269,38 @@ const Home: React.FC = () => {
                         </div>
                       )}
                     </div>
-                  ) : (
-                    /* Bullet Points for experience types */
-                    <div className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md">
-                      <h4 className="text-base font-bold mb-4 text-slate-805 dark:text-slate-205">
-                        {lang === 'zh' ? '工作要点 / Overview' : 'Key Highlights'}
-                      </h4>
-                      <ul className="list-none space-y-3.5 text-slate-750 dark:text-slate-250 text-sm leading-relaxed">
-                        {detailItem.data.details?.[lang] && detailItem.data.details[lang].map((detail: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2.5">
-                            <span className="text-blue-500 mt-1 flex-shrink-0 text-xs">◆</span>
-                            <span>{detail}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Markdown Renderer Section */}
-                  {detailItem.type !== 'education' && detailItem.data.hasMarkdown && (
-                    <div className="mt-8 pt-8 border-t border-slate-200/60 dark:border-slate-800/80">
-                      <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-                        <span>📝</span>
-                        <span>{lang === 'zh' ? '详细记录 / Detailed Process' : 'Details & Documentation'}</span>
-                      </h4>
-                      
-                      {markdownLoading ? (
-                        <div className="flex items-center gap-3 text-sm text-slate-400 py-6">
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
-                          <span>Loading details...</span>
-                        </div>
-                      ) : (
-                        <div className="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed">
-                          {renderMarkdown(markdownContent)}
+                  </>
+                ) : (
+                  <>
+                    {/* Left Column: Highlights, Certificates, Photos stacked vertically */}
+                    <div className="space-y-8 flex flex-col">
+                      {/* Keywords if present */}
+                      {detailItem.data.keywords?.[lang] && (
+                        <div className="flex flex-wrap gap-2">
+                          {detailItem.data.keywords[lang].map((kw: string, i: number) => (
+                            <span key={i} className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800/80">
+                              #{kw}
+                            </span>
+                          ))}
                         </div>
                       )}
-                    </div>
-                  )}
-                </div>
 
-                {/* Right Column: Media Showcases / Education Awards */}
-                <div className="space-y-8">
-                  {detailItem.type === 'education' ? (
-                    /* Education Right Column: Awards list */
-                    detailItem.data.awards && (
-                      <div className="p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/40 dark:border-purple-900/30 backdrop-blur-md flex flex-col justify-between h-full">
-                        <div>
-                          <h4 className="text-base font-bold text-purple-800 dark:text-purple-300 mb-4 flex items-center gap-2">
-                            <span>🏆</span>
-                            <span>{lang === 'zh' ? '竞赛获奖 / Awards' : 'Awards & Competitions'}</span>
-                          </h4>
-                          <ul className="space-y-3">
-                            {detailItem.data.awards[lang].map((a: string, i: number) => {
-                              const cert = detailItem.data.awardCertificates?.[i];
-                              return (
-                                <li 
-                                  key={i} 
-                                  onClick={() => {
-                                    if (cert) {
-                                      const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/awards/${cert}`;
-                                      setLightboxImage(src);
-                                    } else {
-                                      setToast({
-                                        message: lang === 'zh' 
-                                          ? `【${a}】暂未关联本地证书文件。请在后台管理系统中指定对应的文件名！`
-                                          : `"${a}" is not linked to a certificate file yet. Please specify it in the admin panel!`,
-                                        type: 'info'
-                                      });
-                                    }
-                                  }}
-                                  className="group/item flex items-center justify-between gap-3 text-xs md:text-sm text-slate-700 dark:text-slate-300 border-b border-slate-200/20 dark:border-slate-800/40 py-2.5 last:border-0 last:pb-0 cursor-pointer hover:bg-purple-100/20 dark:hover:bg-purple-950/20 px-2 rounded-lg -mx-2 transition-all"
-                                >
-                                  <div className="flex items-start gap-2.5 min-w-0 flex-1">
-                                    <span className="text-purple-500 shrink-0 text-xs mt-0.5 group-hover/item:scale-110 transition-transform">★</span>
-                                    {/* Text-wrap enabled naturally as requested */}
-                                    <span className="font-semibold text-slate-700 dark:text-slate-300 leading-normal break-words" title={a}>{a}</span>
-                                  </div>
-                                  
-                                  <button
-                                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg shadow-sm border transition-all shrink-0 flex items-center gap-1 group/btn ${
-                                      cert 
-                                        ? 'text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-950/40 hover:bg-purple-200/70 dark:hover:bg-purple-900/60 border-purple-200/40 dark:border-purple-800/50'
-                                        : 'text-slate-500 dark:text-slate-400 bg-slate-100/40 dark:bg-slate-950/20 hover:bg-slate-200/50 dark:hover:bg-slate-900/40 border-slate-200/30 dark:border-slate-800/40 opacity-60 hover:opacity-100'
-                                    }`}
-                                    title={cert ? (lang === 'zh' ? '点击查看证书' : 'Click to view certificate') : (lang === 'zh' ? '暂无关联文件' : 'No file linked')}
-                                  >
-                                    <span>🔍</span>
-                                    <span>
-                                      {cert 
-                                        ? (lang === 'zh' ? '查看证书' : 'View Cert') 
-                                        : (lang === 'zh' ? '暂无证书' : 'No Cert')}
-                                    </span>
-                                  </button>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
+                      {/* 1. Bullet Points Summary */}
+                      <div className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md">
+                        <h4 className="text-base font-bold mb-4 text-slate-850 dark:text-slate-250">
+                          {lang === 'zh' ? '工作要点 / Overview' : 'Key Highlights'}
+                        </h4>
+                        <ul className="list-none space-y-3.5 text-slate-750 dark:text-slate-250 text-sm leading-relaxed">
+                          {detailItem.data.details?.[lang] && detailItem.data.details[lang].map((detail: string, i: number) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <span className="text-blue-500 mt-1 flex-shrink-0 text-xs">◆</span>
+                              <span>{detail}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    )
-                  ) : (
-                    /* Standard experience type right column showcases */
-                    <div className="space-y-8">
-                      {/* Certificate adaptive showcase */}
+
+                      {/* 2. Certificate adaptive showcase */}
                       {detailItem.data.showCerts !== false && detailItem.data.certificates && detailItem.data.certificates.length > 0 && (
                         <div className="space-y-4">
                           <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
@@ -1341,7 +1344,7 @@ const Home: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Experience details photo gallery with distinct animation based on type */}
+                      {/* 3. Experience details photo gallery with distinct animation based on type */}
                       {detailItem.data.showPhotos !== false && detailItem.data.photos && detailItem.data.photos.length > 0 && (
                         <div className="space-y-4">
                           <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
@@ -1359,22 +1362,41 @@ const Home: React.FC = () => {
                             const folderPath = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}`;
                             
                             if (detailItem.type === 'project') {
-                              // Research -> 3D Rotating Wheel
                               return <Research3DCarousel photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
                             } else if (detailItem.type === 'internship') {
-                              // Internship -> Polaroid wall
                               return <InternshipPolaroidWall photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
                             } else {
-                              // Exchanges & Volunteers -> 3D Cover Flow
                               return <CoverFlowSlider photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
                             }
                           })()}
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
 
+                    {/* Right Column: Markdown Detailed Process Document */}
+                    <div className="space-y-8">
+                      {detailItem.data.hasMarkdown && (
+                        <div className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md">
+                          <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200/40 dark:border-slate-800/40 pb-3">
+                            <span>📝</span>
+                            <span>{lang === 'zh' ? '详细记录 / Detailed Process' : 'Details & Documentation'}</span>
+                          </h4>
+                          
+                          {markdownLoading ? (
+                            <div className="flex items-center gap-3 text-sm text-slate-400 py-6">
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+                              <span>Loading details...</span>
+                            </div>
+                          ) : (
+                            <div className="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed">
+                              {renderMarkdown(markdownContent)}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
 
             </motion.div>
