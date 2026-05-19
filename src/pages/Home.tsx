@@ -325,7 +325,7 @@ const Home: React.FC = () => {
       {/* Category Title */}
       <AnimatePresence>
         {(!showEndScreen && !showWelcome) && (
-          <div className={`absolute z-30 transition-all duration-500 ${isPortrait ? 'top-[27%] left-1/2 -translate-x-1/2' : 'top-24 right-6 md:right-10'}`}>
+          <div className={`absolute z-30 transition-all duration-500 ${isPortrait ? 'top-[calc(27%+env(safe-area-inset-top))] left-1/2 -translate-x-1/2' : 'top-24 right-6 md:right-10'}`}>
             <AnimatePresence mode="wait">
               <motion.h2
                 key={currentCategory}
@@ -347,7 +347,7 @@ const Home: React.FC = () => {
         {(!showEndScreen && !showWelcome) && (
           isPortrait ? (
             /* Portrait Top 1/3 layout (shifted up, enlarged photo and text details) */
-            <div className="absolute top-7 inset-x-4 h-[20vh] max-h-[170px] z-40 flex items-center justify-center pointer-events-auto">
+            <div className="absolute top-[calc(1.75rem+env(safe-area-inset-top))] inset-x-4 h-[20vh] max-h-[170px] z-40 flex items-center justify-center pointer-events-auto">
               <div className="glass-card w-full max-w-[480px] h-full rounded-2xl p-4 flex items-center gap-4.5 border border-white/20 dark:border-slate-800/80 shadow-lg">
                 {/* Avatar on the Left (enlarged to 96px) */}
                 <motion.div
@@ -1021,7 +1021,7 @@ const Home: React.FC = () => {
               initial={{ scale: 0.96, y: 15, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.96, y: 15, opacity: 0 }}
-              className="bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-3xl p-4 sm:p-8 md:p-10 rounded-3xl w-[96vw] md:w-[95vw] max-w-[1400px] h-[94vh] md:h-[92vh] max-h-[95vh] overflow-hidden relative border border-white/20 dark:border-slate-800/80 shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.55)] flex flex-col text-left"
+              className="bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-3xl p-4 sm:p-8 md:p-10 rounded-3xl w-[96vw] md:w-[95vw] max-w-[1400px] h-auto max-h-[92vh] md:max-h-[90vh] overflow-hidden relative border border-white/20 dark:border-slate-800/80 shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.55)] flex flex-col text-left"
               onClick={e => e.stopPropagation()}
             >
               {/* Fixed Close Button */}
@@ -1123,19 +1123,6 @@ const Home: React.FC = () => {
                             </h4>
                             <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.courses[lang]}</p>
                           </div>
-                          
-                          {detailItem.data.transcriptImage && (
-                            <button
-                              onClick={() => {
-                                  const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/transcript/${detailItem.data.transcriptImage}`;
-                                  setLightboxImage(src);
-                                }}
-                              className="w-fit px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100/50 dark:bg-indigo-950/40 hover:bg-indigo-200/70 dark:hover:bg-indigo-900/60 border border-indigo-200/40 dark:border-indigo-800/50 rounded-lg shadow-sm hover:shadow hover:scale-[1.02] transition-all flex items-center gap-1.5 group/btn"
-                            >
-                              <span className="text-xs group-hover/btn:scale-110 transition-transform">🔍</span>
-                              <span>{lang === 'zh' ? '点击查看官方成绩单' : 'View Transcript'}</span>
-                            </button>
-                          )}
                         </div>
                       )}
 

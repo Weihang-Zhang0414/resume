@@ -13,7 +13,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
+    <div className="relative h-[100dvh] w-screen overflow-hidden min-h-screen min-h-[-webkit-fill-available]">
       {/* Floating Action Buttons (Bottom Right) */}
       <div className="fixed bottom-8 right-8 z-50 flex gap-4">
         <button

@@ -55,10 +55,25 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const { i18n } = useTranslation();
 
   useEffect(() => {
+    let themeColor = '#f8fafc'; // light slate-50 background
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+      themeColor = '#020617'; // dark slate-950 background
     } else {
       document.documentElement.classList.remove('dark');
+    }
+
+    // Dynamically update theme-color meta tag for seamless status bar coloring on mobile in-app browsers
+    try {
+      let meta = document.querySelector('meta[name="theme-color"]');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', themeColor);
+    } catch (e) {
+      console.error('Error updating theme-color meta tag:', e);
     }
   }, [theme]);
 
