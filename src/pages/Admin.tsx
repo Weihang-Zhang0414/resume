@@ -16,37 +16,103 @@ interface ReorderableItemProps {
   item: any;
   index: number;
   onDelete: () => void;
+  title: string;
+  subtitle?: string;
+  period?: string;
+  icon?: string;
   children: React.ReactNode;
 }
 
-const ReorderableItem: React.FC<ReorderableItemProps> = ({ item, index, onDelete, children }) => {
+const ReorderableItem: React.FC<ReorderableItemProps> = ({
+  item,
+  index,
+  onDelete,
+  title,
+  subtitle,
+  period,
+  icon,
+  children
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const controls = useDragControls();
+
   return (
     <Reorder.Item
       value={item}
       dragListener={false}
       dragControls={controls}
-      className="relative p-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-md shadow-sm hover:shadow-md transition-shadow duration-300"
+      className="relative border border-slate-200 dark:border-slate-800 rounded-2xl bg-white/60 dark:bg-slate-900/45 backdrop-blur-md shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
     >
-      <div className="absolute top-4 right-4 flex items-center gap-1 z-10">
-        <div
-          onPointerDown={(e) => controls.start(e)}
-          className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-250 cursor-grab active:cursor-grabbing rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title="按住拖拽排序 / Drag to reorder"
-        >
-          <GripVertical className="w-5 h-5" />
+      {/* Collapsed Header / Title Bar */}
+      <div className="p-4 flex items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-950/20 select-none border-b border-transparent dark:border-transparent">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          {/* Drag Handle */}
+          <div
+            onPointerDown={(e) => controls.start(e)}
+            className="p-1.5 text-slate-400 hover:text-slate-605 dark:hover:text-slate-200 cursor-grab active:cursor-grabbing rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+            title="按住拖拽排序 / Drag to reorder"
+          >
+            <GripVertical className="w-5 h-5" />
+          </div>
+
+          {/* Icon */}
+          {icon && <span className="text-lg shrink-0">{icon}</span>}
+
+          {/* Text details */}
+          <div className="min-w-0 flex-1 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-sm text-slate-800 dark:text-slate-200 truncate">
+                {title || '未命名 / Unnamed'}
+              </span>
+              {period && (
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-900 shrink-0">
+                  {period}
+                </span>
+              )}
+            </div>
+            {subtitle && (
+              <span className="text-xs text-slate-500 dark:text-slate-400 truncate block mt-0.5">
+                {subtitle}
+              </span>
+            )}
+          </div>
         </div>
-        <button
-          onClick={onDelete}
-          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
-          title="删除 / Delete Entry"
-        >
-          <Trash2 className="w-5 h-5" />
-        </button>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
+            title={isExpanded ? "收起 / Collapse" : "展开 / Expand"}
+          >
+            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </button>
+          <button
+            onClick={onDelete}
+            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
+            title="删除 / Delete"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </div>
       </div>
-      <div className="pr-12 md:pr-16">
-        {children}
-      </div>
+
+      {/* Expanded Content Area */}
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="border-t border-slate-200 dark:border-slate-800/80"
+          >
+            <div className="p-6 space-y-6">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Reorder.Item>
   );
 };
@@ -829,38 +895,46 @@ const Admin: React.FC = () => {
   const renderArraySection = (
     key: string,
     emptyTemplate: any,
+    getItemInfo: (item: any) => { title: string; subtitle?: string; period?: string; icon?: string },
     renderItem: (itemPath: (string | number)[], index: number) => React.ReactNode
   ) => {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {formData[key] && (
           <Reorder.Group
             axis="y"
             values={formData[key]}
             onReorder={(newOrder) => updateField([key], newOrder)}
-            className="space-y-6"
+            className="space-y-3"
           >
-            {formData[key].map((item: any, index: number) => (
-              <ReorderableItem
-                key={item.id || `reorder-${index}`}
-                item={item}
-                index={index}
-                onDelete={() => {
-                  if (confirm('确认删除该条目吗？删除将连带清理本地对应的文件夹，不可逆。')) {
-                    const newArray = formData[key].filter((_: any, i: number) => i !== index);
-                    updateField([key], newArray);
-                  }
-                }}
-              >
-                {renderItem([key, index], index)}
-              </ReorderableItem>
-            ))}
+            {formData[key].map((item: any, index: number) => {
+              const info = getItemInfo(item);
+              return (
+                <ReorderableItem
+                  key={item.id || `reorder-${index}`}
+                  item={item}
+                  index={index}
+                  onDelete={() => {
+                    if (confirm('确认删除该条目吗？删除将连带清理本地对应的文件夹，不可逆。')) {
+                      const newArray = formData[key].filter((_: any, i: number) => i !== index);
+                      updateField([key], newArray);
+                    }
+                  }}
+                  title={info.title}
+                  subtitle={info.subtitle}
+                  period={info.period}
+                  icon={info.icon}
+                >
+                  {renderItem([key, index], index)}
+                </ReorderableItem>
+              );
+            })}
           </Reorder.Group>
         )}
 
         <button
           onClick={() => updateField([key], [...formData[key], JSON.parse(JSON.stringify(emptyTemplate))])}
-          className="w-full py-5 border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-2xl flex justify-center items-center gap-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900/30 hover:text-blue-500 dark:hover:text-blue-400 transition-colors font-bold text-sm"
+          className="w-full py-4 border-2 border-dashed border-slate-355 dark:border-slate-800 rounded-2xl flex justify-center items-center gap-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900/30 hover:text-blue-500 dark:hover:text-blue-400 transition-colors font-bold text-sm"
         >
           <Plus className="w-5 h-5" /> 添加新记录 / Add New Entry
         </button>
@@ -1056,6 +1130,12 @@ const Admin: React.FC = () => {
                 renderArraySection(
                   'education',
                   { id: `edu-${Date.now()}`, institution: { en: '', zh: '' }, degree: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, gpa: { en: '', zh: '' }, courses: { en: '', zh: '' }, scholarships: { en: [], zh: [] }, awards: { en: [], zh: [] }, transcriptImage: '', scholarshipCertificates: [], awardCertificates: [] },
+                  (item) => ({
+                    title: item.institution?.[lang] || item.institution?.zh || item.institution?.en || '新就读经历 / New Education',
+                    subtitle: item.degree?.[lang] || item.degree?.zh || item.degree?.en,
+                    period: item.period,
+                    icon: '🎓'
+                  }),
                   (path, index) => {
                     const item = formData.education[index];
                     return (
@@ -1110,6 +1190,12 @@ const Admin: React.FC = () => {
                 renderArraySection(
                   'internships',
                   { id: `int-${Date.now()}`, company: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] }, keywords: { en: [], zh: [] } },
+                  (item) => ({
+                    title: item.company?.[lang] || item.company?.zh || item.company?.en || '新实习经历 / New Internship',
+                    subtitle: item.role?.[lang] || item.role?.zh || item.role?.en,
+                    period: item.period,
+                    icon: '💼'
+                  }),
                   (path, index) => {
                     const item = formData.internships[index];
                     return (
@@ -1149,6 +1235,12 @@ const Admin: React.FC = () => {
                 renderArraySection(
                   'projects',
                   { id: `proj-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] }, keywords: { en: [], zh: [] } },
+                  (item) => ({
+                    title: item.name?.[lang] || item.name?.zh || item.name?.en || '新科研项目 / New Project',
+                    subtitle: item.role?.[lang] || item.role?.zh || item.role?.en,
+                    period: item.period,
+                    icon: '🔬'
+                  }),
                   (path, index) => {
                     const item = formData.projects[index];
                     return (
@@ -1188,6 +1280,12 @@ const Admin: React.FC = () => {
                 renderArraySection(
                   'exchanges',
                   { id: `exc-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
+                  (item) => ({
+                    title: item.name?.[lang] || item.name?.zh || item.name?.en || '新海外交流 / New Exchange',
+                    subtitle: item.role?.[lang] || item.role?.zh || item.role?.en,
+                    period: item.period,
+                    icon: '🌏'
+                  }),
                   (path, index) => {
                     const item = formData.exchanges[index];
                     return (
@@ -1225,6 +1323,12 @@ const Admin: React.FC = () => {
                 renderArraySection(
                   'volunteers',
                   { id: `vol-${Date.now()}`, name: { en: '', zh: '' }, role: { en: '', zh: '' }, period: '', location: { en: '', zh: '' }, details: { en: [], zh: [] } },
+                  (item) => ({
+                    title: item.name?.[lang] || item.name?.zh || item.name?.en || '新志愿活动 / New Volunteer',
+                    subtitle: item.role?.[lang] || item.role?.zh || item.role?.en,
+                    period: item.period,
+                    icon: '🤝'
+                  }),
                   (path, index) => {
                     const item = formData.volunteers[index];
                     return (
@@ -1262,6 +1366,11 @@ const Admin: React.FC = () => {
                 renderArraySection(
                   'skills',
                   { id: `skill-${Date.now()}`, category: { en: '', zh: '' }, items: { en: [], zh: [] } },
+                  (item) => ({
+                    title: item.category?.[lang] || item.category?.zh || item.category?.en || '新技能分类 / New Skill Category',
+                    subtitle: (item.items?.[lang] || []).join(', '),
+                    icon: '🛠️'
+                  }),
                   (path) => (
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-3">

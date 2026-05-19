@@ -3,17 +3,20 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { Moon, Sun, Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { theme, toggleTheme } = usePortfolio();
   const { i18n } = useTranslation();
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'en' ? 'zh' : 'en');
   };
 
   return (
-    <div className="relative h-[100dvh] w-screen overflow-hidden min-h-screen min-h-[-webkit-fill-available]">
+    <div className={isAdmin ? "relative w-full min-h-screen bg-slate-50 dark:bg-slate-950" : "relative h-[100dvh] w-screen overflow-hidden min-h-screen min-h-[-webkit-fill-available]"}>
       {/* Floating Action Buttons (Bottom Right) */}
       <div className="fixed bottom-8 right-8 z-50 flex gap-4">
         <button
