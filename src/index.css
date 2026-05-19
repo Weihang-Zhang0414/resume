@@ -12,13 +12,14 @@
     height: -webkit-fill-available;
   }
 
-  body {
+  html, body {
     background-color: #e0f2fe;
     @apply text-slate-900 transition-colors duration-500 font-sans;
   }
   
-  .dark body {
-    @apply bg-slate-950 text-slate-100;
+  .dark html, .dark body {
+    background-color: #020617;
+    @apply text-slate-100;
   }
 }
 

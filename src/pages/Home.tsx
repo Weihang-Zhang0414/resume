@@ -255,7 +255,7 @@ const Home: React.FC = () => {
 
   // Dynamic status bar and body background color syncing for notch devices
   useEffect(() => {
-    let themeColor = theme === 'dark' ? '#020617' : '#f8fafc';
+    let themeColor = theme === 'dark' ? '#020617' : '#e0f2fe';
     
     if (theme === 'light' && !showWelcome && !showEndScreen) {
       const type = items[activeIndex]?.type;
@@ -280,10 +280,12 @@ const Home: React.FC = () => {
       console.error(e);
     }
 
-    // Set body inline styling background color to prevent margins or notches showing white
+    // Set html and body inline styling background color to prevent margins or notches showing white
+    document.documentElement.style.backgroundColor = themeColor;
     document.body.style.backgroundColor = themeColor;
 
     return () => {
+      document.documentElement.style.backgroundColor = '';
       document.body.style.backgroundColor = '';
     };
   }, [theme, activeIndex, items, showWelcome, showEndScreen]);
@@ -323,12 +325,14 @@ const Home: React.FC = () => {
   const currentCategory = currentItem?.categoryTitle[lang];
 
   // Dynamic Background Colors
-  let bgColors = ['bg-blue-400/30 dark:bg-blue-900/30', 'bg-indigo-400/30 dark:bg-indigo-900/30', 'bg-purple-400/30 dark:bg-purple-900/30'];
-  if (currentItem?.type === 'education') bgColors = ['bg-blue-400/30 dark:bg-blue-900/30', 'bg-cyan-400/30 dark:bg-cyan-900/30', 'bg-sky-400/30 dark:bg-sky-900/30'];
-  if (currentItem?.type === 'internship') bgColors = ['bg-indigo-400/30 dark:bg-indigo-900/30', 'bg-violet-400/30 dark:bg-violet-900/30', 'bg-purple-400/30 dark:bg-purple-900/30'];
-  if (currentItem?.type === 'project') bgColors = ['bg-purple-400/30 dark:bg-purple-900/30', 'bg-fuchsia-400/30 dark:bg-fuchsia-900/30', 'bg-pink-400/30 dark:bg-pink-900/30'];
-  if (currentItem?.type === 'exchange') bgColors = ['bg-rose-400/30 dark:bg-rose-900/30', 'bg-red-400/30 dark:bg-red-900/30', 'bg-orange-400/30 dark:bg-orange-900/30'];
-  if (currentItem?.type === 'volunteer') bgColors = ['bg-amber-400/30 dark:bg-amber-900/30', 'bg-orange-400/30 dark:bg-orange-900/30', 'bg-yellow-400/30 dark:bg-yellow-900/30'];
+  // Dynamic Background Colors
+  let bgColors = ['bg-blue-400/55 dark:bg-blue-900/50', 'bg-indigo-400/55 dark:bg-indigo-900/50', 'bg-purple-400/55 dark:bg-purple-900/50'];
+  if (currentItem?.type === 'education') bgColors = ['bg-blue-400/55 dark:bg-blue-900/50', 'bg-cyan-400/55 dark:bg-cyan-900/50', 'bg-sky-400/55 dark:bg-sky-900/50'];
+  if (currentItem?.type === 'internship') bgColors = ['bg-indigo-400/55 dark:bg-indigo-900/50', 'bg-violet-400/55 dark:bg-violet-900/50', 'bg-purple-400/55 dark:bg-purple-900/50'];
+  if (currentItem?.type === 'project') bgColors = ['bg-purple-400/55 dark:bg-purple-900/50', 'bg-fuchsia-400/55 dark:bg-fuchsia-900/50', 'bg-pink-400/55 dark:bg-pink-900/50'];
+  if (currentItem?.type === 'exchange') bgColors = ['bg-rose-400/55 dark:bg-rose-900/50', 'bg-red-400/55 dark:bg-red-900/50', 'bg-orange-400/55 dark:bg-orange-900/50'];
+  if (currentItem?.type === 'volunteer') bgColors = ['bg-amber-400/55 dark:bg-amber-900/50', 'bg-orange-400/55 dark:bg-orange-900/50', 'bg-yellow-400/55 dark:bg-yellow-900/50'];
+  if (currentItem?.type === 'skill') bgColors = ['bg-teal-400/55 dark:bg-teal-900/50', 'bg-emerald-400/55 dark:bg-emerald-900/50', 'bg-green-400/55 dark:bg-green-900/50'];
   let categoryColorClass = 'text-blue-600 dark:text-blue-400';
   if (currentItem?.type === 'education') categoryColorClass = 'text-blue-600 dark:text-blue-400';
   if (currentItem?.type === 'internship') categoryColorClass = 'text-indigo-600 dark:text-indigo-400';
@@ -342,10 +346,10 @@ const Home: React.FC = () => {
     <div className={`relative w-full h-full ${isMobile ? '' : 'pt-20'}`}>
 
       {/* Dynamic Background - Dreamy, vibrant floating gradient bubbles for all viewport sizes */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none transition-colors duration-700">
-        <div className={`absolute top-[-10%] left-[-15%] w-[80vw] h-[80vw] md:w-[40%] md:h-[40%] rounded-full ${bgColors[0]} blur-[80px] md:blur-3xl opacity-75 dark:opacity-60 animate-blob mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
-        <div className={`absolute top-[25%] right-[-20%] w-[90vw] h-[90vw] md:w-[50%] md:h-[50%] rounded-full ${bgColors[1]} blur-[90px] md:blur-3xl opacity-75 dark:opacity-60 animate-blob animation-delay-2000 mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
-        <div className={`absolute bottom-[-15%] left-[-10%] w-[100vw] h-[100vw] md:w-[60%] md:h-[60%] rounded-full ${bgColors[2]} blur-[100px] md:blur-3xl opacity-75 dark:opacity-60 animate-blob animation-delay-4000 mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
+      <div className="fixed -inset-10 z-0 overflow-hidden pointer-events-none transition-colors duration-700">
+        <div className={`absolute top-[-10%] left-[-15%] w-[80vw] h-[80vw] md:w-[40%] md:h-[40%] rounded-full ${bgColors[0]} blur-[70px] md:blur-3xl opacity-80 dark:opacity-65 animate-blob mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
+        <div className={`absolute top-[25%] right-[-20%] w-[90vw] h-[90vw] md:w-[50%] md:h-[50%] rounded-full ${bgColors[1]} blur-[80px] md:blur-3xl opacity-80 dark:opacity-65 animate-blob-delayed mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
+        <div className={`absolute bottom-[-15%] left-[-10%] w-[100vw] h-[100vw] md:w-[60%] md:h-[60%] rounded-full ${bgColors[2]} blur-[90px] md:blur-3xl opacity-80 dark:opacity-65 animate-blob-slow mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
       </div>
 
       {/* Category Title */}
