@@ -402,10 +402,8 @@ export default defineConfig(() => {
     console.error(`[Sync] Startup scan failed: ${err.message}`);
   }
 
-  const base = process.env.CF_PAGES === '1' ? '/' : '/resume/';
-
   return {
-    base,
+    base: '/',
     plugins: [react(), portfolioApiPlugin()],
   };
 });
