@@ -63,43 +63,87 @@
           "荣获2023-2024学年：学习、创新、思想品德奖学金。"
         ]
       },
-      "awards": {
-        "en": [
-          "National Undergraduate Basic Engineering Training Comprehensive Ability Competition (School Level) — First Prize (2024/10)",
-          "China Undergraduate Engineering Practice and Innovation Competition, Beijing Division — First Prize (2025/03)",
-          "NCUT Engineering Drawing and 3D Modeling Competition — Third Prize, Individual (2024/10)",
-          "MathorCup Mathematical Application Challenge (North China Region) — Third Prize (2025/04)",
-          "US Mathematical Contest in Modeling (MCM/ICM) — S Prize (Honorable Mention) (2025/01)",
-          "National Undergraduate Market Research and Analysis Competition, Beijing Division — Third Prize (2025/04)",
-          "NCUT Market Research and Analysis Competition — Second Runner-up (2025/03)",
-          "Beijing Municipal Undergraduate Mathematics Competition — Third Prize, Individual (2024/11)",
-          "DatangCup National Undergraduate Mobile Communications Competition — Participation Award (2024/04)",
-          "Siemens Cup School Competition — Second Prize (2024/04)",
-          "NCUT London Brunel Institute Career Planning Competition — Third Prize (2023/12)"
-        ],
-        "zh": [
-          "大学生基础工程训练综合能力竞赛校内选拔赛 — 最高等级（团体）(2024/10)",
-          "中国大学生工程实践与创新能力大赛北京市选拔赛 — 最高等级（团体）(2025/03)",
-          "北方工业大学工程制图与三维建模大赛 — 第三等级（个人）(2024/10)",
-          "MathorCup数学应用挑战赛（华北赛区）— 第三等级（团体）(2025/04)",
-          "美国大学生数学建模竞赛（MCM/ICM）— S奖（团体）(2025/01)",
-          "全国大学生市场调查与分析大赛北京分赛区选拔赛 — 第三等级（团体）(2025/04)",
-          "北方工业大学市场调查与分析大赛 — 次高等级（团体）(2025/03)",
-          "北京市大学生数学竞赛 — 第三等级（个人）(2024/11)",
-          "西门子杯校赛 — 二等奖（团体）(2024/04)",
-          "大唐杯全国大学生移动通信大赛 — 参与奖（团体）(2024/04)",
-          "北方工业大学伦敦布鲁内尔学院职业规划大赛 — 三等奖（团体）(2023/12)"
-        ]
-      },
+      "awards": [
+        {
+          "en": "MathorCup Mathematical Application Challenge — National Second Prize (2026/04)",
+          "zh": "MathorCup数学应用挑战赛 — 全国二等奖（团体）(2026/04)",
+          "certificate": "GC.png"
+        },
+        {
+          "en": "US Mathematical Contest in Modeling (MCM/ICM) — H Prize (Honorable Mention) (2026/02)",
+          "zh": "美国大学生数学建模竞赛（MCM/ICM）— H奖（团体）(2026/02)",
+          "certificate": "GC-G.jpg"
+        },
+        {
+          "en": "National Undergraduate Basic Engineering Training Comprehensive Ability Competition (School Level) — First Prize (2024/10)",
+          "zh": "大学生基础工程训练综合能力竞赛校内选拔赛 — 最高等级（团体）(2024/10)",
+          "certificate": "award_mcm.png"
+        },
+        {
+          "en": "China Undergraduate Engineering Practice and Innovation Competition, Beijing Division — First Prize (2025/03)",
+          "zh": "中国大学生工程实践与创新能力大赛北京市选拔赛 — 最高等级（团体）(2025/03)",
+          "certificate": ""
+        },
+        {
+          "en": "NCUT Engineering Drawing and 3D Modeling Competition — Third Prize, Individual (2024/10)",
+          "zh": "北方工业大学工程制图与三维建模大赛 — 第三等级（个人）(2024/10)",
+          "certificate": ""
+        },
+        {
+          "en": "MathorCup Mathematical Application Challenge (North China Region) — Third Prize (2025/04)",
+          "zh": "MathorCup数学应用挑战赛（华北赛区）— 第三等级（团体）(2025/04)",
+          "certificate": ""
+        },
+        {
+          "en": "US Mathematical Contest in Modeling (MCM/ICM) — S Prize (Honorable Mention) (2025/01)",
+          "zh": "美国大学生数学建模竞赛（MCM/ICM）— S奖（团体）(2025/01)",
+          "certificate": ""
+        },
+        {
+          "en": "National Undergraduate Market Research and Analysis Competition, Beijing Division — Third Prize (2025/04)",
+          "zh": "全国大学生市场调查与分析大赛北京分赛区选拔赛 — 第三等级（团体）(2025/04)",
+          "certificate": ""
+        },
+        {
+          "en": "NCUT Market Research and Analysis Competition — Second Runner-up (2025/03)",
+          "zh": "北方工业大学市场调查与分析大赛 — 次高等级（团体）(2025/03)",
+          "certificate": ""
+        },
+        {
+          "en": "Beijing Municipal Undergraduate Mathematics Competition — Third Prize, Individual (2024/11)",
+          "zh": "北京市大学生数学竞赛 — 第三等级（个人）(2024/11)",
+          "certificate": ""
+        },
+        {
+          "en": "DatangCup National Undergraduate Mobile Communications Competition — Participation Award (2024/04)",
+          "zh": "西门子杯校赛 — 二等奖（团体）(2024/04)",
+          "certificate": ""
+        },
+        {
+          "en": "Siemens Cup School Competition — Second Prize (2024/04)",
+          "zh": "大唐杯全国大学生移动通信大赛 — 参与奖（团体）(2024/04)",
+          "certificate": ""
+        },
+        {
+          "en": "NCUT London Brunel Institute Career Planning Competition — Third Prize (2023/12)",
+          "zh": "北方工业大学伦敦布鲁内尔学院职业规划大赛 — 三等奖（团体）(2023/12)",
+          "certificate": ""
+        }
+      ],
       "transcriptImage": "transcript.png",
       "scholarshipCertificates": [
-        "25.png",
-        "24.png"
+        "24.png",
+        "25.png"
       ],
       "awardCertificates": [
-        "GC.png",
+        "25icm.png",
+        "25MMC.png",
+        "26icm.png",
         "GC-G.jpg",
-        "award_mcm.png"
+        "GC.png",
+        "SJ.png",
+        "TZB.png",
+        "市场调查.PNG"
       ]
     }
   ],
@@ -227,6 +271,110 @@
     }
   ],
   "projects": [
+    {
+      "id": "hyperlipidemia-risk-warning-and-intervention-system-based-on-lasso-shap-and-dynamic-programming",
+      "name": {
+        "en": "Hyperlipidemia Risk Warning and Intervention System Based on LASSO-SHAP and Dynamic Programming",
+        "zh": "基于 LASSO-SHAP 与动态规划的高血脂症风险预警及干预系统"
+      },
+      "role": {
+        "en": "Team Leader / Core Algorithm Engineer",
+        "zh": "项目队长 / 核心算法工程师"
+      },
+      "period": "2026.04 - 2026.04",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "Problem C of the 2026 MathorCup, winning the national Second Prize.",
+          "Responsible for core algorithm design and Python implementation, combining machine learning and operations research.",
+          "Constructed a dual-task feature engineering scheme (LASSO + tree models) with SHAP value explanation, Platt probability calibration, and CART decision rules.",
+          "Developed a finite-horizon dynamic programming model with lexicographical multi-objective optimization to solve for monthly custom 6-month patient intervention paths."
+        ],
+        "zh": [
+          "2026年第十六届 MathorCup 数学应用挑战赛C题，荣获全国二等奖。",
+          "负责核心算法设计与 Python 代码实现，融合机器学习集成算法与运筹优化算法。",
+          "构建了基于 LASSO-SHAP 的双任务特征工程，通过 Platt 缩放概率校准与 CART 决策树提取高危规则。",
+          "设计了以月为步长的有限时域动态规划（DP）干预优化模型，并结合字典序多目标优化为患者定制 6 个月最优干预清单。"
+        ]
+      },
+      "keywords": {
+        "en": [
+          "Python",
+          "LASSO-SHAP",
+          "Ensemble Learning",
+          "Explainable AI",
+          "Dynamic Programming",
+          "Multi-Objective Optimization"
+        ],
+        "zh": [
+          "Python",
+          "LASSO-SHAP",
+          "集成学习",
+          "可解释性AI",
+          "动态规划",
+          "多目标优化"
+        ]
+      },
+      "photos": [],
+      "certificates": [],
+      "hasMarkdown": true
+    },
+    {
+      "id": "integrated-sports-finance-dynamic-decision-system-for-the-golden-state-warriors",
+      "name": {
+        "en": "Integrated Sports-Finance Dynamic Decision System for the Golden State Warriors",
+        "zh": "金州勇士队商业运营与体育竞技综合动态决策系统"
+      },
+      "role": {
+        "en": "Team Member / Core Modeler & Visualization Lead",
+        "zh": "团队成员 / 核心建模与可视化"
+      },
+      "period": "2026.02 - 2026.02",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "Problem D of the 2026 ICM, winning the global Honorable Mention (H Prize).",
+          "Built a multi-dimensional leverage decision model across financial, competitive, market, and structural pressure dimensions.",
+          "Applied Multi-Objective Programming (MOP) for player acquisition strategy and Monte Carlo simulation to quantify the stochastic impact of core player injury.",
+          "Designed micro-dynamic ticket pricing multipliers with linear regression and independently generated 25 pages of full English LaTeX typesetting and dynamic charts."
+        ],
+        "zh": [
+          "2026年美国大学生数学建模竞赛 (ICM) D题，荣获全球二等奖 (Honorable Mention, H奖)。",
+          "构建了融合财务、竞技、市场与结构压力的多维度杠杆率决策模型，映射离散管理指令。",
+          "运用多目标规划 (MOP) 计算高性价比引援，并引入蒙特卡洛模拟核心球员伤病对胜率和票价的随机冲击。",
+          "设计了微观动态票价乘数，并独立完成了 25 页全英文 LaTeX 论文排版及成本-收益矩阵、敏感性分析热力图等专业图表。"
+        ]
+      },
+      "keywords": {
+        "en": [
+          "Python",
+          "Multi-Objective Programming",
+          "Monte Carlo Simulation",
+          "Linear Regression",
+          "LaTeX",
+          "Data Visualization"
+        ],
+        "zh": [
+          "Python",
+          "多目标规划",
+          "蒙特卡洛模拟",
+          "线性回归",
+          "LaTeX排版",
+          "数据可视化"
+        ]
+      },
+      "photos": [],
+      "certificates": [
+        "MCM26.png"
+      ],
+      "hasMarkdown": true
+    },
     {
       "id": "senvix-ai-edge-cloud-synergetic-multi-modal-smart-mobility-system",
       "name": {

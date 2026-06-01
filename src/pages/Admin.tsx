@@ -242,6 +242,137 @@ const StringArrayManager: React.FC<StringArrayManagerProps> = ({ path, label, fo
 };
 
 // ==========================================
+// 2.5 AWARD ARRAY MANAGER (Specialized for Education Awards)
+// ==========================================
+
+const AwardArrayItem = ({ item, index, handleAwardChange, handleDelete, availableCerts }: any) => {
+  return (
+    <Reorder.Item
+      value={item}
+      className="flex flex-col gap-2 p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg group hover:border-blue-300 dark:hover:border-blue-700/50 transition-colors shadow-sm cursor-grab active:cursor-grabbing"
+    >
+      <div className="flex items-start gap-2">
+        <GripVertical className="w-5 h-5 text-slate-300 dark:text-slate-600 mt-2 shrink-0" />
+        <div className="flex-1 space-y-2">
+          <input
+            className="w-full bg-transparent text-sm font-bold text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 border-b border-slate-100 dark:border-slate-800 focus:border-blue-500 pb-1"
+            value={item.value.zh}
+            onChange={(e) => handleAwardChange(index, 'zh', e.target.value)}
+            placeholder="竞赛名称 (中文)"
+          />
+          <input
+            className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 border-b border-slate-100 dark:border-slate-800 focus:border-blue-500 pb-1"
+            value={item.value.en}
+            onChange={(e) => handleAwardChange(index, 'en', e.target.value)}
+            placeholder="Award Name (English)"
+          />
+          <select
+            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs rounded p-1.5 text-slate-600 dark:text-slate-400 focus:outline-none focus:border-blue-500"
+            value={item.value.certificate || ''}
+            onChange={(e) => handleAwardChange(index, 'certificate', e.target.value)}
+          >
+            <option value="">-- 无关联证书 / No linked certificate --</option>
+            {availableCerts?.map((cert: string) => (
+              <option key={cert} value={cert}>{cert}</option>
+            ))}
+          </select>
+        </div>
+        <button
+          onClick={() => handleDelete(index)}
+          className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors shrink-0"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    </Reorder.Item>
+  );
+};
+
+interface AwardArrayManagerProps {
+  path: (string | number)[];
+  label: string;
+  formData: any;
+  updateField: (path: (string | number)[], value: any) => void;
+  availableCerts: string[];
+}
+
+const AwardArrayManager: React.FC<AwardArrayManagerProps> = ({ path, label, formData, updateField, availableCerts }) => {
+  let array: any[] = formData;
+  for (const p of path) {
+    if (array === undefined) return null;
+    array = (array as any)[p];
+  }
+  if (!array || !Array.isArray(array)) array = [];
+
+  const [items, setItems] = useState<{ id: string; value: any }[]>([]);
+
+  useEffect(() => {
+    setItems(prev => {
+      return array.map((obj, idx) => {
+        const existing = prev[idx];
+        if (existing && JSON.stringify(existing.value) === JSON.stringify(obj)) {
+          return existing;
+        }
+        return {
+          id: existing?.id || `award-${idx}-${Math.random().toString(36).substring(2, 9)}`,
+          value: obj || { en: '', zh: '', certificate: '' }
+        };
+      });
+    });
+  }, [JSON.stringify(array)]);
+
+  const handleReorder = (newItems: typeof items) => {
+    setItems(newItems);
+    updateField(path, newItems.map(item => item.value));
+  };
+
+  const handleAwardChange = (index: number, field: string, val: string) => {
+    const updated = [...items];
+    updated[index].value = { ...updated[index].value, [field]: val };
+    setItems(updated);
+    updateField(path, updated.map(item => item.value));
+  };
+
+  const handleAdd = () => {
+    updateField(path, [...array, { en: '', zh: '', certificate: '' }]);
+  };
+
+  const handleDelete = (index: number) => {
+    updateField(path, array.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="col-span-full mb-4 p-4 border border-purple-200 dark:border-purple-900/50 rounded-xl bg-purple-50/30 dark:bg-purple-950/20 backdrop-blur-sm">
+      <label className="block text-sm font-bold text-purple-700 dark:text-purple-400 mb-3">{label}</label>
+      
+      {items.length === 0 ? (
+        <p className="text-xs text-slate-400 dark:text-slate-500 italic mb-2">暂无项 / No items</p>
+      ) : (
+        <Reorder.Group axis="y" values={items} onReorder={handleReorder} className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {items.map((item, index) => (
+            <AwardArrayItem
+              key={item.id}
+              item={item}
+              index={index}
+              handleAwardChange={handleAwardChange}
+              handleDelete={handleDelete}
+              availableCerts={availableCerts}
+            />
+          ))}
+        </Reorder.Group>
+      )}
+      
+      <button
+        onClick={handleAdd}
+        className="mt-4 flex items-center gap-1 text-xs text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-bold transition-colors px-3 py-1.5 bg-white dark:bg-slate-900 rounded-lg border border-purple-100 dark:border-purple-900/60 shadow-sm"
+      >
+        <Plus className="w-4 h-4" /> 添加新奖项 / Add Award
+      </button>
+    </div>
+  );
+};
+
+// ==========================================
 // 3. INTERACTIVE MEDIA UPLOAD MANAGER
 // ==========================================
 interface MediaUploadManagerProps {
@@ -1173,9 +1304,14 @@ const Admin: React.FC = () => {
                           <StringArrayManager path={[...path, 'scholarships', 'en']} label="🏅 Scholarships (EN)" formData={formData} updateField={updateField} />
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <StringArrayManager path={[...path, 'awards', 'zh']} label="🏆 竞赛获奖 (ZH)" formData={formData} updateField={updateField} />
-                          <StringArrayManager path={[...path, 'awards', 'en']} label="🏆 Awards & Honors (EN)" formData={formData} updateField={updateField} />
+                        <div className="grid grid-cols-1 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                          <AwardArrayManager 
+                            path={[...path, 'awards']} 
+                            label="🏆 竞赛获奖与证书绑定 / Awards & Certificates" 
+                            formData={formData} 
+                            updateField={updateField} 
+                            availableCerts={item.awardCertificates || []} 
+                          />
                         </div>
 
                         {renderExperienceDirectoryBanner('education', item, path)}

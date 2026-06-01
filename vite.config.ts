@@ -92,17 +92,43 @@ function syncExperienceFolders(data: any) {
           fs.mkdirSync(awardsPath, { recursive: true });
         }
 
-        // Initialize default empty values for portfolio.json if not present
-        if (item.transcriptImage === undefined) {
-          item.transcriptImage = '';
+        // Scan transcript folder
+        let transcripts: string[] = [];
+        if (fs.existsSync(transcriptPath)) {
+          transcripts = fs.readdirSync(transcriptPath).filter(file => {
+            const ext = path.extname(file).toLowerCase();
+            return ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'].includes(ext);
+          });
+        }
+        const expectedTranscript = transcripts[0] || '';
+        if (item.transcriptImage !== expectedTranscript) {
+          item.transcriptImage = expectedTranscript;
           modified = true;
         }
-        if (item.scholarshipCertificates === undefined) {
-          item.scholarshipCertificates = [];
+
+        // Scan scholarships folder
+        let scholarshipCertificates: string[] = [];
+        if (fs.existsSync(scholarshipsPath)) {
+          scholarshipCertificates = fs.readdirSync(scholarshipsPath).filter(file => {
+            const ext = path.extname(file).toLowerCase();
+            return ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'].includes(ext);
+          });
+        }
+        if (!Array.isArray(item.scholarshipCertificates) || JSON.stringify(item.scholarshipCertificates) !== JSON.stringify(scholarshipCertificates)) {
+          item.scholarshipCertificates = scholarshipCertificates;
           modified = true;
         }
-        if (item.awardCertificates === undefined) {
-          item.awardCertificates = [];
+
+        // Scan awards folder
+        let awardCertificates: string[] = [];
+        if (fs.existsSync(awardsPath)) {
+          awardCertificates = fs.readdirSync(awardsPath).filter(file => {
+            const ext = path.extname(file).toLowerCase();
+            return ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'].includes(ext);
+          });
+        }
+        if (!Array.isArray(item.awardCertificates) || JSON.stringify(item.awardCertificates) !== JSON.stringify(awardCertificates)) {
+          item.awardCertificates = awardCertificates;
           modified = true;
         }
       } else {

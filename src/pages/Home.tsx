@@ -1220,8 +1220,10 @@ const Home: React.FC = () => {
                               <span>{lang === 'zh' ? '竞赛获奖 / Awards' : 'Awards & Competitions'}</span>
                             </h4>
                             <ul className="space-y-3">
-                              {detailItem.data.awards[lang].map((a: string, i: number) => {
-                                const cert = detailItem.data.awardCertificates?.[i];
+                              {detailItem.data.awards.map((awardObj: any, i: number) => {
+                                const a = awardObj[lang];
+                                if (!a) return null;
+                                const cert = awardObj.certificate;
                                 return (
                                   <li 
                                     key={i} 
