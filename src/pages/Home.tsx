@@ -1270,8 +1270,8 @@ const Home: React.FC = () => {
                                       } else {
                                         setToast({
                                           message: lang === 'zh' 
-                                            ? `【${a}】暂未关联本地证书文件。请在后台管理系统中指定对应的文件名！`
-                                            : `"${a}" is not linked to a certificate file yet. Please specify it in the admin panel!`,
+                                            ? '该比赛没有纸质奖状'
+                                            : 'This competition does not have a paper certificate',
                                           type: 'info'
                                         });
                                       }
@@ -1290,7 +1290,7 @@ const Home: React.FC = () => {
                                           ? 'text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-950/40 hover:bg-purple-200/70 dark:hover:bg-purple-900/60 border-purple-200/40 dark:border-purple-800/50'
                                           : 'text-slate-500 dark:text-slate-400 bg-slate-100/40 dark:bg-slate-950/20 hover:bg-slate-200/50 dark:hover:bg-slate-900/40 border-slate-200/30 dark:border-slate-800/40 opacity-60 hover:opacity-100'
                                       }`}
-                                      title={cert ? (lang === 'zh' ? '点击查看证书' : 'Click to view certificate') : (lang === 'zh' ? '暂无关联文件' : 'No file linked')}
+                                      title={cert ? (lang === 'zh' ? '点击查看证书' : 'Click to view certificate') : (lang === 'zh' ? '该比赛没有纸质奖状' : 'This competition does not have a paper certificate')}
                                     >
                                       <span>🔍</span>
                                       <span>
