@@ -53,36 +53,43 @@
         "en": "Advanced Math (97), Linear Algebra (95), Probability & Statistics (95), Database (95), Data Structures (92), Machine Learning (97).",
         "zh": "高等数学 (97)、线性代数 (95)、概率统计 (95)、数据库 (95)、数据结构 (92)、机器学习 (97)。"
       },
-      "scholarships": {
-        "en": [
-          "2024-2025: Outstanding Student Scholarship, Innovation Scholarship, Academic Excellence Scholarship, Moral Character Scholarship, and Physical & Aesthetic Education Scholarship.",
-          "2023-2024: Academic Excellence Scholarship, Innovation Scholarship, and Moral Character Scholarship."
-        ],
-        "zh": [
-          "荣获2024-2025学年：优秀学生奖学金，以及创新、学习奖学金、思想品德和体美奖学金。",
-          "荣获2023-2024学年：学习、创新、思想品德奖学金。"
-        ]
-      },
+      "scholarships": [
+        {
+          "en": "2024-2025: Outstanding Student Scholarship, Innovation Scholarship, Academic Excellence Scholarship, Moral Character Scholarship, and Physical & Aesthetic Education Scholarship.",
+          "zh": "荣获2024-2025学年：优秀学生奖学金，以及创新、学习奖学金、思想品德和体美奖学金。",
+          "certificate": "25.png"
+        },
+        {
+          "en": "2023-2024: Academic Excellence Scholarship, Innovation Scholarship, and Moral Character Scholarship.",
+          "zh": "荣获2023-2024学年：学习、创新、思想品德奖学金。",
+          "certificate": "24.png"
+        }
+      ],
       "awards": [
         {
           "en": "MathorCup Mathematical Application Challenge — National Second Prize (2026/04)",
           "zh": "MathorCup数学应用挑战赛 — 全国二等奖（团体）(2026/04)",
-          "certificate": "GC.png"
+          "certificate": ""
         },
         {
           "en": "US Mathematical Contest in Modeling (MCM/ICM) — H Prize (Honorable Mention) (2026/02)",
           "zh": "美国大学生数学建模竞赛（MCM/ICM）— H奖（团体）(2026/02)",
-          "certificate": "GC-G.jpg"
+          "certificate": "26icm.png"
         },
         {
           "en": "National Undergraduate Basic Engineering Training Comprehensive Ability Competition (School Level) — First Prize (2024/10)",
           "zh": "大学生基础工程训练综合能力竞赛校内选拔赛 — 最高等级（团体）(2024/10)",
-          "certificate": "award_mcm.png"
+          "certificate": "GC.png"
         },
         {
           "en": "China Undergraduate Engineering Practice and Innovation Competition, Beijing Division — First Prize (2025/03)",
           "zh": "中国大学生工程实践与创新能力大赛北京市选拔赛 — 最高等级（团体）(2025/03)",
-          "certificate": ""
+          "certificate": "GC-G.jpg"
+        },
+        {
+          "en": "MathorCup Mathematical Application Challenge (North China Region) — Third Prize (2025/04)",
+          "zh": "MathorCup数学应用挑战赛（华北赛区）— 第三等级（团体）(2025/04)",
+          "certificate": "25MMC.png"
         },
         {
           "en": "NCUT Engineering Drawing and 3D Modeling Competition — Third Prize, Individual (2024/10)",
@@ -90,24 +97,19 @@
           "certificate": ""
         },
         {
-          "en": "MathorCup Mathematical Application Challenge (North China Region) — Third Prize (2025/04)",
-          "zh": "MathorCup数学应用挑战赛（华北赛区）— 第三等级（团体）(2025/04)",
-          "certificate": ""
-        },
-        {
           "en": "US Mathematical Contest in Modeling (MCM/ICM) — S Prize (Honorable Mention) (2025/01)",
           "zh": "美国大学生数学建模竞赛（MCM/ICM）— S奖（团体）(2025/01)",
-          "certificate": ""
+          "certificate": "25icm.png"
         },
         {
           "en": "National Undergraduate Market Research and Analysis Competition, Beijing Division — Third Prize (2025/04)",
           "zh": "全国大学生市场调查与分析大赛北京分赛区选拔赛 — 第三等级（团体）(2025/04)",
-          "certificate": ""
+          "certificate": "市场调查.PNG"
         },
         {
           "en": "NCUT Market Research and Analysis Competition — Second Runner-up (2025/03)",
           "zh": "北方工业大学市场调查与分析大赛 — 次高等级（团体）(2025/03)",
-          "certificate": ""
+          "certificate": "市场调查.PNG"
         },
         {
           "en": "Beijing Municipal Undergraduate Mathematics Competition — Third Prize, Individual (2024/11)",

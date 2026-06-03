@@ -1176,32 +1176,68 @@ const Home: React.FC = () => {
                                 <span>奖学金 / Scholarships</span>
                               </h4>
                               <ul className="space-y-3">
-                                {detailItem.data.scholarships[lang].map((s: string, i: number) => {
-                                  const cert = detailItem.data.scholarshipCertificates?.[i];
-                                  return (
-                                    <li 
-                                      key={i} 
-                                      className="flex flex-col gap-2.5 p-3 rounded-xl border border-slate-200/10 dark:border-slate-800/10 bg-white/10 dark:bg-slate-950/10 hover:bg-amber-100/20 dark:hover:bg-amber-950/20 hover:border-amber-200/20 dark:hover:border-amber-800/15 transition-all"
-                                    >
-                                      <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed min-w-0 flex-1">
-                                        <span className="text-amber-500 mt-0.5 shrink-0">•</span>
-                                        <span className="font-semibold text-xs md:text-sm">{s}</span>
-                                      </div>
-                                      {cert && (
-                                        <button 
-                                          onClick={() => {
-                                            const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/scholarships/${cert}`;
-                                            setLightboxImage(src);
-                                          }}
-                                          className="w-fit px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-100/60 dark:bg-amber-950/40 hover:bg-amber-200/70 dark:hover:bg-amber-900/60 border border-amber-200/40 dark:border-amber-800/40 rounded-lg shadow-sm hover:shadow hover:scale-[1.01] transition-all flex items-center gap-1 shrink-0 group/btn"
+                                {(() => {
+                                  const list = detailItem.data.scholarships;
+                                  if (Array.isArray(list)) {
+                                    return list.map((schObj: any, i: number) => {
+                                      const s = schObj[lang];
+                                      if (!s) return null;
+                                      const cert = schObj.certificate;
+                                      return (
+                                        <li 
+                                          key={i} 
+                                          className="flex flex-col gap-2.5 p-3 rounded-xl border border-slate-200/10 dark:border-slate-800/10 bg-white/10 dark:bg-slate-950/10 hover:bg-amber-100/20 dark:hover:bg-amber-950/20 hover:border-amber-200/20 dark:hover:border-amber-800/15 transition-all"
                                         >
-                                          <span className="group-hover/btn:translate-x-0.5 transition-transform">🔍</span>
-                                          <span>{lang === 'zh' ? '点击查看证书' : 'View Cert'}</span>
-                                        </button>
-                                      )}
-                                    </li>
-                                  );
-                                })}
+                                          <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed min-w-0 flex-1">
+                                            <span className="text-amber-500 mt-0.5 shrink-0">•</span>
+                                            <span className="font-semibold text-xs md:text-sm">{s}</span>
+                                          </div>
+                                          {cert && (
+                                            <button 
+                                              onClick={() => {
+                                                const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/scholarships/${cert}`;
+                                                setLightboxImage(src);
+                                              }}
+                                              className="w-fit px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-100/60 dark:bg-amber-950/40 hover:bg-amber-200/70 dark:hover:bg-amber-900/60 border border-amber-200/40 dark:border-amber-800/40 rounded-lg shadow-sm hover:shadow hover:scale-[1.01] transition-all flex items-center gap-1 shrink-0 group/btn"
+                                            >
+                                              <span className="group-hover/btn:translate-x-0.5 transition-transform">🔍</span>
+                                              <span>{lang === 'zh' ? '点击查看证书' : 'View Cert'}</span>
+                                            </button>
+                                          )}
+                                        </li>
+                                      );
+                                    });
+                                  } else if (list && typeof list === 'object') {
+                                    const array = list[lang] || [];
+                                    return array.map((s: string, i: number) => {
+                                      const cert = detailItem.data.scholarshipCertificates?.[i];
+                                      return (
+                                        <li 
+                                          key={i} 
+                                          className="flex flex-col gap-2.5 p-3 rounded-xl border border-slate-200/10 dark:border-slate-800/10 bg-white/10 dark:bg-slate-950/10 hover:bg-amber-100/20 dark:hover:bg-amber-950/20 hover:border-amber-200/20 dark:hover:border-amber-800/15 transition-all"
+                                        >
+                                          <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed min-w-0 flex-1">
+                                            <span className="text-amber-500 mt-0.5 shrink-0">•</span>
+                                            <span className="font-semibold text-xs md:text-sm">{s}</span>
+                                          </div>
+                                          {cert && (
+                                            <button 
+                                              onClick={() => {
+                                                const src = `${import.meta.env.BASE_URL}experiences/education/${detailItem.data.id}/scholarships/${cert}`;
+                                                setLightboxImage(src);
+                                              }}
+                                              className="w-fit px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-100/60 dark:bg-amber-950/40 hover:bg-amber-200/70 dark:hover:bg-amber-900/60 border border-amber-200/40 dark:border-amber-800/40 rounded-lg shadow-sm hover:shadow hover:scale-[1.01] transition-all flex items-center gap-1 shrink-0 group/btn"
+                                            >
+                                              <span className="group-hover/btn:translate-x-0.5 transition-transform">🔍</span>
+                                              <span>{lang === 'zh' ? '点击查看证书' : 'View Cert'}</span>
+                                            </button>
+                                          )}
+                                        </li>
+                                      );
+                                    });
+                                  }
+                                  return null;
+                                })()}
                               </ul>
                             </div>
                           </div>
