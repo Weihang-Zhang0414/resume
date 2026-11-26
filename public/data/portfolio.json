@@ -160,6 +160,67 @@
   ],
   "internships": [
     {
+      "id": "kuaishou-beijing-dajia-internet-information-technology-co-ltd",
+      "company": {
+        "en": "Kuaishou (Beijing Dajia Internet Information Technology Co., Ltd.)",
+        "zh": "快手（北京达佳互联信息技术有限公司）"
+      },
+      "role": {
+        "en": "Recommendation Algorithm Intern - [E-commerce]",
+        "zh": "推荐算法实习生 - [电商]"
+      },
+      "period": "2026.08 - 2026.11",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "keywords": {
+        "en": [
+          "AI Search",
+          "Intent Recognition",
+          "Planning Agent",
+          "NER",
+          "Qwen",
+          "BERT",
+          "GPT-4o",
+          "RAG",
+          "A/B Testing"
+        ],
+        "zh": [
+          "AI搜索",
+          "意图识别",
+          "Planning Agent",
+          "NER",
+          "Qwen",
+          "BERT",
+          "GPT-4o",
+          "RAG",
+          "AB实验"
+        ]
+      },
+      "details": {
+        "en": [
+          "End-to-End Badcase Attribution: Established an evaluation framework on 500 daily inspection queries across intent, rewriting, recall, filtering, and summary, identifying Intent Recognition and Planning as key bottlenecks.",
+          "Intent Recognition & NER Optimization: Addressed missing model entities and aggregation keyword misclassifications by constructing 210K model specs (via NER & Qwen3.8-27B) and cross-annotating 100K samples; executed two-stage training (430M pre-train + 3M fine-tune) and hierarchical intent output.",
+          "Planning Agent Redesign & SFT: Expanded Plan Agent taxonomy to 7 categories with a high-constraint pass-through tag to prevent over-rewriting; trained Qwen3-0.6B SFT on 205K queries, established daily GPT-4o badcase active-learning loops, and decoupled summary generation.",
+          "Offline Performance Gains: Improved intent recognition Precision to 0.8880 (+0.78pp) while maintaining 0.9109 Recall; achieved 71% resolution rate on 14 specialized case suites, resolving aggregation query issues.",
+          "Online A/B Experiment Impact: Delivered +1.619% increase in e-commerce intent queries, +2.616% in product intent queries, +0.422% and +0.600% in live-stream showcase card impressions, and +0.288% in overall e-commerce result impressions."
+        ],
+        "zh": [
+          "全链路 Badcase 归因与问题定位：基于每日巡检 500 条真实 Query 设计统一评估口径，建立覆盖“意图识别 → 改写 → 召回 → 过滤 → 总结 → 转化”的全链路归因方法，锁定意图识别与 Planning 为核心瓶颈。",
+          "意图识别与 NER 模型调优：针对型号词漏识与聚合词误判，利用 NER 挖掘与 Qwen3.8-27B 校验构建 21 万型号数据，人工精标 10 万样本（三方交叉验证），修正 37 万聚合词标签；采用两阶段训练（4.3亿预训练+300万精调），并将输出扩展为多层结构。",
+          "Planning Agent 分类与链路重构：将 Plan Agent 扩展为 7 类并新增高约束标签，使高约束多维 Query 直通召回避免过度改写；清洗重标 20.5 万条数据完成 Qwen3-0.6B SFT；结合 GPT-4o 难样本回流与自动化 Badcase 流程，重构 Summary 分步生成。",
+          "离线效果显著突破：意图识别 Precision 提升至 0.8880（+0.78pp），Recall 保持 0.9109；14 条专项 Badcase 解决率达 71%，彻底攻克“xx大全”等聚合词识别难题。",
+          "线上 AB 实验业务增益：两轮迭代推动电商意图搜索次数提升 +1.619%，商品意图搜索次数 +2.616%，商播大卡电商/商品意图曝光分别提升 +0.422% 和 +0.600%，电商结果曝光提升 +0.288%。"
+        ]
+      },
+      "photos": [],
+      "certificates": [
+        "快手实习证明.jpg"
+      ],
+      "hasMarkdown": true
+    },
+    {
       "id": "beijing-ascend-artificial-intelligence-technology-co-ltd",
       "company": {
         "en": "Beijing Ascend Artificial Intelligence Technology Co., Ltd.",
@@ -1203,6 +1264,7 @@
       "photos": [
         "1bc91fed26982ed4bdcd113f5319f918.jpg",
         "532632dfc6fdb39a71d30375654fa9c5.jpg",
+        "5dcc50da9851d799a678e6e13ef403f4 - 副本.jpg",
         "5dcc50da9851d799a678e6e13ef403f4.jpg",
         "c13975612a75c32f9f7e76f9f462a3c9.jpg"
       ],
